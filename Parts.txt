@@ -2,8 +2,10 @@ Parts
 
 Controller
 ===================================================
-PIC16F18344-I/SO	Microcontroller	20SOIC
-THVD1552DR		RS485 Transciever 14SOIC
+PIC16F15345-I/SO	Microcontroller	20SOIC
+THVD1550DR		RS485 Transciever 8SOIC
+
+TB001-500-08BE		Terminal Block 8-pos 5mm pitch
 
 Signal Head
 ===================================================
