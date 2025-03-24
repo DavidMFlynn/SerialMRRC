@@ -191,8 +191,7 @@
         0.6,
         1.0,
         1.5,
-        2.0,
-        3.0
+        2.0
       ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
@@ -226,7 +225,7 @@
           "drill": 0.0
         },
         {
-          "diameter": 0.8,
+          "diameter": 1.0,
           "drill": 0.5
         }
       ],
@@ -472,7 +471,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "SMRRC.kicad_pro",
+    "filename": "Lights.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -632,7 +631,7 @@
   },
   "sheets": [
     [
-      "256d9eaf-63b3-4e0d-9ae8-9d6979ba55b0",
+      "f03bad2b-0691-444d-89b5-a771fc29451c",
       "Root"
     ]
   ],

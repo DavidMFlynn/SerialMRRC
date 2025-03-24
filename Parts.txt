@@ -5,7 +5,14 @@ Controller
 PIC16F15345-I/SO	Microcontroller	20SOIC
 THVD1550DR		RS485 Transciever 8SOIC
 
+MCP2200T-I/SOCT-ND	USB to Serial 20-SOIC
+X1037-ND	ECS-120-20-4X 12MHz
+ED2982-ND	USB-B1HSW6 USB B
+
 TB001-500-08BE		Terminal Block 8-pos 5mm pitch
+ED2739-ND	OSTTE160104	Terminal Block 16-pos 3.5mm pitch
+
+2449-J114AF2CS12VDC.53-ND  J114AF2CS12VDC.53 12VDC DPDT Relay
 
 Signal Head
 ===================================================
