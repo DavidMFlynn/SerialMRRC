@@ -1,0 +1,1189 @@
+SMRRC.asm                                                             Page: 1
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
+00001 0000 	;=========================================================================================
+00002 0000 	;
+00003 0000 	;   Filename:	SMRRC.asm
+00004 0000 	;   Created:	4/1/2025
+00005 0000 	;   File Revision:	0.9a   4/1/2025
+00006 0000 	;   Project:	Serial Model Railroad Control
+00007 0000 	;   Author:	David M. Flynn
+00008 0000 	;   Company:	DMF-Enterprises
+00009 0000 	;   E-Mail:	dflynn@oxfordvue.com
+00010 0000 	;
+00011 0000 	;=========================================================================================
+00012 0000 	;   Serial Model Railroad Control:
+00013 0000 	;
+00014 0000 	;
+00015 0000 	;    History:
+00016 0000 	; 0.9a   4/1/2025	Copied from BLDC_Servo, Blink an LED
+00017 0000 	;
+00018 0000 	;=========================================================================================
+00019 0000 	; Options:
+00020 0000 	;
+00021 0000 	;=========================================================================================
+00022 0000 	;=========================================================================================
+00023 0000 	; What happens next:
+00024 0000 	;   At power up the system LED will blink.
+00025 0000 	;
+00026 0000 	;=========================================================================================
+00027 0000 	; uController pinout (PIC16F18854):
+00028 0000 	;
+00029 0000 	; Pin 1  (Vdd)		+5 Volts
+00030 0000 	; Pin 2  (RA5)		LED2 (Active Low Input/Output)(LED2/Button2)
+00031 0000 	; Pin 3  (RA4)		LED1 (Active Low Input/Output)(LED1/Button1)
+00032 0000 	; Pin 4  (RA3/MCLR*)		VPP/MCLR*
+00033 0000 	; Pin 5  (RC5)		I/O
+00034 0000 	; Pin 6  (RC4)		I/O
+00035 0000 	; Pin 7  (RC3)		I/O
+00036 0000 	; Pin 8  (RC6)		I/O
+00037 0000 	; Pin 9  (RC7)		I/O
+00038 0000 	; Pin 10 (RB7/TX1)		RS-485 Driver
+00039 0000 	; Pin 11 (RB6)		RS-485 Driver Enable (Active High Output)
+00040 0000 	; Pin 12 (RB5)		RS-485 Receiver
+00041 0000 	; Pin 13 (RB4)		RS-485 Receiver Enable (Active Low Output)
+00042 0000 	; Pin 14 (RC2)		I/O
+00043 0000 	; Pin 15 (RC1)		RX2 or I/O
+00044 0000 	; Pin 16 (RC0)		TX2 or I/O
+00045 0000 	; Pin 17 (RA2)		SYSLED (Active Low Output)(System LED)
+00046 0000 	; Pin 18 (RRA/ICSPCLK)		ICSPCLK
+00047 0000 	; Pin 19 (RA0/ICSPDAT)		ICSPDAT
+00048 0000 	; Pin 20 (Vss)		Ground
+00049 0000 	;
+00050 0000 	;=========================================================================================
+00051 0000 	;
+00052 0000 		list	p=16F15345,r=hex,W=1	; list directive to define processor
+00055 0000 		nolist
+00056 0000 	;
+00057 8007 1F8C 		__CONFIG _CONFIG1, b'0001111110001100'
+00058 0000 	; FCMEM=0, RSTOSC=000 (32MHz), FEXTOSC=100
+00059 0000 	;
+00060 8008 3FFE 		__CONFIG _CONFIG2, b'0011111111111110'
+00061 0000 	; MCLRE=0
+00062 0000 	;
+00063 8009 3FFF 		__CONFIG _CONFIG3, b'0011111111111111'
+00064 0000 	;
+00065 0000 	;
+00066 800A 1FEF 		__CONFIG _CONFIG4, b'0001111111101111'
+00067 0000 	; LVP=0, SAFEN=0
+00068 0000 	;
+00069 800B 3FFF 		__CONFIG _CONFIG5, b'0011111111111111'
+00070 0000 	;
+00071 0000 	;=========================================================================================
+00072 0000 	;
+00073 0000 		constant	oldCode=0
+00074 0000 		constant	useRS232=0
+00075 0000 		constant	useBootloader=0
+00076 0000 		constant	UseEEParams=0
+00077 0000 		constant	UseQEnc=0
+00078 0000 		constant	UsePID=0
+00079 0000 		constant	UseAuxLEDBlinking=0
+00080 0000 		constant	UseAnalogInputs=0
+00081 0000 	;
+00082 0000 		constant	RP_LongAddr=0
+00083 0000 		constant	RP_AddressBytes=1
+00084 0000 		constant	RP_DataBytes=4
+00085 0000 		constant	UseRS232SyncBytes=1
+00086 0000 00DD 	kRS232SyncByteValue	EQU	0xDD
+00087 0000 		constant	UseRS232Chksum=1
+00088 0000 	;
+00089 0000 0001 	kRS232_MasterAddr	EQU	0x01	;Master's Address
+00090 0000 0002 	kRS232_SlaveAddr	EQU	0x02	;This Slave's Address
+00091 0000 0000 	kAux0Config	EQU	0x00
+00092 0000 0000 	kAux1Config	EQU	0x00
+00093 0000 0000 	kSysMode	EQU	.0	;Default Mode
+00094 0000 	;
+00095 0000 0003 	#Define	_C	STATUS,C
+00096 0000 0003 	#Define	_Z	STATUS,Z
+00097 0000 	;
+00098 0000 	;====================================================================================================
+00101 0000 		nolist
+00102 0000 	;
+00103 0000 	;    Port A bits
+SMRRC.asm                                                             Page: 2
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
+00104 0000 00FF 	PortA_Tris_Bits	EQU	b'11111111'	;All inputs
+00105 0000 0000 	PortA_Init_Value	EQU	b'00000000'
+00106 0000 0000 	PortA_ANSel_Value	EQU	b'00000000'	;All digital
+00107 0000 	;
+00108 0000 0002 	SysLED_Bit	EQU	2	;LED1 (Active Low Output)
+00109 0000 000C 	SysLEDPort	EQU	PORTA
+00110 0000 000C 	#Define	SW1_In	PORTA,SysLED_Bit
+00111 0000 0018 	#Define	SysLEDLat	LATA,SysLED_Bit
+00112 0000 0012 	#Define	SysLEDTris	TRISA,SysLED_Bit
+00113 0000 	;
+00114 0000 0012 	#Define	Aux0_LED1_TRIS	TRISA,4
+00115 0000 0018 	#Define	Aux0_LED1_LAT	LATA,4
+00116 0000 000C 	#Define	Aux0_SW1_PORT	PORTA,4
+00117 0000 0012 	#Define	Aux1_LED2_TRIS	TRISA,5
+00118 0000 0018 	#Define	Aux1_LED2_LAT	LATA,5
+00119 0000 000C 	#Define	Aux1_SW2_PORT	PORTA,5
+00120 0000 	;
+00121 0000 	;    Port B bits
+00122 0000 00AF 	PortB_Tris_Bits	EQU	b'10101111'	;RS-485, TX/RX are controlled by serial	
+00123 0000 0000 	PortB_Init_Value	EQU	b'00000000'
+00124 0000 0000 	PortB_ANSel_Value	EQU	b'00000000'	;All digital
+00125 0000 	;
+00126 0000 0019 	#Define	RS485nRE	LATB,4
+00127 0000 0019 	#Define	RS485DE	LATB,6
+00128 0000 	;
+00129 0000 	;    Port C bits
+00130 0000 00FF 	PortC_Tris_Bits	EQU	b'11111111'	;RC0=TX2, RC1=RX2
+00131 0000 0000 	PortC_Init_Value	EQU	b'00000000'
+00132 0000 0000 	PortC_ANSel_Value	EQU	b'00000000'	;All digital
+00133 0000 	;
+00134 0000 000E 	#Define	RC0In	PORTC,0	;I/O or TTL Serial TX
+00135 0000 000E 	#Define	RC1In	PORTC,1	;I/O or TTL Serial RX
+00136 0000 	;
+00137 0000 	;
+00138 0000 	;========================================================================================
+00139 0000 	;========================================================================================
+00140 0000 	;
+00141 0000 	;Constants
+00142 0000 00FF 	All_In	EQU	0xFF
+00143 0000 0000 	All_Out	EQU	0x00
+00144 0000 	;
+00145 0000 00E9 	T2CON_Value	EQU	b'11101001'	;T2 On, /64 pre, /10 post
+00146 0000 007D 	PR2_Value	EQU	.125	; 100/Sec
+00147 0000 	;
+00148 0000 0064 	LEDTIME	EQU	d'100'	;1.00 seconds
+00149 0000 000A 	LEDErrorTime	EQU	d'10'
+00150 0000 0014 	LEDFastTime	EQU	d'20'
+00151 0000 	;
+00152 0000 	;2MHz timebase for R/C servos
+00153 0000 0021 	T1CON_Val	EQU	b'00100001'	;Fosc=32MHz, PreScale=4,Fosc/4,Timer ON
+00154 0000 	;
+00155 0000 0024 	TXSTA_Value	EQU	b'00100100'	;8 bit, TX enabled, Async, high speed
+00156 0000 0090 	RCSTA_Value	EQU	b'10010000'	;RX enabled, 8 bit, Continious receive
+00157 0000 0008 	BAUDCON_Value	EQU	b'00001000'	;BRG16=1
+00158 0000 	; 32MHz clock low speed (BRGH=1,BRG16=1)
+00159 0000 682A 	Baud_300	EQU	.26666	;300, 0.00%
+00160 0000 1A0A 	Baud_1200	EQU	.6666	;1200, 0.00%
+00161 0000 0D04 	Baud_2400	EQU	.3332	;2400, +0.01%
+00162 0000 0340 	Baud_9600	EQU	.832	;9604, +0.04%
+00163 0000 01A0 	Baud_19200	EQU	.416	;19.18k, -0.08%
+00164 0000 00CF 	Baud_38400	EQU	.207	;38.46k, +0.16%
+00165 0000 008A 	Baud_57600	EQU	.138	;57.55k, -0.08%
+00166 0000 00CF 	BaudRate	EQU	Baud_38400
+00167 0000 	;
+00168 0000 0000 	kSysFlags	EQU	.0
+00169 0000 	;
+00170 0000 000A 	DebounceTime	EQU	.10
+00171 0000 	;
+00172 0000 	; ssAuxNConfig bits
+00173 0000 	;------------------------
+00174 0000 	; AuxIO modes, Mode is bits 0..2
+00175 0000 0000 	kAuxIOnone	EQU	0x00
+00176 0000 0001 	kAuxIOLEDBtn	EQU	0x01
+00177 0000 0002 	kAuxIODigitalIn	EQU	0x02
+00178 0000 0003 	kAuxIODigitalOut	EQU	0x03
+00179 0000 0004 	kAuxIOAnalogIn	EQU	0x04
+00180 0000 0005 	kAuxIOHomeSw	EQU	0x05
+00181 0000 0006 	kAuxIOFwdLimit	EQU	0x06
+00182 0000 0007 	kAuxIORevLimit	EQU	0x07
+00183 0000 	;
+00184 0000 0003 	AuxConfigSwInvert	EQU	0x03
+00185 0000 	;
+00186 0000 	;
+00187 0000 	;================================================================================================
+00188 0000 	;***** VARIABLE DEFINITIONS
+00189 0000 	; there are1024 bytes of ram, Bank0 0x20..0x7F, Bank1 0xA0..0xEF, Bank2 0x120..0x16F,
+00190 0000 	;  Bank3 0x1A0..0x1EF, Bank4 0x220..0x26F, Bank5 0x2A0..0x2EF, Bank6 0x320..0x36F, 
+00191 0000 	;  Bank7 0x3A0..0x3EF, Bank8 0x420..0x46F, Bank9 0x4A0..0x4EF, Bank10 0x520..0x56F, 
+00192 0000 	;  Bank11 0x5A0..0x5EF, Bank12 0x620..0x64F
+00193 0000 	; there are 128 bytes of Storage Area Flash starting at 0x1F80 to 0x1FFF
+00194 0000 	;================================================================================================
+00195 0000 	;  Bank0 Ram 020h-06Fh 80 Bytes
+00196 0000 	;
+00197 0000 		cblock	0x20
+00198 0000 	;
+00199 0000 0020 		SysLED_Time		;sys LED time
+00200 0000 0021 		SysLED_Blinks		;0=1 flash,1,2,3
+00201 0000 0022 		SysLED_BlinkCount
+00202 0000 0023 		SysLEDCount		;sys LED Timer tick count
+SMRRC.asm                                                             Page: 3
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
+00203 0000 		if UseAuxLEDBlinking
+00211 0000 		endif
+00212 0000 	;
+00213 0000 0024 		SysFlags1
+00214 0000 0025 		SysFlags2
+00215 0000 	;
+00216 0000 0026 		EEAddrTemp		;SAF address to read or write
+00217 0000 0027 		EEDataTemp		;Data to be writen to SAF
+00218 0000 	;
+00219 0000 0028 		Timer1Lo		;1st 16 bit timer
+00220 0000 0029 		Timer1Hi		; 50 mS RX timeiout
+00221 0000 002A 		Timer2Lo		;2nd 16 bit timer
+00222 0000 002B 		Timer2Hi		;
+00223 0000 002C 		Timer3Lo		;3rd 16 bit timer
+00224 0000 002D 		Timer3Hi		;GP wait timer
+00225 0000 002E 		Timer4Lo		;4th 16 bit timer
+00226 0000 002F 		Timer4Hi		; debounce timer
+00227 0000 	;
+00228 0000 	; RS-232
+00229 0000 0030 		TXByte		;Next byte to send
+00230 0000 0031 		RXByte		;Last byte received
+00231 0000 0032 		SerFlags
+00232 0000 	;
+00233 0000 	;-----------------------
+00234 0000 	;Below here are saved in SAF
+00235 0000 0033 		SysMode
+00236 0000 0034 		RS232_MasterAddr
+00237 0000 0035 		RS232_SlaveAddr
+00238 0000 				; default 1.0 = 100 counts / sec^2
+00239 0000 0036 		ssAux0Config		;kAuxIO0
+00240 0000 0037 		ssAux1Config		;kAuxIO1
+00241 0000 0038 		SysFlags		
+00242 0000 	;
+00243 0000 		endc
+00244 0000 	;--------------------------------------------------------------
+00245 0000 	;---SysFlags1 bits---
+00246 0000 0024 	#Define	Aux0_SW1_Active	SysFlags1,2
+00247 0000 0024 	#Define	Aux0_SW1_Debounce	SysFlags1,3
+00248 0000 0024 	#Define	Aux0_LED1_Active	SysFlags1,4
+00249 0000 0024 	#Define	Aux1_SW2_Active	SysFlags1,5
+00250 0000 0024 	#Define	Aux1_SW2_Debounce	SysFlags1,6
+00251 0000 0024 	#Define	Aux1_LED2_Active	SysFlags1,7
+00252 0000 	;
+00253 0000 	;
+00254 0000 	;---SerFlags bits---
+00255 0000 0032 	#Define	DataReceivedFlag	SerFlags,1
+00256 0000 0032 	#Define	DataSentFlag	SerFlags,2
+00257 0000 	;
+00258 0000 	;
+00259 0000 	;---------------
+00260 0000 0033 	#Define	FirstRAMParam	SysMode
+00261 0000 0038 	#Define	LastRAMParam	SysFlags
+00262 0000 	;
+00263 0000 	;
+00264 0000 	;=========================================================================================
+00265 0000 	;  Bank1 Ram 0A0h-0EFh 80 Bytes, RS-232 Packet Serial
+00266 0000 		cblock	0x0A0
+00267 0000 00A0 		RX_ParseFlags
+00268 0000 00A1 		RX_Flags
+00269 0000 00A2 		RX_DataCount
+00270 0000 00A3 		RX_CSUM
+00271 0000 00A4 		RX_SrcAdd:RP_AddressBytes
+00272 0000 00A5 		RX_DstAdd:RP_AddressBytes
+00273 0000 00A6 		RX_TempData:RP_DataBytes
+00274 0000 00AA 		RX_Data:RP_DataBytes
+00275 0000 00AE 		TX_Data:RP_DataBytes
+00276 0000 	;
+00277 0000 00B2 		ANFlags		;New Data flags
+00278 0000 00B3 		ANxActive		;Skip if 0
+00279 0000 00B4 		ANCount		;Current AN being serviced
+00280 0000 00B5 		Cur_AN0:2		;Motor_I
+00281 0000 00B7 		Cur_AN1:2		;Motor_V, 7815 output volts
+00282 0000 00B9 		Cur_AN2:2		;Batt_V, J1.1 +12V
+00283 0000 00BB 		Cur_AN3:2		;For_Limit, SW2_LED2
+00284 0000 00BD 		Cur_AN4:2		;Rev_Limit, SW3_LED3
+00285 0000 00BF 		Cur_AN5:2		;Home, SW4_LED4
+00286 0000 	;
+00287 0000 		endc
+00288 0000 	;
+00289 0000 0005 	LastAN	EQU	.5	;Sevice 3 AN inputs
+00290 0000 00B5 	FirstANData	EQU	Cur_AN0
+00291 0000 	;
+00292 0000 00B5 	AN_MotorCurrent	EQU	Cur_AN0
+00293 0000 00B7 	AN_MotorVolts	EQU	Cur_AN1
+00294 0000 00B9 	AN_BattVolts	EQU	Cur_AN2
+00295 0000 00BB 	AN_Aux0	EQU	Cur_AN3
+00296 0000 00BD 	AN_Aux1	EQU	Cur_AN4
+00297 0000 00BF 	AN_Aux2	EQU	Cur_AN5
+00298 0000 	;
+00299 0000 	;---ANFlags bits---
+00300 0000 00B2 	#Define	NewDataAN0	ANFlags,0
+00301 0000 00B2 	#Define	NewMotorCurrentData	ANFlags,0
+00302 0000 00B2 	#Define	NewDataAN1	ANFlags,1
+00303 0000 00B2 	#Define	NewDataAN2	ANFlags,2
+00304 0000 00B2 	#Define	NewDataAN3	ANFlags,3
+00305 0000 00B2 	#Define	NewDataAN4	ANFlags,4
+00306 0000 00B2 	#Define	NewDataAN5	ANFlags,5
+00307 0000 	;
+00308 0000 	;---ANxActive bits---
+SMRRC.asm                                                             Page: 4
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
+00309 0000 00B3 	#Define	AN0_ActiveBit	ANxActive,0
+00310 0000 00B3 	#Define	AN1_ActiveBit	ANxActive,1
+00311 0000 00B3 	#Define	AN2_ActiveBit	ANxActive,2
+00312 0000 00B3 	#Define	AN3_ActiveBit	ANxActive,3
+00313 0000 00B3 	#Define	AN4_ActiveBit	ANxActive,4
+00314 0000 00B3 	#Define	AN5_ActiveBit	ANxActive,5
+00315 0000 00B3 	#Define	AN_Aux0_ActiveBit	ANxActive,3	;Names used by Serial Comms
+00316 0000 00B3 	#Define	AN_Aux1_ActiveBit	ANxActive,4
+00317 0000 00B3 	#Define	AN_Aux2_ActiveBit	ANxActive,5
+00318 0000 	;
+00319 0000 0000 	AN0_Val	EQU	0x00	;ANA0
+00320 0000 0001 	AN1_Val	EQU	0x01	;ANA1
+00321 0000 0002 	AN2_Val	EQU	0x02	;ANA2
+00322 0000 0003 	AN3_Val	EQU	0x03	;ANA3, For_Limit
+00323 0000 0015 	AN4_Val	EQU	b'00010101'	;ANC5, Rev_Linit
+00324 0000 0010 	AN5_Val	EQU	b'00010000'	;ANC0, Home
+00325 0000 	;
+00326 0000 	;================================================================================================
+00327 0000 	;  Bank2 Ram 120h-16Fh 80 Bytes
+00328 0000 	;
+00329 0000 0002 	#Define	Ser_Buff_Bank	2
+00330 0000 	;
+00331 0000 		cblock	0x120
+00332 0000 0120 		Ser_In_Bytes		;Bytes in Ser_In_Buff
+00333 0000 0121 		Ser_Out_Bytes		;Bytes in Ser_Out_Buff
+00334 0000 0122 		Ser_In_InPtr
+00335 0000 0123 		Ser_In_OutPtr
+00336 0000 0124 		Ser_Out_InPtr
+00337 0000 0125 		Ser_Out_OutPtr
+00338 0000 0126 		Ser_In_Buff:20
+00339 0000 0146 		Ser_Out_Buff:20
+00340 0000 		endc
+00341 0000 	;
+00342 0000 	;================================================================================================
+00343 0000 	;  Bank3 Ram 1A0h-1EFh 80 Bytes
+00344 0000 01A0 	MathAddress	EQU	0x1A0
+00345 0000 	;	include	MathEQUs.inc
+00346 0000 	;=========================================================================================
+00347 0000 	;  Bank4 Ram 220h-26Fh 80 Bytes
+00348 0000 	;=========================================================================================
+00349 0000 	;  Bank5 Ram 2A0h-2EFh 80 Bytes
+00350 0000 	;
+00351 0000 	;	include	Q_EncoderH.inc
+00352 0000 	;
+00353 0000 	;=========================================================================================
+00354 0000 	;  Bank6 Ram 320h-32Fh 16 Bytes, 512 bytes total ram
+00355 0000 	;================================================================================================
+00356 0000 	;  Bank7 No Ram beyond bank 6
+00357 0000 	;=======================================================================================================
+00358 0000 	;  Common Ram 70-7F same for all banks 0..23, 56..63
+00359 0000 	;      except for ISR_W_Temp these are used for paramiter passing and temp vars
+00360 0000 	;=======================================================================================================
+00361 0000 	;
+00362 0000 		cblock	0x70
+00363 0000 0070 		Param70
+00364 0000 0071 		Param71
+00365 0000 0072 		Param72
+00366 0000 0073 		Param73
+00367 0000 0074 		Param74
+00368 0000 0075 		Param75
+00369 0000 0076 		Param76
+00370 0000 0077 		Param77
+00371 0000 0078 		Param78
+00372 0000 0079 		Param79
+00373 0000 007A 		Param7A
+00374 0000 007B 		Param7B
+00375 0000 007C 		Param7C
+00376 0000 007D 		Param7D
+00377 0000 007E 		Param7E
+00378 0000 007F 		Param7F
+00379 0000 		endc
+00380 0000 	;
+00381 0000 	;=========================================================================================
+00382 0000 	;Conditions
+00383 0000 0080 	HasISR	EQU	0x80	;used to enable interupts 0x80=true 0x00=false
+00384 0000 	;
+00385 0000 	;=========================================================================================
+00386 0000 	;==============================================================================================
+00387 0000 	; ID Locations
+00388 0000 		__idlocs _IDLOC0, 0x10d1
+00389 0000 	;
+00390 0000 		if UseEEParams
+00408 0000 		endif
+00409 0000 	; SAF Addresses
+00410 0000 1F80 	SAFStart	equ	0x1F80
+00411 0000 		cblock	0x0000
+00412 0000 	;
+00413 0000 0000 		nvSysMode
+00414 0000 0001 		nvRS232_MasterAddr
+00415 0000 0002 		nvRS232_SlaveAddr
+00416 0000 	;
+00417 0000 0003 		nvssAux0Config
+00418 0000 0004 		nvssAux1Config
+00419 0000 0005 		nvSysFlags
+00420 0000 	;
+00421 0000 		endc
+00422 0000 	;
+00423 0000 0000 	#Define	nvFirstParamByte	nvSysMode
+00424 0000 0005 	#Define	nvLastParamByte	nvSysFlags
+SMRRC.asm                                                             Page: 5
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
+00425 0000 	;
+00426 0000 	;
+00427 0000 	;============================================================================================
+00428 0000 	; ******************* Reset Vector *****************************
+00429 0000 	;============================================================================================
+00430 0000 	;
+00431 0000 		ORG	0x000	; processor reset vector
+00432 0000 	;
+00433 0000 		if useBootloader
+00438 0000 		endif
+00439 0000 	;
+00440 0000 018A 	ProgStartVector	CLRF	PCLATH
+00441 0001 2874 	  	goto	start	; go to beginning of program
+00442 0002 	;
+00443 0002 	;===============================================================================================
+00444 0002 	;===============================================================================================
+00445 0002 	; Interupt Service Routine
+00446 0002 	;
+00447 0002 	; we loop through the interupt service routing every 0.008192 seconds
+00448 0002 	;
+00449 0002 	;
+00450 0002 		ORG	0x004	; interrupt vector location
+00451 0004 018A 		CLRF	PCLATH
+00452 0005 	;
+00453 0005 	;
+00454 0005 	;=============================
+00455 0005 		if UseQEnc
+00457 0005 		endif
+00458 0005 		
+00459 0005 0020 		movlb	0	; bank 0
+00460 0006 1212 		bcf	Aux0_LED1_TRIS
+00461 0007 	;=============================
+00462 0007 	; Timer 2 is 100/s
+00463 0007 	;
+00464 0007 002E 		movlb	PIR4	; bank14
+00465 0008 1C90 		btfss	PIR4,TMR2IF
+00466 0009 281A 		goto	SystemTick_end
+00467 000A 1090 		bcf	PIR4,TMR2IF
+00468 000B 0020 		movlb	0	; bank 0
+00469 000C 	;------------------
+00470 000C 	; These routines run 100 times per second
+00471 000C 	;
+00472 000C 	;
+00473 000C 	;------------------
+00474 000C 	;Decrement timers until they are zero
+00475 000C 	;
+00476 000C 204B 		call	DecTimer1	;if timer 1 is not zero decrement
+00477 000D 2049 		call	DecTimer2
+00478 000E 2047 		call	DecTimer3
+00479 000F 2045 		call	DecTimer4
+00480 0010 	;	
+00481 0010 1512 		bsf	SysLEDTris	;LED off
+00482 0011 	;
+00483 0011 	;
+00484 0011 	;--------------------
+00485 0011 	; Sys LED time
+00486 0011 0BA3 		DECFSZ	SysLEDCount,F	;Is it time?
+00487 0012 3207 		bra	SystemBlink_end	; No, not yet
+00488 0013 	;
+00489 0013 	;
+00490 0013 08A1 		movf	SysLED_Blinks,F
+00491 0014 		SKPNZ		;Standard Blinking?
+00491 0014 1903      M		BTFSC	STATUS,Z		BTFSC	STATUS,Z
+00492 0015 3200 		bra	SystemBlink_Std	; Yes
+00493 0016 	;
+00494 0016 	; custom blinking
+00495 0016 	;
+00496 0016 01A2 	SystemBlink_Std	CLRF	SysLED_BlinkCount
+00497 0017 0820 		MOVF	SysLED_Time,W
+00498 0018 00A3 	SystemBlink_DoIt	MOVWF	SysLEDCount
+00499 0019 1112 		bcf	SysLEDTris	;LED ON
+00500 001A 	;
+00501 001A 	SystemBlink_end:
+00502 001A 	;	
+00503 001A 	;	call	HandleAuxIO
+00504 001A 	;
+00505 001A 	SystemTick_end:
+00506 001A 	;
+00507 001A 		if useRS232
+00517 001A 		endif
+00518 001A 	;-----------------------------------------------------------------------------------------
+00519 001A 0009 		retfie
+00520 001B 	;
+00521 001B 	;=========================================================================================
+00522 001B 	;*****************************************************************************************
+00523 001B 	;=========================================================================================
+00524 001B 	;
+00525 001B 		include	F15345_Common.inc
+00001 001B 	;=========================================================================================
+00002 001B 	; Commonly used routines PIC16F18854 version
+00003 001B 	;
+00004 001B 	;    Filename:      F18854_Common.inc
+00005 001B 	;    Date:          3/26/2020
+00006 001B 	;    File Version:  1.0.4
+00007 001B 	;
+00008 001B 	;    Author:        David M. Flynn
+00009 001B 	;    Company:       Oxford V.U.E., Inc.
+00010 001B 	;    E-Mail:        dflynn@oxfordvue.com
+00011 001B 	;    Web Site:      http://www.oxfordvue.com/
+SMRRC.asm                                                             Page: 6
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
+00012 001B 	;
+00013 001B 	;=========================================================================================
+00014 001B 	;    History:
+00015 001B 	;
+00016 001B 	; 1.0.4  3/26/2020     Working with 16F18854
+00017 001B 	; 1.0.3  2/23/2020     Copied from F1847_Common and modified.
+00018 001B 	; 1.0.2  4/6/2019	Fixes to EERead/EEwrite
+00019 001B 	; 1.0.2 2/16/2019	Fix: added FSR0H to DecTimer.
+00020 001B 	; 1.0.1 11/21/2015	Updates DecTimer.
+00021 001B 	; 1.0   11/16/2013	Updated from F648A Common.inc
+00022 001B 	;
+00023 001B 	;=========================================================================================
+00024 001B 	; Routines:
+00025 001B 	;
+00026 001B 	; ClearRam	(2+0) Clears all RAM, call once before initializing variables, FSR0
+00027 001B 	; CopyToRam	(1+0) copy param memory (EEPROM) to ram, call once, FSR0
+00028 001B 	; SaveParams	(1+0) copy ram to param memory (EEPROM), FSR0
+00029 001B 	;
+00030 001B 	;  Set FSR0H before calling these routines
+00031 001B 	; DecTimer4	(0+0) Decrement routine for 16 bit timers, FSR0
+00032 001B 	; DecTimer3
+00033 001B 	; DecTimer2
+00034 001B 	; DecTimer1
+00035 001B 	; DecTimer	(0+0) High byte of counter address in W
+00036 001B 	;
+00037 001B 	; TestT4_Zero	Test for 16 bit timers = zero
+00038 001B 	; TestT3_Zero	If Timer is zero return Z flag,1 else Z=0
+00039 001B 	; TestT2_Zero
+00040 001B 	; TestT1_Zero
+00041 001B 	;
+00042 001B 	; Delay10uS	(0+0)Delay uS    1 cycle = 1uS, 8Mhz clock version
+00043 001B 	; Delay100uS
+00044 001B 	; Delay40uS
+00045 001B 	; DelayWuS
+00046 001B 	;
+00047 001B 	; EEReadW	(0+0) Read EEPROM address in W
+00048 001B 	; EERead	(0+0) Read EEPROM address in EEAddrTemp
+00049 001B 	; EEWriteW	(0+0) Write EEPROM address in W, Data in EEDataTemp
+00050 001B 	; EEWrite	(0+0) Write EEPROM address in EEAdrTemp, Data in EEDataTemp, FSR0
+00051 001B 	;
+00052 001B 	;=========================================================================================
+00053 001B 		ifndef UseEEParams
+00055 001B 		endif
+00056 001B 	;=========================================================================================
+00057 001B 	; Clears all RAM
+00058 001B 	; Entry: none
+00059 001B 	; Exit: none
+00060 001B 	; RAM used: All
+00061 001B 	; Calls:(2+0) ClearRam_L2
+00062 001B 	;
+00063 001B 	; Banks 0..11 80 bytes, Bank 12 48 bytes
+00064 001B 	;
+00065 001B 0020 	ClearRam	MOVLB	0x00                   ;bank 0
+00066 001C 305F 		MOVLW	0x5F	;Clear 20h-7Eh, 95 bytes
+00067 001D 00FF 		MOVWF	Param7F
+00068 001E 3020 		MOVLW	0x20
+00069 001F 0084 		MOVWF	FSR0L
+00070 0020 0185 		CLRF	FSR0H
+00071 0021 2040 		CALL	ClearRam_L2
+00072 0022 	;
+00073 0022 3050 		MOVLW	0x50	;Clear Bank 1 A0h-EFh, 80 bytes
+00074 0023 00FF 		MOVWF	Param7F
+00075 0024 30A0 		MOVLW	0xA0
+00076 0025 0084 		MOVWF	FSR0L
+00077 0026 2040 		CALL	ClearRam_L2
+00078 0027 	;
+00079 0027 0A85 		INCF	FSR0H,F	
+00080 0028 2037 		CALL	ClearRam_2	;Banks 2,3
+00081 0029 0A85 		INCF	FSR0H,F	
+00082 002A 2037 		CALL	ClearRam_2	;Banks 4,5
+00083 002B 0A85 		INCF	FSR0H,F	
+00084 002C 2037 		CALL	ClearRam_2	;Banks 6,7
+00085 002D 0A85 		INCF	FSR0H,F	
+00086 002E 2037 		CALL	ClearRam_2	;Banks 8,9
+00087 002F 0A85 		INCF	FSR0H,F	
+00088 0030 2037 		CALL	ClearRam_2	;Banks 10,11
+00089 0031 	;
+00090 0031 0A85 		INCF	FSR0H,F	;Bank 12, 48 bytes
+00091 0032 3030 		movlw                  0x30
+00092 0033 00FF 		MOVWF	Param7F
+00093 0034 3020 		MOVLW	0x20
+00094 0035 0084 		MOVWF	FSR0L
+00095 0036 3209 		bra                    ClearRam_L2
+00096 0037 	;	
+00097 0037 3050 	ClearRam_2	MOVLW	0x50	;Clear 120h-16Fh, 80 bytes
+00098 0038 00FF 		MOVWF	Param7F
+00099 0039 3020 		MOVLW	0x20
+00100 003A 0084 		MOVWF	FSR0L
+00101 003B 2040 		CALL	ClearRam_L2
+00102 003C 	;
+00103 003C 3050 		MOVLW	0x50	;Clear A0h-EFh, 80 bytes
+00104 003D 00FF 		MOVWF	Param7F
+00105 003E 30A0 		MOVLW	0xA0
+00106 003F 0084 		MOVWF	FSR0L
+00107 0040 	;
+00108 0040 0180 	ClearRam_L2	CLRF	INDF0
+00109 0041 0A84 		INCF	FSR0L,F
+00110 0042 0BFF 		DECFSZ	Param7F,F
+00111 0043 33FC 		bra	ClearRam_L2
+SMRRC.asm                                                             Page: 7
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
+00112 0044 0008 		RETURN
+00113 0045 	;
+00114 0045 		if UseEEParams
+00150 0045 		endif
+00151 0045 	;=====================================================================================================
+00152 0045 	;=========================================================================================================
+00153 0045 	; Decrement routine for 16 bit timers
+00154 0045 	; Set FSR0H before calling these routines.
+00155 0045 	;
+00156 0045 302F 	DecTimer4	movlw	Timer4Hi
+00157 0046 3205 		bra	DecTimer
+00158 0047 302D 	DecTimer3	movlw	Timer3Hi
+00159 0048 3203 		bra	DecTimer
+00160 0049 302B 	DecTimer2	movlw	Timer2Hi
+00161 004A 3201 		bra	DecTimer
+00162 004B 3029 	DecTimer1	movlw	Timer1Hi
+00163 004C 	;DecTimer
+00164 004C 	; entry: FSR=Timer(n)Hi
+00165 004C 0084 	DecTimer	MOVWF	FSR0L
+00166 004D 3000 		movlw	High Timer4Hi
+00167 004E 0085 		movwf	FSR0H
+00168 004F 0013 		MOVIW	FSR0--	;TimerNHi
+00169 0050 0400 		IORWF	INDF0,W	;TimerNLo
+00170 0051 		SKPNZ
+00170 0051 1903      M		BTFSC	STATUS,Z		BTFSC	STATUS,Z
+00171 0052 0008 		RETURN
+00172 0053 3001 		MOVLW	0x01
+00173 0054 0280 		SUBWF	INDF0,F	;TimerNLo
+00174 0055 0A84 		INCF	FSR0L,F
+00175 0056 0103 		CLRW
+00176 0057 3B80 		SUBWFB	INDF0,F	;TimerNHi
+00177 0058 0008 		RETURN
+00178 0059 	;
+00179 0059 	;==============================================================================================
+00180 0059 	; Test for 16 bit timers = zero
+00181 0059 	;If Timer is zero return Z flag,1 else Z=0
+00182 0059 	;
+00183 0059 0020 	TestT4_Zero	movlb	0
+00184 005A 082E 		movf	Timer4Lo,W
+00185 005B 042F 		iorwf	Timer4Hi,W
+00186 005C 0008 		return
+00187 005D 	;
+00188 005D 0020 	TestT3_Zero	movlb	0
+00189 005E 082C 		movf	Timer3Lo,W
+00190 005F 042D 		iorwf	Timer3Hi,W
+00191 0060 0008 		return
+00192 0061 	;
+00193 0061 0020 	TestT2_Zero	movlb	0
+00194 0062 082A 		movf	Timer2Lo,W
+00195 0063 042B 		iorwf	Timer2Hi,W
+00196 0064 0008 		return
+00197 0065 	;
+00198 0065 0020 	TestT1_Zero	movlb	0
+00199 0066 0828 		movf	Timer1Lo,W
+00200 0067 0429 		iorwf	Timer1Hi,W
+00201 0068 0008 		return	
+00202 0069 	;
+00203 0069 		if oldCode
+00219 0069 		endif
+00220 0069 	;======================================================================================
+00221 0069 	;Delay uS    1 cycle = .125uS, 32MHz clock version
+00222 0069 	; RAM used: Param77
+00223 0069 	; Calls:(0) none
+00224 0069 	;
+00225 0069 3005 	Delay10uS	MOVLW	0x05	;(2*3+5)/2=10
+00226 006A 3203 		bra	DelayWuS
+00227 006B 3041 	Delay100uS	MOVLW	d'65'	;(28*3+5)/2=100
+00228 006C 3201 		bra	DelayWuS
+00229 006D 3019 	Delay40uS	MOVLW	d'25'	;(11*3+5)=40
+00230 006E 00F7 	DelayWuS	MOVWF	Param77
+00231 006F 0000 	DelayWuS_Loop	nop
+00232 0070 0000 		nop
+00233 0071 0BF7 		DECFSZ	Param77,F
+00234 0072 33FC 		bra	DelayWuS_Loop
+00235 0073 0008 		RETURN
+00236 0074 	;
+00237 0074 		if UseEEParams
+00315 0074 		endif
+00316 0074 	;	
+00317 0074 	;=========================================================================================
+00318 0074 	;=========================================================================================
+00319 0074 	;
+00320 0074 	;
+00321 0074 	;
+00322 0074 	;
+00526 0074 	;	include	MagEncoder.inc
+00527 0074 		if useRS232
+00530 0074 		endif
+00531 0074 	;
+00532 0074 	;
+00533 0074 20CF 	start	call	InitializeIO
+00534 0075 	;
+00535 0075 	;=========================================================================================
+00536 0075 	;*****************************************************************************************
+00537 0075 	;=========================================================================================
+00538 0075 	;
+00539 0075 0064 	MainLoop	CLRWDT
+00540 0076 	;
+00541 0076 	;Call idle routine for magnetic absolute encoder.
+SMRRC.asm                                                             Page: 8
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
+00542 0076 	;	call	ReadEncoder
+00543 0076 	;
+00544 0076 		if useRS232
+00581 0076 		endif		; if useRS232
+00582 0076 	;----------------------
+00583 0076 	;
+00584 0076 0020 		movlb	0	;bank 0
+00585 0077 0833 		movf	SysMode,W
+00586 0078 000B 		brw
+00587 0079 287F 		goto	DoModeZero
+00588 007A 2880 		goto	DoModeOne
+00589 007B 2881 		goto	DoModeTwo
+00590 007C 2882 		goto	DoModeThree
+00591 007D 	;
+00592 007D 	ModeReturn:
+00593 007D 	;
+00594 007D 	;-----------------------
+00595 007D 	;	
+00596 007D 		if UseAnalogInputs
+00598 007D 		endif
+00599 007D 	;
+00600 007D 0020 		movlb	0
+00601 007E 	;-----------------------
+00602 007E 	;
+00603 007E 2875 		goto	MainLoop
+00604 007F 	;
+00605 007F 	;=========================================================================================
+00606 007F 	;*****************************************************************************************
+00607 007F 	;=========================================================================================
+00608 007F 	; Mode 0
+00609 007F 	;
+00610 007F 287D 	DoModeZero	goto	ModeReturn
+00611 0080 	;
+00612 0080 	;=========================================================================================
+00613 0080 	; 
+00614 0080 	;
+00615 0080 287D 	DoModeOne	goto	ModeReturn
+00616 0081 	;
+00617 0081 	;=========================================================================================
+00618 0081 	;
+00619 0081 	;
+00620 0081 287D 	DoModeTwo	goto	ModeReturn
+00621 0082 	;
+00622 0082 	;=========================================================================================
+00623 0082 	; 
+00624 0082 	;
+00625 0082 287D 	DoModeThree	goto	ModeReturn
+00626 0083 	;
+00627 0083 	;=========================================================================================
+00628 0083 	;
+00629 0083 	;=========================================================================================
+00630 0083 		if UseAnalogInputs
+00720 0083 		endif
+00721 0083 	;=========================================================================================
+00722 0083 	; ***************************************************************************************
+00723 0083 	;=========================================================================================
+00724 0083 	; Interupt Service Routine for Aux IO
+00725 0083 	; Call from ISR every 1/100th second.
+00726 0083 	;
+00727 0083 	HandleAuxIO:
+00728 0083 	;-------------------------------
+00729 0083 	; Aux0 LED/Switch
+00730 0083 0836 		movf	ssAux0Config,W
+00731 0084 3907 		andlw	0x07	;keep mode
+00732 0085 000B 		brw
+00733 0086 3222 		bra	Aux0_ISR_End	;kAuxIOnone
+00734 0087 3206 		bra	Aux0_LEDBtn	;kAuxIOLEDBtn
+00735 0088 320D 		bra	Aux0_Digital_In	;kAuxIODigitalIn
+00736 0089 321F 		bra	Aux0_ISR_End	;kAuxIODigitalOut
+00737 008A 321E 		bra	Aux0_ISR_End	;kAuxIOAnalogIn
+00738 008B 320C 		bra	Aux0_HomeSW	;kAuxIOHomeSw
+00739 008C 320D 		bra	Aux0_FwdLimit	;kAuxIOFwdLimit
+00740 008D 320E 		bra	Aux0_RevLimit	;kAuxIORevLimit
+00741 008E 		
+00742 008E 	;
+00743 008E 1612 	Aux0_LEDBtn	bsf	Aux0_LED1_TRIS	;LED off
+00744 008F 0000 		nop
+00745 0090 0000 		nop
+00746 0091 0000 		nop
+00747 0092 209E 		call	Read_Aux0_Sw1
+00748 0093 	;
+00749 0093 1A24 		btfsc	Aux0_LED1_Active	;LED Active?
+00750 0094 1212 		bcf	Aux0_LED1_TRIS	; Yes, LED On
+00751 0095 3213 		bra	Aux0_ISR_End
+00752 0096 	;
+00753 0096 209E 	Aux0_Digital_In	call	Read_Aux0_Sw1
+00754 0097 3211 		bra	Aux0_ISR_End
+00755 0098 	;
+00756 0098 209E 	Aux0_HomeSW	call	Read_Aux0_Sw1
+00757 0099 	;
+00758 0099 	;	bcf	HomeSwitch
+00759 0099 	;	btfsc	Aux0_SW1_Active	;Active?
+00760 0099 	;	bsf	HomeSwitch	; Yes
+00761 0099 320F 		bra	Aux0_ISR_End
+00762 009A 	;
+00763 009A 209E 	Aux0_FwdLimit	call	Read_Aux0_Sw1
+00764 009B 	;
+00765 009B 	;	bcf	ForwardLimit
+00766 009B 	;	btfsc	Aux0_SW1_Active	;Active?
+SMRRC.asm                                                             Page: 9
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
+00767 009B 	;	bsf	ForwardLimit	; Yes
+00768 009B 320D 		bra	Aux0_ISR_End
+00769 009C 	;
+00770 009C 209E 	Aux0_RevLimit	call	Read_Aux0_Sw1
+00771 009D 	;
+00772 009D 	;	bcf	ReverseLimit
+00773 009D 	;	btfsc	Aux0_SW1_Active	;Active?
+00774 009D 	;	bsf	ReverseLimit	; Yes
+00775 009D 320B 		bra	Aux0_ISR_End
+00776 009E 	;
+00777 009E 1124 	Read_Aux0_Sw1	bcf	Aux0_SW1_Active
+00778 009F 19B6 		btfsc	ssAux0Config,AuxConfigSwInvert ;Inverted input?
+00779 00A0 3203 		bra	Read_Aux0_Sw1_1	; Yes
+00780 00A1 	; Default is active low.
+00781 00A1 1E0C 		btfss	Aux0_SW1_PORT	;Switch input low?
+00782 00A2 1524 		bsf	Aux0_SW1_Active	; Yes
+00783 00A3 3202 		bra	Read_Aux0_Sw1_2
+00784 00A4 	; Inverted, active High input.
+00785 00A4 1A0C 	Read_Aux0_Sw1_1	btfsc	Aux0_SW1_PORT	;Switch input high?
+00786 00A5 1524 		bsf	Aux0_SW1_Active	; Yes
+00787 00A6 	;
+00788 00A6 1D24 	Read_Aux0_Sw1_2	btfss	Aux0_SW1_Active	;Active?
+00789 00A7 11A4 		bcf	Aux0_SW1_Debounce	; No
+00790 00A8 0008 		return
+00791 00A9 	;
+00792 00A9 	Aux0_ISR_End:
+00793 00A9 	;
+00794 00A9 	;-------------------------------
+00795 00A9 	; Aux1 LED/Switch
+00796 00A9 0837 		movf	ssAux1Config,W
+00797 00AA 3907 		andlw	0x07	;keep mode
+00798 00AB 000B 		brw
+00799 00AC 3222 		bra	Aux1_ISR_End	;kAuxIOnone
+00800 00AD 3206 		bra	Aux1_LEDBtn	;kAuxIOLEDBtn
+00801 00AE 320D 		bra	Aux1_Digital_In	;kAuxIODigitalIn
+00802 00AF 321F 		bra	Aux1_ISR_End	;kAuxIODigitalOut
+00803 00B0 321E 		bra	Aux1_ISR_End	;kAuxIOAnalogIn
+00804 00B1 320C 		bra	Aux1_HomeSW	;kAuxIOHomeSw
+00805 00B2 320D 		bra	Aux1_FwdLimit	;kAuxIOFwdLimit
+00806 00B3 320E 		bra	Aux1_RevLimit	;kAuxIORevLimit
+00807 00B4 		
+00808 00B4 	;
+00809 00B4 1692 	Aux1_LEDBtn	bsf	Aux1_LED2_TRIS	;LED off
+00810 00B5 0000 		nop
+00811 00B6 0000 		nop
+00812 00B7 0000 		nop
+00813 00B8 20C4 		call	Read_Aux1_Sw2
+00814 00B9 	;
+00815 00B9 1BA4 		btfsc	Aux1_LED2_Active	;LED Active?
+00816 00BA 1292 		bcf	Aux1_LED2_TRIS	; Yes, LED On
+00817 00BB 3213 		bra	Aux1_ISR_End
+00818 00BC 	;
+00819 00BC 20C4 	Aux1_Digital_In	call	Read_Aux1_Sw2
+00820 00BD 3211 		bra	Aux1_ISR_End
+00821 00BE 	;
+00822 00BE 20C4 	Aux1_HomeSW	call	Read_Aux1_Sw2
+00823 00BF 	;
+00824 00BF 	;	bcf	HomeSwitch
+00825 00BF 	;	btfsc	Aux1_SW2_Active	;Active?
+00826 00BF 	;	bsf	HomeSwitch	; Yes
+00827 00BF 320F 		bra	Aux1_ISR_End
+00828 00C0 	;
+00829 00C0 20C4 	Aux1_FwdLimit	call	Read_Aux1_Sw2
+00830 00C1 	;
+00831 00C1 	;	bcf	ForwardLimit
+00832 00C1 	;	btfsc	Aux1_SW2_Active	;Active?
+00833 00C1 	;	bsf	ForwardLimit	; Yes
+00834 00C1 320D 		bra	Aux1_ISR_End
+00835 00C2 	;
+00836 00C2 20C4 	Aux1_RevLimit	call	Read_Aux1_Sw2
+00837 00C3 	;
+00838 00C3 	;	bcf	ReverseLimit
+00839 00C3 	;	btfsc	Aux1_SW2_Active	;Active?
+00840 00C3 	;	bsf	ReverseLimit	; Yes
+00841 00C3 320B 		bra	Aux1_ISR_End
+00842 00C4 	;
+00843 00C4 12A4 	Read_Aux1_Sw2	bcf	Aux1_SW2_Active
+00844 00C5 19B7 		btfsc	ssAux1Config,AuxConfigSwInvert ;Inverted input?
+00845 00C6 3203 		bra	Read_Aux1_Sw2_1	; Yes
+00846 00C7 	; Default is active low.
+00847 00C7 1E8C 		btfss	Aux1_SW2_PORT	;Switch input low?
+00848 00C8 16A4 		bsf	Aux1_SW2_Active	; Yes
+00849 00C9 3202 		bra	Read_Aux1_Sw2_2
+00850 00CA 	; Inverted, active High input.
+00851 00CA 1E8C 	Read_Aux1_Sw2_1	btfss	Aux1_SW2_PORT	;Switch input low?
+00852 00CB 16A4 		bsf	Aux1_SW2_Active	; Yes
+00853 00CC 	;
+00854 00CC 1EA4 	Read_Aux1_Sw2_2	btfss	Aux1_SW2_Active	;Active?
+00855 00CD 1324 		bcf	Aux1_SW2_Debounce	; No
+00856 00CE 0008 		return
+00857 00CF 	;
+00858 00CF 	Aux1_ISR_End:
+00859 00CF 	;
+00860 00CF 	;=========================================================================================
+00861 00CF 	; ***************************************************************************************
+00862 00CF 	;=========================================================================================
+00863 00CF 	; Initialization routine for PIC16F18854 based BLDC_Drive.
+00864 00CF 	; Call once before starting main loop.
+00865 00CF 	;
+SMRRC.asm                                                             Page: 10
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
+00866 00CF 003E 	InitializeIO	movlb	ANSELA                 ;bank 30
+00867 00D0 3000 		movlw	PortA_ANSel_Value
+00868 00D1 00B8 		movwf	ANSELA
+00869 00D2 01BB 		clrf	SLRCONA	;No slew
+00870 00D3 01BC 		clrf	INLVLA	;TTL levels
+00871 00D4 3000 		movlw	PortB_ANSel_Value
+00872 00D5 00C3 		movwf                  ANSELB
+00873 00D6 3000 		movlw	PortC_ANSel_Value
+00874 00D7 00CE 		movwf	ANSELC
+00875 00D8 	;	clrf	SLRCONC	;No slew
+00876 00D8 	;	clrf	INLVLC	;TTL levels
+00877 00D8 	;
+00878 00D8 0020 		movlb	0	;bank 0
+00879 00D9 3000 		movlw	PortA_Init_Value
+00880 00DA 0098 		movwf	LATA
+00881 00DB 3000 		movlw                  PortB_Init_Value
+00882 00DC 0099 		movwf                  LATB
+00883 00DD 3000 		movlw	PortC_Init_Value
+00884 00DE 009A 		movwf	LATC
+00885 00DF 	;
+00886 00DF 30FF 	                       movlw                  PortA_Tris_Bits
+00887 00E0 0092 	                       movwf                  TRISA
+00888 00E1 30AF 	                       movlw                  PortB_Tris_Bits
+00889 00E2 0093 	                       movwf                  TRISB
+00890 00E3 30FF 	                       movlw                  PortC_Tris_Bits
+00891 00E4 0094 	                       movwf                  TRISC
+00892 00E5 	;
+00893 00E5 	;Setup T2 for 100/s
+00894 00E5 0025 		movlb	T2CON	;bank 5
+00895 00E6 3001 		movlw	0x01	;Fosc/4
+00896 00E7 0090 		movwf	T2CLKCON
+00897 00E8 30E9 		MOVLW	T2CON_Value
+00898 00E9 008E 		MOVWF	T2CON
+00899 00EA 307D 		MOVLW	PR2_Value
+00900 00EB 008D 		MOVWF	T2PR
+00901 00EC 0191 		clrf	T2RST	;select T2INPPS
+00902 00ED 018F 		clrf	T2HLT	;PSYNC, CKPOL, CKSYNC, MODE
+00903 00EE 002E 		movlb	PIE4	; bank 14
+00904 00EF 149A 		bsf	PIE4,TMR2IE	; enable Timer 2 interupt
+00905 00F0 	;
+00906 00F0 	; clear memory to zero
+00907 00F0 201B 		CALL	ClearRam
+00908 00F1 0064 		CLRWDT
+00909 00F2 		if UseEEParams
+00911 00F2 		endif
+00912 00F2 	;
+00913 00F2 		if oldCode
+00952 00F2 	                       endif
+00953 00F2 	;
+00954 00F2 0020 	                       movlb	0	;bank 0
+00955 00F3 	;
+00956 00F3 	;=============================
+00957 00F3 		if UseQEnc
+00959 00F3 		endif
+00960 00F3 	;
+00961 00F3 		if useRS232
+00994 00F3 		endif
+00995 00F3 	;
+00996 00F3 	;
+00997 00F3 	;-----------------------
+00998 00F3 	;
+00999 00F3 		if UseAnalogInputs
+01004 00F3 		endif
+01005 00F3 	;
+01006 00F3 	;-----------------------
+01007 00F3 	; Setup some default values
+01008 00F3 0020 		movlb	0	;bank 0
+01009 00F4 	;	movlw	PWM_PR_Val
+01010 00F4 	;	movwf	MtrPWMMax
+01011 00F4 	;
+01012 00F4 	;----------
+01013 00F4 1112 		bcf	SysLEDTris	;LED ON
+01014 00F5 3064 		MOVLW	LEDTIME
+01015 00F6 00A0 		MOVWF	SysLED_Time
+01016 00F7 3001 		movlw	0x01
+01017 00F8 00A3 		movwf	SysLEDCount	;start blinking right away
+01018 00F9 3064 		movlw	.100
+01019 00FA 00AE 		movwf	Timer4Lo	;ignor buttons for 1st second
+01020 00FB 	;
+01021 00FB 170B 		bsf	INTCON,PEIE	; enable periferal interupts
+01022 00FC 178B 		bsf	INTCON,GIE	; enable interupts
+01023 00FD 	;
+01024 00FD 		if oldCode
+01053 00FD 		endif
+01054 00FD 	;
+01055 00FD 		if UsePID
+01057 00FD 		endif
+01058 00FD 	;
+01059 00FD 0008 		return
+01060 00FE 	;
+01061 00FE 	;=========================================================================================
+01062 00FE 	;
+01063 00FE 	;	include <DMFMath.inc>
+01064 00FE 	;	include <PIDInt.inc>
+01065 00FE 	;
+01066 00FE 	;=============================
+01067 00FE 	;
+01068 00FE 		if useBootloader
+01071 00FE 		endif
+SMRRC.asm                                                             Page: 11
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
+01072 00FE 	;
+01073 00FE 		END
+
+X-Ref Table
+ANSELA	1F38 	Aux1_ISR_End
+ANSELB	1F43 	Aux1_ISR_End
+ANSELC	1F4E 	Aux1_ISR_End
+Aux0_Digital_In ^	0096 	DoModeThree
+Aux0_FwdLimit ^	009A 	DoModeThree
+Aux0_HomeSW ^	0098 	DoModeThree
+Aux0_ISR_End ^	00A9 	DoModeThree, Aux0_LEDBtn, Aux0_Digital_In, Aux0_HomeSW, Aux0_FwdLimit
+		Aux0_RevLimit
+Aux0_LED1_Active	SysFlags1,4	Aux0_LEDBtn
+Aux0_LED1_TRIS	TRISA,4	, Aux0_LEDBtn
+Aux0_LEDBtn ^	008E 	DoModeThree
+Aux0_RevLimit ^	009C 	DoModeThree
+Aux0_SW1_Active	SysFlags1,2	Read_Aux0_Sw1, Read_Aux0_Sw1_1, Read_Aux0_Sw1_2
+Aux0_SW1_Debounce	SysFlags1,3	Read_Aux0_Sw1_2
+Aux0_SW1_PORT	PORTA,4	Read_Aux0_Sw1, Read_Aux0_Sw1_1
+Aux1_Digital_In ^	00BC 	Aux0_ISR_End
+Aux1_FwdLimit ^	00C0 	Aux0_ISR_End
+Aux1_HomeSW ^	00BE 	Aux0_ISR_End
+Aux1_ISR_End ^	00CF 	Aux0_ISR_End, Aux1_LEDBtn, Aux1_Digital_In, Aux1_HomeSW, Aux1_FwdLimit
+		Aux1_RevLimit
+Aux1_LED2_Active	SysFlags1,7	Aux1_LEDBtn
+Aux1_LED2_TRIS	TRISA,5	Aux1_LEDBtn
+Aux1_LEDBtn ^	00B4 	Aux0_ISR_End
+Aux1_RevLimit ^	00C2 	Aux0_ISR_End
+Aux1_SW2_Active	SysFlags1,5	Read_Aux1_Sw2, Read_Aux1_Sw2_1, Read_Aux1_Sw2_2
+Aux1_SW2_Debounce	SysFlags1,6	Read_Aux1_Sw2_2
+Aux1_SW2_PORT	PORTA,5	Read_Aux1_Sw2, Read_Aux1_Sw2_1
+AuxConfigSwInvert	0003 	Read_Aux0_Sw1, Read_Aux1_Sw2
+ClearRam ^	001B 	Aux1_ISR_End
+ClearRam_2 ^	0037 	ClearRam
+ClearRam_L2 ^	0040 	ClearRam, ClearRam_2, ClearRam_L2
+DecTimer ^	004C 	DecTimer4, DecTimer3, DecTimer2
+DecTimer1 ^	004B 	
+DecTimer2 ^	0049 	
+DecTimer3 ^	0047 	
+DecTimer4 ^	0045 	
+DelayWuS ^	006E 	DecTimer
+DelayWuS_Loop ^	006F 	DelayWuS_Loop
+DoModeOne ^	0080 	MainLoop
+DoModeThree ^	0082 	MainLoop
+DoModeTwo ^	0081 	MainLoop
+DoModeZero ^	007F 	MainLoop
+F	0001 	, ClearRam, ClearRam_L2, DecTimer, DelayWuS_Loop
+FSR0H	0005 	ClearRam, DecTimer
+FSR0L	0004 	ClearRam, ClearRam_2, ClearRam_L2, DecTimer
+GIE	0007 	Aux1_ISR_End
+INDF0	0000 	ClearRam_L2, DecTimer
+INLVLA	1F3C 	Aux1_ISR_End
+INTCON	000B 	Aux1_ISR_End
+InitializeIO ^	00CF 	start
+LATA	0018 	Aux1_ISR_End
+LATB	0019 	Aux1_ISR_End
+LATC	001A 	Aux1_ISR_End
+LEDTIME	0064 	Aux1_ISR_End
+MainLoop ^	0075 	ModeReturn
+ModeReturn ^	007D 	DoModeZero, DoModeOne, DoModeTwo, DoModeThree
+PCLATH	000A 	
+PEIE	0006 	Aux1_ISR_End
+PIE4	071A 	Aux1_ISR_End
+PIR4	0710 	
+PORTA	000C 	Read_Aux0_Sw1, Read_Aux0_Sw1_1, Read_Aux1_Sw2, Read_Aux1_Sw2_1
+PR2_Value	007D 	Aux1_ISR_End
+Param77	0077 	DelayWuS, DelayWuS_Loop
+Param7F	007F 	ClearRam, ClearRam_2, ClearRam_L2
+PortA_ANSel_Value	0000 	Aux1_ISR_End
+PortA_Init_Value	0000 	Aux1_ISR_End
+PortA_Tris_Bits	00FF 	Aux1_ISR_End
+PortB_ANSel_Value	0000 	Aux1_ISR_End
+PortB_Init_Value	0000 	Aux1_ISR_End
+PortB_Tris_Bits	00AF 	Aux1_ISR_End
+PortC_ANSel_Value	0000 	Aux1_ISR_End
+PortC_Init_Value	0000 	Aux1_ISR_End
+PortC_Tris_Bits	00FF 	Aux1_ISR_End
+Read_Aux0_Sw1 ^	009E 	Aux0_LEDBtn, Aux0_Digital_In, Aux0_HomeSW, Aux0_FwdLimit, Aux0_RevLimit
+Read_Aux0_Sw1_1 ^	00A4 	Read_Aux0_Sw1
+Read_Aux0_Sw1_2 ^	00A6 	Read_Aux0_Sw1
+Read_Aux1_Sw2 ^	00C4 	Aux1_LEDBtn, Aux1_Digital_In, Aux1_HomeSW, Aux1_FwdLimit, Aux1_RevLimit
+Read_Aux1_Sw2_1 ^	00CA 	Read_Aux1_Sw2
+Read_Aux1_Sw2_2 ^	00CC 	Read_Aux1_Sw2
+SLRCONA	1F3B 	Aux1_ISR_End
+STATUS	0003 	, DecTimer
+SysFlags1	0024 	Aux0_LEDBtn, Read_Aux0_Sw1, Read_Aux0_Sw1_1, Read_Aux0_Sw1_2, Aux1_LEDBtn
+		Read_Aux1_Sw2, Read_Aux1_Sw2_1, Read_Aux1_Sw2_2
+SysLEDCount	0023 	, SystemBlink_Std, Aux1_ISR_End
+SysLEDTris	TRISA,SysLED_Bit	, SystemBlink_Std, Aux1_ISR_End
+SysLED_Bit	0002 	, SystemBlink_Std, Aux1_ISR_End
+SysLED_BlinkCount	0022 	SystemBlink_Std
+SysLED_Blinks	0021 	
+SysLED_Time	0020 	SystemBlink_Std, Aux1_ISR_End
+SysMode	0033 	MainLoop
+SystemBlink_Std ^	0016 	
+SystemBlink_end ^	001A 	
+SystemTick_end ^	001A 	
+T2CLKCON	0290 	Aux1_ISR_End
+T2CON	028E 	Aux1_ISR_End
+SMRRC.asm   X-Ref Table                                                  Page: 12
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
+T2CON_Value	00E9 	Aux1_ISR_End
+T2HLT	028F 	Aux1_ISR_End
+T2PR	028D 	Aux1_ISR_End
+T2RST	0291 	Aux1_ISR_End
+TMR2IE	0001 	Aux1_ISR_End
+TMR2IF	0001 	
+TRISA	0012 	, SystemBlink_Std, Aux0_LEDBtn, Aux1_LEDBtn, Aux1_ISR_End
+TRISB	0013 	Aux1_ISR_End
+TRISC	0014 	Aux1_ISR_End
+Timer1Hi	0029 	DecTimer1, DecTimer
+Timer1Lo	0028 	DecTimer
+Timer2Hi	002B 	DecTimer2, DecTimer
+Timer2Lo	002A 	DecTimer
+Timer3Hi	002D 	DecTimer3, DecTimer
+Timer3Lo	002C 	DecTimer
+Timer4Hi	002F 	DecTimer4, DecTimer
+Timer4Lo	002E 	DecTimer, Aux1_ISR_End
+UseAnalogInputs	0000 	ModeReturn, DoModeThree, Aux1_ISR_End
+UseEEParams	0000 	ClearRam, DecTimer4, start, Aux1_ISR_End
+UsePID	0000 	Aux1_ISR_End
+UseQEnc	0000 	, Aux1_ISR_End
+W	0000 	SystemBlink_Std, DecTimer, MainLoop, DoModeThree, Aux0_ISR_End
+Z	0002 	, DecTimer
+oldCode	0000 	DecTimer, Aux1_ISR_End
+ssAux0Config	0036 	DoModeThree, Read_Aux0_Sw1
+ssAux1Config	0037 	Aux0_ISR_End, Read_Aux1_Sw2
+start ^	0074 	
+useBootloader	0000 	Aux1_ISR_End
+useRS232	0000 	SystemBlink_end, start, MainLoop, Aux1_ISR_End
+ 
+
+X-Ref Table (The UnCalled)
+Delay100uS !	006B 	
+Delay10uS !	0069 	
+Delay40uS !	006D 	
+HandleAuxIO !	0083 	
+ProgStartVector !	0000 	
+SystemBlink_DoIt !	0018 	
+TestT1_Zero !	0065 	
+TestT2_Zero !	0061 	
+TestT3_Zero !	005D 	
+TestT4_Zero !	0059 	
+ 
+
+Memory Usage Map ('X' = Used, '-' = Unused)
+ 
+0000  : XX--XXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0040  : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0080  : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+00C0  : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXX--
+ 
+Program Memory Words Used:252
+Program Memory Words Free:7940
+ 
+UserID
+8000  :----
+ 
+Config
+8007  :XXXXX
+ 
+EEPROM
+ 
+Data EEPROM Bytes Used:0
+Data EEPROM Bytes Free:0
