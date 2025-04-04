@@ -60,11 +60,11 @@
 	__CONFIG _CONFIG2, b'0011111111111110'
 ; MCLRE=0
 ;
-	__CONFIG _CONFIG3, b'0011111111111111'
-;
+	__CONFIG _CONFIG3, b'0011111110011111'
+;WDTE=00
 ;
 	__CONFIG _CONFIG4, b'0001111111101111'
-; LVP=0, SAFEN=0
+; LVP=0, nSAFEN=0
 ;
 	__CONFIG _CONFIG5, b'0011111111111111'
 ;
@@ -111,12 +111,14 @@ SysLEDPort	EQU	PORTA
 #Define	SysLEDLat	LATA,SysLED_Bit
 #Define	SysLEDTris	TRISA,SysLED_Bit
 ;
-#Define	Aux0_LED1_TRIS	TRISA,4
-#Define	Aux0_LED1_LAT	LATA,4
-#Define	Aux0_SW1_PORT	PORTA,4
-#Define	Aux1_LED2_TRIS	TRISA,5
-#Define	Aux1_LED2_LAT	LATA,5
-#Define	Aux1_SW2_PORT	PORTA,5
+LED1_Bit	equ	4
+#Define	Aux0_LED1_TRIS	TRISA,LED1_Bit
+#Define	Aux0_LED1_LAT	LATA,LED1_Bit
+#Define	Aux0_SW1_PORT	PORTA,LED1_Bit
+LED2_Bit	equ	5
+#Define	Aux1_LED2_TRIS	TRISA,LED2_Bit
+#Define	Aux1_LED2_LAT	LATA,LED2_Bit
+#Define	Aux1_SW2_PORT	PORTA,LED2_Bit
 ;
 ;    Port B bits
 PortB_Tris_Bits	EQU	b'10101111'	;RS-485, TX/RX are controlled by serial	
@@ -452,7 +454,6 @@ ProgStartVector	CLRF	PCLATH
 ;
 ;	
 	movlb	0	; bank 0
-;	bcf	Aux0_LED1_TRIS	;any int turns on LED
 ;
 ;=============================
 ; Timer 0 is 100/s
@@ -473,14 +474,7 @@ ProgStartVector	CLRF	PCLATH
 	bra	SystemBlink_end	; No, not yet
 ;
 ;
-	movf	SysLED_Blinks,F
-	SKPNZ		;Standard Blinking?
-	bra	SystemBlink_Std	; Yes
-;
-; custom blinking
-;
-SystemBlink_Std	CLRF	SysLED_BlinkCount
-	MOVF	SysLED_Time,W
+SystemBlink_Std	MOVF	SysLED_Time,W
 	MOVWF	SysLEDCount
 	bcf	SysLEDTris	;LED ON
 ;
@@ -495,7 +489,7 @@ SystemTick_end:
 ;*****************************************************************************************
 ;=========================================================================================
 ;
-	include	F15345_Common.inc
+;	include	F15345_Common.inc
 ;
 start	call	InitializeIO
 ;
@@ -503,35 +497,13 @@ start	call	InitializeIO
 ;*****************************************************************************************
 ;=========================================================================================
 ;
-MainLoop:
+MainLoop	nop
 ;	CLRWDT
 	nop
-	
-;	movlb	PIR0	; bank14
-;	btfss	PIR0,TMR0IF
-;	bra	DontStuff
-;	bcf	PIR0,TMR0IF
-;	bra	DoStuff
-;DontStuff	movlb	0	; bank 0
 
-
-;	movlb	T0CON0
-;	btfsc	T0CON0,T0OUT
-;	bra	DoStuff
-;	movlb	0
 	nop
 	nop
-	bra	MainLoop
 ;
-DoStuff	movlb	0
-	incf	SysLED_Time,F
-;
-	btfss	SysLED_Time,7
-	bsf	SysLEDTris	;LED off
-	btfsc	SysLED_Time,7
-	bcf	SysLEDTris	;LED off
-;	
-;	bcf	Aux0_LED1_TRIS	;LED on
 	bra	MainLoop
 ;
 ;=========================================================================================
@@ -593,6 +565,8 @@ TMR0H_Value	equ	.125
 ;
 	MOVLW	LEDTIME
 	MOVWF	SysLED_Time
+	clrf	SysLED_Blinks
+	clrf	SysLED_BlinkCount
 	movlw	0x01
 	movwf	SysLEDCount	;start blinking right away
 	bcf	SysLEDTris	;LED ON

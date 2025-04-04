@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BuildNumber</key>
+	<string>420000064</string>
+	<key>BundleIdentifier</key>
+	<string>com.barebones.bbedit</string>
+	<key>HostIdentifier</key>
+	<string>CC551391-2823-5B9B-84B1-C854D251E47E</string>
+	<key>HostName</key>
+	<string>David’s iMac (2)</string>
+	<key>LockDate</key>
+	<date>2025-04-04T19:19:59Z</date>
+	<key>LockID</key>
+	<string>C3D189E5-6F90-4073-9A31-EA69FA7049D1</string>
+	<key>MarketingVersion</key>
+	<string>15.1.4</string>
+	<key>NetworkVolume</key>
+	<false/>
+	<key>ProcessIdentifier</key>
+	<integer>40090</integer>
+	<key>UserName</key>
+	<string>davidflynn</string>
+	<key>Version</key>
+	<integer>3</integer>
+	<key>VolumeIdentifier</key>
+	<string>F3E0EE7A-3036-44C5-AC49-BA77337AFC5F</string>
+</dict>
+</plist>
