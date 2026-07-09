@@ -1,17 +1,34 @@
 // **********************************
 // Servo Switch Machine
 //
+// License: MIT License
 // Filename: ServoSM.scad
 // Created: 7/6/2026
-// Revision: 1.0.0   7/6/2026
+// Revision: 1.0.1   7/8/2026
 // 
 // **********************************
+//  ***** Notes *****
+//
+// Uses an SG90 or equivalent micro servo as a switch machine.
+// 0.047" (1.2mm) Misic wire is recommended.
+// Mounted to the layout with 2 #6x1/2" Pan Head Sheet Metal Screws.
+//
 //  ***** History *****
+//
+// 1.0.1   7/8/2026  Code cleanup
 // 1.0.0   7/6/2026  First code
 //
 // **********************************
 //  ***** for STL output *****
 //
+// SwitchMachineBase();
+// ServoHornExtension();
+//
+//  *** Tools ***
+//
+// MountingHoleJig();
+// WireBendingJig();
+// TestFixtureAlpha(Baseboard_t=15);
 //
 // **********************************
 include<CommonStuffSAEmm.scad>
@@ -158,10 +175,10 @@ module WireBendingJig(){
 
 // WireBendingJig();
 
-module TestFixtureAlpha(){
+module TestFixtureAlpha(Baseboard_t=15){
 	Fixture_X=38;
 	Fixture_Y=46;
-	Fixture_t=15;
+	Fixture_t=Baseboard_t;
 	Len=46;
 	ControlRodEnd_Y=-Len/2+2.5;
 	ControlRod_Y=Len/2-5;
@@ -190,9 +207,6 @@ module TestFixtureAlpha(){
 } // TestFixtureAlpha
 
 // TestFixtureAlpha();
-
-
-
 
 module ServoHornExtension(){
 	HornCollar_d=7;
