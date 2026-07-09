@@ -11,6 +11,7 @@
 ;=========================================================================================
 ;=========================================================================================
 ; Notes:
+;  Handles packet serial I/O on TX2/RX2
 ;
 ; History:
 ; 1.0      3/26/2020   Works with 16F18854
@@ -66,7 +67,7 @@
 ; *** Put in main loop ***
 ;
 ; Handle Serial Communications
-;	BTFSC	PIR3,TXIF	;TX done?
+;	BTFSC	PIR3,TX2IF	;TX done?
 ;	CALL	TX_TheByte	; Yes
 ;
 ; move any serial data received into the 32 byte input buffer
@@ -109,18 +110,18 @@
 ;-------------
 ;
 ; setup serial I/O
-;	movlb	TXSTA	; bank 3
-;	MOVLW	TXSTA_Value
-;	MOVWF	TXSTA
+;	movlb	TX2STA	; bank 3
+;	MOVLW	TX2STA_Value
+;	MOVWF	TX2STA
 ;	MOVLW	low BaudRate
-;	MOVWF	SPBRGL
+;	MOVWF	SP2BRGL
 ;	MOVLW	high BaudRate
-;	MOVWF	SPBRGH
-;	MOVLW	RCSTA_Value
-;	MOVWF	RCSTA
+;	MOVWF	SP2BRGH
+;	MOVLW	RC2STA_Value
+;	MOVWF	RC2STA
 ;
 ;	movlb	PIE3	; bank ?
-;	BSF	PIE3,RCIE	; Serial Receive interupt
+;	BSF	PIE3,RC2IE	; Serial Receive interupt
 ;	movlb	0x00	; bank 0
 ;	BSF	INTCON,PEIE	;Peripheral IRQ Enable
 ;	BSF	INTCON,GIE
@@ -130,7 +131,7 @@
 ;-----------------------------------------------------------------------------------------
 ;AUSART Serial ISR
 ;
-;IRQ_Ser	BTFSS	PIR3,RCIF	;RX has a byte?
+;IRQ_Ser	BTFSS	PIR3,RC2IF	;RX has a byte?
 ;	BRA	IRQ_Ser_End
 ;	CALL	RX_TheByte
 ;
@@ -146,30 +147,30 @@ TX_TheByte	movlb                  0                      ;bank 0
                        BTFSC	DataSentFlag
 	RETURN
 	MOVF	TXByte,W	
-	movlb	TX1REG                  ;bank ?
-	MOVWF	TX1REG
+	movlb	TX2REG                  ;bank ?
+	MOVWF	TX2REG
 	MOVLB	0                      ;bank 0
 	BSF	DataSentFlag
 	RETURN
 ;
 ;=========================================================================================
 ;
-RX_TheByte	movlb	RC1STA	; bank ?
-	MOVF	RC1STA,W
+RX_TheByte	movlb	RC2STA	; bank ?
+	MOVF	RC2STA,W
 	ANDLW	0x06
 	SKPZ		;Frame or Overrun Err?
 	BRA	RX_TheByte_Err	; yes
-	movf	RC1REG,W
+	movf	RC2REG,W
 	movlb	0	; bank 0
 	MOVWF	RXByte
 	BSF	DataReceivedFlag
 	RETURN
 ;
-RX_TheByte_Err	MOVF	RC1REG,W	;bad byte so drop it
-	BCF	RC1STA,CREN            ;disable receiver
-	BCF	RC1STA,FERR
-	BCF	RC1STA,OERR
-	BSF	RC1STA,CREN            ;enable receiver
+RX_TheByte_Err	MOVF	RC2REG,W	;bad byte so drop it
+	BCF	RC2STA,RC2STA_CREN     ;disable receiver
+	BCF	RC2STA,RC2STA_FERR
+	BCF	RC2STA,RC2STA_OERR
+	BSF	RC2STA,RC2STA_CREN     ;enable receiver
 	movlb	0                      ;bank 0
 	CLRF	RXByte
 	RETURN

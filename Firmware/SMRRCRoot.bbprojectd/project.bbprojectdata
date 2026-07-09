@@ -15,6 +15,9 @@
 		<string>646546F3-23FA-4880-8F8F-511F7E35F6EE</string>
 		<string>BE8676C3-ECF8-4DDF-984D-69F23FCD66D9</string>
 		<string>C3E99DD1-D59A-41CE-8193-080734A65F22</string>
+		<string>D6EF98F7-93A6-4DDA-9996-A5533B915637</string>
+		<string>5B14576B-F33F-4269-AE92-AD45ACAB6EF6</string>
+		<string>0BB28743-5F8B-4A1D-8A98-3E697ADDAA33</string>
 	</array>
 	<key>ProjectItems</key>
 	<dict>
@@ -67,6 +70,55 @@
 			<key>UserOverrideItemName</key>
 			<true/>
 		</dict>
+		<key>0BB28743-5F8B-4A1D-8A98-3E697ADDAA33</key>
+		<dict>
+			<key>ItemData</key>
+			<dict>
+				<key>BookmarkData</key>
+				<data>
+				Ym9vaxQDAAAAAAQQMAAAACeeciCf5AFZLBKLyuMcSUbN
+				XMlTgGs+trecC7eqnuL7EAIAAAQAAAADAwAAAAgAKAUA
+				AAABAQAAVXNlcnMAAAAKAAAAAQEAAGRhdmlkZmx5bm4A
+				AAgAAAABAQAAUHJvamVjdHMKAAAAAQEAAFNlcmlhbE1S
+				UkMAAAgAAAABAQAARmlybXdhcmUPAAAAAQEAAFJTNDg1
+				X1BhcnNlLmluYwAYAAAAAQYAABAAAAAgAAAANAAAAEQA
+				AABYAAAAaAAAAAgAAAAEAwAAED4AAAAAAAAIAAAABAMA
+				AD8XBAAAAAAACAAAAAQDAABjFQ0AAAAAAAgAAAAEAwAA
+				exy4AgAAAAAIAAAABAMAAAJcvQIAAAAACAAAAAQDAAA3
+				ytQCAAAAABgAAAABBgAAoAAAALAAAADAAAAA0AAAAOAA
+				AADwAAAACAAAAAAEAABBwJR5CQAAABgAAAABAgAAAQAA
+				AAAAAAAPAAAAAAAAAAAAAAAAAAAACAAAAAQDAAAEAAAA
+				AAAAAAQAAAADAwAA9QEAAAgAAAABCQAAZmlsZTovLy8M
+				AAAAAQEAAE1hY2ludG9zaCBIRAgAAAAEAwAAAJCClucA
+				AAAIAAAAAAQAAEHGyrOogAAAJAAAAAEBAABFN0Q4NjhD
+				Ny03RjY1LTQzNjQtOEU5MS00QTY3MDBCMkVFQTIYAAAA
+				AQIAAIEAAAABAAAA7xMAAAEAAAAAAAAAAAAAAAEAAAAB
+				AQAALwAAAAAAAAABBQAAzAAAAP7///8BAAAAAAAAABAA
+				AAAEEAAAgAAAAAAAAAAFEAAAAAEAAAAAAAAQEAAAMAEA
+				AAAAAABAEAAAIAEAAAAAAAACIAAA/AEAAAAAAAAFIAAA
+				bAEAAAAAAAAQIAAAfAEAAAAAAAARIAAAsAEAAAAAAAAS
+				IAAAkAEAAAAAAAATIAAAoAEAAAAAAAAgIAAA3AEAAAAA
+				AAAwIAAACAIAAAAAAAABwAAAUAEAAAAAAAARwAAAIAAA
+				AAAAAAASwAAAYAEAAAAAAAAQ0AAABAAAAAAAAAA=
+				</data>
+				<key>FileURL</key>
+				<string>file:///Users/davidflynn/Projects/SerialMRRC/Firmware/RS485_Parse.inc</string>
+				<key>HasSecurityScope</key>
+				<true/>
+				<key>RelativePath</key>
+				<string>./RS485_Parse.inc</string>
+				<key>TypeID</key>
+				<string>_CFileLocator</string>
+				<key>Version</key>
+				<integer>1</integer>
+			</dict>
+			<key>ItemName</key>
+			<string>RS485_Parse.inc</string>
+			<key>ItemType</key>
+			<string>FileReference</string>
+			<key>UserOverrideItemName</key>
+			<true/>
+		</dict>
 		<key>0BD9C1B9-4FD2-4240-AD45-0C9517A4D341</key>
 		<dict>
 			<key>ItemData</key>
@@ -111,6 +163,56 @@
 			</dict>
 			<key>ItemName</key>
 			<string>Q_EncoderISR.inc</string>
+			<key>ItemType</key>
+			<string>FileReference</string>
+			<key>UserOverrideItemName</key>
+			<true/>
+		</dict>
+		<key>5B14576B-F33F-4269-AE92-AD45ACAB6EF6</key>
+		<dict>
+			<key>ItemData</key>
+			<dict>
+				<key>BookmarkData</key>
+				<data>
+				Ym9vaxwDAAAAAAQQMAAAAPFwW1DK9VvhuSHTd3e5Me/Y
+				6ZhewFItSLT0R3suqK7uGAIAAAQAAAADAwAAAAgAKAUA
+				AAABAQAAVXNlcnMAAAAKAAAAAQEAAGRhdmlkZmx5bm4A
+				AAgAAAABAQAAUHJvamVjdHMKAAAAAQEAAFNlcmlhbE1S
+				UkMAAAgAAAABAQAARmlybXdhcmUWAAAAAQEAAFNlckJ1
+				ZmZSUzQ4NV8xNTM0NS5pbmMAABgAAAABBgAAEAAAACAA
+				AAA0AAAARAAAAFgAAABoAAAACAAAAAQDAAAQPgAAAAAA
+				AAgAAAAEAwAAPxcEAAAAAAAIAAAABAMAAGMVDQAAAAAA
+				CAAAAAQDAAB7HLgCAAAAAAgAAAAEAwAAAly9AgAAAAAI
+				AAAABAMAAMKK1AIAAAAAGAAAAAEGAACoAAAAuAAAAMgA
+				AADYAAAA6AAAAPgAAAAIAAAAAAQAAEHGzjo2SvTNGAAA
+				AAECAAABAAAAAAAAAA8AAAAAAAAAAAAAAAAAAAAIAAAA
+				BAMAAAQAAAAAAAAABAAAAAMDAAD1AQAACAAAAAEJAABm
+				aWxlOi8vLwwAAAABAQAATWFjaW50b3NoIEhECAAAAAQD
+				AAAAkIKW5wAAAAgAAAAABAAAQcbKs6iAAAAkAAAAAQEA
+				AEU3RDg2OEM3LTdGNjUtNDM2NC04RTkxLTRBNjcwMEIy
+				RUVBMhgAAAABAgAAgQAAAAEAAADvEwAAAQAAAAAAAAAA
+				AAAAAQAAAAEBAAAvAAAAAAAAAAEFAADMAAAA/v///wEA
+				AAAAAAAAEAAAAAQQAACIAAAAAAAAAAUQAAAIAQAAAAAA
+				ABAQAAA4AQAAAAAAAEAQAAAoAQAAAAAAAAIgAAAEAgAA
+				AAAAAAUgAAB0AQAAAAAAABAgAACEAQAAAAAAABEgAAC4
+				AQAAAAAAABIgAACYAQAAAAAAABMgAACoAQAAAAAAACAg
+				AADkAQAAAAAAADAgAAAQAgAAAAAAAAHAAABYAQAAAAAA
+				ABHAAAAgAAAAAAAAABLAAABoAQAAAAAAABDQAAAEAAAA
+				AAAAAA==
+				</data>
+				<key>FileURL</key>
+				<string>file:///Users/davidflynn/Projects/SerialMRRC/Firmware/SerBuffRS485_15345.inc</string>
+				<key>HasSecurityScope</key>
+				<true/>
+				<key>RelativePath</key>
+				<string>./SerBuffRS485_15345.inc</string>
+				<key>TypeID</key>
+				<string>_CFileLocator</string>
+				<key>Version</key>
+				<integer>1</integer>
+			</dict>
+			<key>ItemName</key>
+			<string>SerBuffRS485_15345.inc</string>
 			<key>ItemType</key>
 			<string>FileReference</string>
 			<key>UserOverrideItemName</key>
@@ -509,6 +611,55 @@
 			</dict>
 			<key>ItemName</key>
 			<string>RS232_Parse.inc</string>
+			<key>ItemType</key>
+			<string>FileReference</string>
+			<key>UserOverrideItemName</key>
+			<true/>
+		</dict>
+		<key>D6EF98F7-93A6-4DDA-9996-A5533B915637</key>
+		<dict>
+			<key>ItemData</key>
+			<dict>
+				<key>BookmarkData</key>
+				<data>
+				Ym9vaxgDAAAAAAQQMAAAALe26pPc6dOcs06M3orqnGdX
+				LveiOXK3mFgel38cwUqFFAIAAAQAAAADAwAAAAgAKAUA
+				AAABAQAAVXNlcnMAAAAKAAAAAQEAAGRhdmlkZmx5bm4A
+				AAgAAAABAQAAUHJvamVjdHMKAAAAAQEAAFNlcmlhbE1S
+				UkMAAAgAAAABAQAARmlybXdhcmUUAAAAAQEAAFBhY2tl
+				dFNlcmlhbENtZHMuaW5jGAAAAAEGAAAQAAAAIAAAADQA
+				AABEAAAAWAAAAGgAAAAIAAAABAMAABA+AAAAAAAACAAA
+				AAQDAAA/FwQAAAAAAAgAAAAEAwAAYxUNAAAAAAAIAAAA
+				BAMAAHscuAIAAAAACAAAAAQDAAACXL0CAAAAAAgAAAAE
+				AwAAXDrTAgAAAAAYAAAAAQYAAKQAAAC0AAAAxAAAANQA
+				AADkAAAA9AAAAAgAAAAABAAAQcbQVmb31jUYAAAAAQIA
+				AAEAAAAAAAAADwAAAAAAAAAAAAAAAAAAAAgAAAAEAwAA
+				BAAAAAAAAAAEAAAAAwMAAPUBAAAIAAAAAQkAAGZpbGU6
+				Ly8vDAAAAAEBAABNYWNpbnRvc2ggSEQIAAAABAMAAACQ
+				gpbnAAAACAAAAAAEAABBxsqzqIAAACQAAAABAQAARTdE
+				ODY4QzctN0Y2NS00MzY0LThFOTEtNEE2NzAwQjJFRUEy
+				GAAAAAECAACBAAAAAQAAAO8TAAABAAAAAAAAAAAAAAAB
+				AAAAAQEAAC8AAAAAAAAAAQUAAMwAAAD+////AQAAAAAA
+				AAAQAAAABBAAAIQAAAAAAAAABRAAAAQBAAAAAAAAEBAA
+				ADQBAAAAAAAAQBAAACQBAAAAAAAAAiAAAAACAAAAAAAA
+				BSAAAHABAAAAAAAAECAAAIABAAAAAAAAESAAALQBAAAA
+				AAAAEiAAAJQBAAAAAAAAEyAAAKQBAAAAAAAAICAAAOAB
+				AAAAAAAAMCAAAAwCAAAAAAAAAcAAAFQBAAAAAAAAEcAA
+				ACAAAAAAAAAAEsAAAGQBAAAAAAAAENAAAAQAAAAAAAAA
+				</data>
+				<key>FileURL</key>
+				<string>file:///Users/davidflynn/Projects/SerialMRRC/Firmware/PacketSerialCmds.inc</string>
+				<key>HasSecurityScope</key>
+				<true/>
+				<key>RelativePath</key>
+				<string>./PacketSerialCmds.inc</string>
+				<key>TypeID</key>
+				<string>_CFileLocator</string>
+				<key>Version</key>
+				<integer>1</integer>
+			</dict>
+			<key>ItemName</key>
+			<string>PacketSerialCmds.inc</string>
 			<key>ItemType</key>
 			<string>FileReference</string>
 			<key>UserOverrideItemName</key>

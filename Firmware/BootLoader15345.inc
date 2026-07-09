@@ -1,14 +1,11 @@
 ;************************************************
-; BootLoader for PIC16F18854
-; filename: Bootloader18854.inc
-; Created: 3/21/2019
-; Revision: 1.0b1 3/26/2020
+; BootLoader for PIC16F15345
+; filename: Bootloader15345.inc
+; Created: 4/4/2025
+; Revision: 1.0d1 4/4/2025
 ;************************************************
 ; History
-; 1.0b1 3/26/2020      Seems to work.
-; 1.0a2 3/25/2020      Copied from Bootloader1847.inc, updated for F18854
-; 1.0a1 4/7/2019	First working version.
-; 1.0d1 3/21/2019	first code
+; 1.0d1 4/4/2025	Copied from Bootloader18346.inc Rev 1.0b1
 ;************************************************
 ; Notes:
 ;
@@ -462,24 +459,24 @@ FSR1_SourceBuffer      movlw	low SourceBuffer
 ; Exit: W=Char
 ;
 GetChar	movlb	PIR3                   ;bank 14
-	btfss	PIR3,RCIF	;RX has a byte?
+	btfss	PIR3,RC2IF	;RX has a byte?
 	bra	GetChar
 ;
-	movlb	RC1STA	; bank 2
-	movf	RC1STA,W
+	movlb	RC2STA	; bank 2
+	movf	RC2STA,W
 	andlw	0x06
 	SKPZ		;Frame or Overrun Err?
 	bra	GetChar_Err	; yes
-	movf	RC1REG,W
+	movf	RC2REG,W
 ;
 	movlb	0	;bank 0
 	return
 ;
-GetChar_Err	MOVF	RC1REG,W	;bad byte so drop it
-	bcf	RC1STA,CREN
-	bcf	RC1STA,FERR
-	bcf	RC1STA,OERR
-	bsf	RC1STA,CREN
+GetChar_Err	MOVF	RC2REG,W	;bad byte so drop it
+	bcf	RC2STA,RC2STA_CREN
+	bcf	RC2STA,RC2STA_FERR
+	bcf	RC2STA,RC2STA_OERR
+	bsf	RC2STA,RC2STA_CREN
 	bra	GetChar
 ;
 ;==============================================
@@ -487,28 +484,26 @@ GetChar_Err	MOVF	RC1REG,W	;bad byte so drop it
 ;
 ; Entry: W=Char to send
 SendChar               movlb	PIR3                   ;bank 14
-SendChar_L1	btfss	PIR3,TXIF	;TX done?
+SendChar_L1	btfss	PIR3,TX2IF	;TX done?
 	bra	SendChar_L1            ; No
-	movlb	TX1REG
-	movwf	TX1REG
+	movlb	TX2REG
+	movwf	TX2REG
 	movlb	0                      ;bank 0
 	return
 ;	
 ;==============================================
-; Read EEProm(255)
+; Read SAF(255)
 ;
 ; entry: none
-; exit: W=EEDATA, Bank 0 selected
+; exit: W=SAF data, Bank 0 selected
 ;
-ReadEEData	movlb	NVMADRH	;Bank 16
-	bsf                    NVMCON1,NVMREGS        ; Select Configuration Space, EEPROM, etc
-	movlw                  0xFF
-	movwf                  NVMADRL
-	movlw                  0xF0
-	movwf                  NVMADRH
-	bsf                    NVMCON1,RD
-	movf                   NVMDATL,W
-	movlb	0	;Bank 0
+ReadEEData	movlw	0xFF
+	movwf	FSR0L
+	movlw	high SAFAddress
+	bsf	WREG,7
+	movwf	FSR0H
+	movfw	INDF0
+	MOVLB	0x00	;Bank 0
 	return
 ;
 ;==============================================
@@ -518,19 +513,19 @@ ReadEEData	movlb	NVMADRH	;Bank 16
 ; exit: Bank 0 selected
 ;
 WriteEEData	movlb                  NVMADRL                ;bank 16
-                       bsf                    NVMCON1,NVMREGS
+                       bcf                    NVMCON1,NVMCON1_NVMREGS	;Prog mem
                        movlw                  0xFF
                        movwf                  NVMADRL
-	movlw                  0xF0
+	movlw                  high SAFAddress
 	movwf                  NVMADRH
 	clrf                   NVMDATL
 ;
-	bsf                    NVMCON1,WREN
+	bsf                    NVMCON1,NVMCON1_WREN
 	call                   NVM_WriteSequence
 ;
-WriteEEData_L1	btfsc	NVMCON1,WR	
+WriteEEData_L1	btfsc	NVMCON1,NVMCON1_WR	
 	bra	WriteEEData_L1
-	bcf	NVMCON1,WREN
+	bcf	NVMCON1,NVMCON1_WREN
 	movlb	0x00	;Bank 0
 	return	
 ;
@@ -621,10 +616,10 @@ EraseBlock_L1	movlw	0xFF
 ; Exit: FSR1 changed, 32 words >> (FSR1++)
 ;
 ReadProgBlock	call	LoadProgAddr
-	bcf                    NVMCON1,NVMREGS        ; Do not select Configuration Space
+	bcf                    NVMCON1,NVMCON1_NVMREGS        ; Do not select Configuration Space
 	movlw	BlockWords	;Block is .32 words
 	movwf	Param79
-ReadProgBlock_L1	bsf	NVMCON1,RD	; Initiate read
+ReadProgBlock_L1	bsf	NVMCON1,NVMCON1_RD	; Initiate read
 	movf	NVMDATL,W	; Get LSB of word
 	movwi	FSR1++	; Store in user location
 	MOVF	NVMDATH,W	; Get MSB of word
@@ -643,11 +638,11 @@ ReadProgBlock_1	incf	NVMADRL,F
 ; Entry: PROG_ADDR_HI:PROG_ADDR_LO
 ;
 EraseProgBlock	call	LoadProgAddr
-                       bcf                    NVMCON1,NVMREGS        ; Do not select Configuration Space
-	bsf	NVMCON1,FREE	;Specify an erase operation, automaticaly cleared
-	bsf	NVMCON1,WREN	;Enable writes
+                       bcf                    NVMCON1,NVMCON1_NVMREGS        ; Do not select Configuration Space
+	bsf	NVMCON1,NVMCON1_FREE	;Specify an erase operation, automaticaly cleared
+	bsf	NVMCON1,NVMCON1_WREN	;Enable writes
 	call                   NVM_WriteSequence      ;Set WR bit to begin erase
-	bcf	NVMCON1,WREN	;Disable writes
+	bcf	NVMCON1,NVMCON1_WREN	;Disable writes
 	movlb	0
 	return
 ;
@@ -673,9 +668,9 @@ LoadProgAddr	movf	PROG_ADDR_HI,W
 ; Exit: FSR1 changed
 ; 
 WriteProgBlock	call	LoadProgAddr
-                       bcf                    NVMCON1,NVMREGS        ; Do not select Configuration Space
-	bsf	NVMCON1,WREN	;Enable writes
-	bsf	NVMCON1,LWLO	;Only Load Write Latches
+                       bcf                    NVMCON1,NVMCON1_NVMREGS        ; Do not select Configuration Space
+	bsf	NVMCON1,NVMCON1_WREN	;Enable writes
+	bsf	NVMCON1,NVMCON1_LWLO	;Only Load Write Latches
 	movlw	BlockWords
 	movwf	Param79
 ;
@@ -694,9 +689,9 @@ WriteProgBlock_L1	moviw	FSR1++
 	incf	NVMADRL,F
 	bra	WriteProgBlock_L1
 ;
-WriteProgBlock_Wr	bcf	NVMCON1,LWLO	; Write memory not latches
+WriteProgBlock_Wr	bcf	NVMCON1,NVMCON1_LWLO	; Write memory not latches
                        call                   NVM_WriteSequence
-	bcf	NVMCON1,WREN	;Disable writes
+	bcf	NVMCON1,NVMCON1_WREN	;Disable writes
 ;
 	movlb	0
 	return	
@@ -706,7 +701,7 @@ NVM_WriteSequence      movlw	0x55	; Start of required write sequence:
 	movwf	NVMCON2
 	movlw	0xAA
 	movwf	NVMCON2
-	bsf	NVMCON1,WR	; Set WR bit to begin write
+	bsf	NVMCON1,NVMCON1_WR	; Set WR bit to begin write
 	return
 ;
 ;============================================================
@@ -734,31 +729,34 @@ InitializeBLIO	movlb	ANSELA                 ;bank 30
 ;
 ;=============================
 ;
-; setup serial I/O
-	movlb	RXPPS                  ;bank 29
-	movlw	0x17	;RC7, default
-	movwf	RXPPS
-	movlw	0x16	;RC6, default
-	movwf	TXPPS
+; setup serial I/O on RC0/TX2, RC1/RX2
 ;
-	movlb	RC6PPS                 ;bank 30
-	movlw	0x10	;Tx/CK signal
-	movwf	RC6PPS
+;Note:using dfault values
+;	movlb	RX2DTPPS	;bank 29
+;	movlw	0x11	;RC1, default
+;	movwf	RX2DTPPS
+;	movlw	0x10	;RC0, default
+;	movwf	TX2CKPPS
 ;
-	movlb	BAUD1CON	;bank 2
-	movlw	BAUDCON_Value
-	movwf	BAUD1CON
+;	movlb	RC0PPS                 ;bank 30
+;	movlw	0x10	;TX2/CK2  signal
+;	movwf	RC0PPS
+;
+	movlb	BAUD2CON	;bank 2
+	movlw	BAUD2CON_Value
+	movwf	BAUD2CON
 	MOVLW	low BaudRate
-	MOVWF	SP1BRGL
+	MOVWF	SP2BRGL
 	MOVLW	high BaudRate
-	MOVWF	SP1BRGH
+	MOVWF	SP2BRGH
 ;
-	bcf	TX1STA,SYNC_TX1STA
-	bsf	TX1STA,BRGH
-	bsf	TX1STA,TXEN
+	bsf	RC2STA,RC2STA_SPEN
+	bsf	RC2STA,RC2STA_CREN
 ;
-	bsf	RC1STA,SPEN
-	bsf	RC1STA,CREN
+	bcf	TX2STA,TX2STA_SYNC
+	bsf	TX2STA,TX2STA_BRGH
+	bsf	TX2STA,TX2STA_TXEN
+;
 ;
 	movlb	0	; bank 0
 ;
