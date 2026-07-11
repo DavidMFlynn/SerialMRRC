@@ -119,18 +119,18 @@ RS485_Parse_Byte	CALL	GetSer485In
 ;
 ;
 ; Destination Address
-RS485_Parse_DALo	btfsc	RS485DestAddLoRXd
+RS485_Parse_DALo	movlb	0	;Bank 0
+	btfsc	RS485DestAddLoRXd
 	bra	RS485_Parse_DALo_End
-	bsf	RX485DstIsMe
-	movlb	0
+	bsf	RX485DstIsMe	;default to it being my message
 	movf	RS485_Address,W
-	movlb	Ser485_Buff_Bank
+	movlb	Ser485_Buff_Bank	;Bank 4
 	subwf	Param78,W
-	SKPZ
-	bcf	RX485DstIsMe
+	SKPZ		;RS485_Address=RXd byte?
+	bcf	RX485DstIsMe	; No
 	bsf	RS485DestAddLoRXd
 	movf	Param78,W
-	movwf	RX485_DstAdd
+	movwf	RX485_DstAdd	;Save RXd byte as dest addr
 	xorwf	RX485_CSUM,F
 	bra	RS485_Parse_Rtn
 RS485_Parse_DALo_End:
@@ -153,7 +153,7 @@ RS485_Parse_SALo	movlb	Ser485_Buff_Bank
 	movf	Param78,W
 	movwf	RX485_SrcAdd
 	xorwf	RX485_CSUM,F
-RS485_Parse_Rtn	movlb	0x00	;bank 0
+RS485_Parse_Rtn	movlb	0	;bank 0
 	return
 RS485_Parse_SALo_end:
 ;

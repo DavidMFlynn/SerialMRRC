@@ -2,7 +2,7 @@
 ;
 ;   Filename:	SMRRC.asm
 ;   Created:	4/1/2025
-;   File Revision:	0.9a   4/1/2025
+;   File Revision:	0.9.1a   7/9/2026
 ;   Project:	Serial Model Railroad Control
 ;   Author:	David M. Flynn
 ;   Company:	DMF-Enterprises
@@ -13,6 +13,7 @@
 ;
 ;
 ;    History:
+; 0.9.1a   7/9/2026	It compiles...
 ; 0.9a   4/1/2025	Copied from BLDC_Servo, Blink an LED
 ;
 ;=========================================================================================
@@ -24,24 +25,24 @@
 ;   At power up the system LED will blink.
 ;
 ;=========================================================================================
-; uController pinout (PIC16F18854):
+; uController pinout (PIC16F15345):
 ;
 ; Pin 1  (Vdd)		+5 Volts
 ; Pin 2  (RA5)		LED2 (Active Low Input/Output)(LED2/Button2)
 ; Pin 3  (RA4)		LED1 (Active Low Input/Output)(LED1/Button1)
 ; Pin 4  (RA3/MCLR*)		VPP/MCLR*
-; Pin 5  (RC5)		I/O
-; Pin 6  (RC4)		I/O
-; Pin 7  (RC3)		I/O
-; Pin 8  (RC6)		I/O
-; Pin 9  (RC7)		I/O
+; Pin 5  (RC5)		I/O    Daughter Card Pin 10
+; Pin 6  (RC4)		I/O    Daughter Card Pin 9
+; Pin 7  (RC3)		I/O    Daughter Card Pin 8
+; Pin 8  (RC6)		I/O    Daughter Card Pin 11
+; Pin 9  (RC7)		I/O    Daughter Card Pin 12
 ; Pin 10 (RB7/TX1)		RS-485 Driver
 ; Pin 11 (RB6)		RS-485 Driver Enable (Active High Output)
 ; Pin 12 (RB5)		RS-485 Receiver
 ; Pin 13 (RB4)		RS-485 Receiver Enable (Active Low Output)
-; Pin 14 (RC2)		I/O
-; Pin 15 (RC1)		RX2 or I/O
-; Pin 16 (RC0)		TX2 or I/O
+; Pin 14 (RC2)		I/O    Daughter Card Pin 7
+; Pin 15 (RC1)		RX2 or I/O Daughter Card Pin 6
+; Pin 16 (RC0)		TX2 or I/O Daughter Card Pin 5
 ; Pin 17 (RA2)		SYSLED (Active Low Output)(System LED)
 ; Pin 18 (RRA/ICSPCLK)		ICSPCLK
 ; Pin 19 (RA0/ICSPDAT)		ICSPDAT
@@ -283,6 +284,9 @@ AuxConfigSwInvert	EQU	0x03
 #Define	RS485DataReceivedFlag	Ser485Flags,1
 #Define	RS485DataSentFlag	Ser485Flags,2
 #Define	RS485RX_Timeout	Ser485Flags,3	;cleared by host read
+#Define	RS485RX_IsAddress	Ser485Flags,4
+#Define	RS485DestAddLoRXd	Ser485Flags,5
+#Define	RS485SourceAddLoRXd	Ser485Flags,6
 ;
 ;---------------
 #Define	FirstRAMParam	SysMode
@@ -505,8 +509,6 @@ ProgStartVector	CLRF	PCLATH
 ;
 	ORG	0x004	; interrupt vector location
 	CLRF	PCLATH
-;
-;	
 	movlb	0	; bank 0
 ;
 ;=============================

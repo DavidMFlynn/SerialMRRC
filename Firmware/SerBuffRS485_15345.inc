@@ -30,9 +30,11 @@
 ;#Define	RS485DataSentFlag	Ser485Flags,2
 ;#Define	RS485RX_Timeout	Ser485Flags,3	;cleared by host read
 ;#Define	RS485RX_IsAddress	Ser485Flags,4	;Data in RX485Byte is and address
+;#Define	RS485DestAddLoRXd	Ser485Flags,5
+;#Define	RS485SourceAddLoRXd	Ser485Flags,6
 ;
-; Bank2 Variables:
-;#Define	Ser485_Buff_Bank	2
+; Bank4 Variables:
+;#Define	Ser485_Buff_Bank	4
 ;	cblock	0x120
 ;	Ser485_In_Bytes		;Bytes in Ser_In_Buff
 ;	Ser485_Out_Bytes		;Bytes in Ser_Out_Buff

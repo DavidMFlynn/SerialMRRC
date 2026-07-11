@@ -12948,7 +12948,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Molex10181201:Molex10181120"
 			(at 222.25 64.77 0)
 			(hide yes)
 			(show_name no)
