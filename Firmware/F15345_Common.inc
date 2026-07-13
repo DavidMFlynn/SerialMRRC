@@ -24,7 +24,7 @@
 ; Routines:
 ;
 ; ClearRam	(2+0) Clears all RAM, call once before initializing variables, FSR0
-; CopyToRam	(1+0) copy param memory (EEPROM) to ram, call once, FSR0
+; CopyToRam	(1+0) copy param memory (EEPROM) to ram, call once, FSR0, FSR1
 ; SaveParams	(1+0) copy ram to param memory (EEPROM), FSR0
 ;
 ;  Set FSR0H before calling these routines
@@ -115,18 +115,18 @@ ClearRam_L2	CLRF	INDF0
 ;==========================================================================
 ; copy param memory to ram
 ;
-CopyToRam	MOVLW	nvFirstParamByte
+CopyToRam	MOVLW	nvFirstParamByte	;0x00
 	MOVWF	EEAddrTemp
-	MOVLW	FirstRAMParam
-	MOVWF	FSR0L
-	CLRF	FSR0H
+	MOVLW	FirstRAMParam	;Bank0 location
+	MOVWF	FSR1L
+	CLRF	FSR1H
 CopyToRam_L1	CALL	EERead
-	movwi	FSR0++
+	movwi	FSR1++
 	INCF	EEAddrTemp,F
 	MOVLW	LastRAMParam+1
-	SUBWF	FSR0L,W
-	SKPZ
-	BRA	CopyToRam_L1
+	SUBWF	FSR1L,W
+	SKPZ		;Past end?
+	BRA	CopyToRam_L1	; not yet
 	RETURN
 ;
 ;===========================================================================

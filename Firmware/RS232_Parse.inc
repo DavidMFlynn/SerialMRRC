@@ -151,8 +151,11 @@ RS232_Parse_Sync2	btfsc	SyncByte2RXd
 	SKPZ
 	goto	RS232_Parse_Error
 	bsf	SyncByte2RXd
+;tc
+;	movlb	0	
+;	bsf	LED1_Active
+;etc
 	bra	RS232_Parse_Rtn
-;
 	endif
 ;
 ; LSB of Source Address
@@ -286,6 +289,18 @@ RS232_Parse_L1	moviw	FSR0++
 	bcf	RXDataValidFlag	; no
 ;
 	clrf	RX_ParseFlags
+;
+;tc
+;	btfss	RXSrcIsMaster
+;	bra	TC_End	
+;	movlb	0
+;	movf	RS232_MasterAddr,W
+;	sublw	1
+;	SKPNZ
+;	bsf	LED1_Active
+TC_End:
+;etc
+;	
 	movlb	0x00
 	return
 ;

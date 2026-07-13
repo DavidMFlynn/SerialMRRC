@@ -1,0 +1,19 @@
+-- Need help deciding which version of this DLL to use? --
+
+
+Use the MANAGED DLL if you...
+ - are planning to use the DLL with a .NET application.
+ - desire the most simple way to use the DLL.
+ - are using programming languages like VB.NET, C#, etc. 
+ - are using Visual Studio as your IDE.
+
+
+Use the UNMANAGED DLL if you...
+ - want to avoid the .NET framework requirement of the managed DLL.
+ - don't mind a more complex method to utilize the DLL (in comparison to managed DLL).
+ - are using programming languages like Python, C++, LabVIEW, etc.
+
+
+
+
+PLEASE NOTE: This list is not comprehensive and is intended to be used only as a guide.

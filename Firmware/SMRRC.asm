@@ -79,7 +79,6 @@
 	constant	UseQEnc=0
 	constant	UsePID=0
 	constant	UseAuxLEDBlinking=0
-	constant	UseAnalogInputs=0
 ;
 	constant	RP_LongAddr=0
 	constant	RP_AddressBytes=1
@@ -99,8 +98,6 @@ kRS232_SlaveAddr	EQU	0x02	;This Slave's Address
 kRS485_Address	EQU	0x02	;my Address on the RS-485 bus
 kRS485_MasterAddr	EQU	0x01
 ;
-kAux0Config	EQU	0x00
-kAux1Config	EQU	0x00
 kSysMode	EQU	.0	;Default Mode
 ;
 #Define	_C	STATUS,C
@@ -123,13 +120,13 @@ SysLEDPort	EQU	PORTA
 #Define	SysLEDTris	TRISA,SysLED_Bit
 ;
 LED1_Bit	equ	4
-#Define	Aux0_LED1_TRIS	TRISA,LED1_Bit
-#Define	Aux0_LED1_LAT	LATA,LED1_Bit
-#Define	Aux0_SW1_PORT	PORTA,LED1_Bit
+#Define	LED1_TRIS	TRISA,LED1_Bit
+#Define	LED1_LAT	LATA,LED1_Bit
+#Define	SW1_PORT	PORTA,LED1_Bit
 LED2_Bit	equ	5
-#Define	Aux1_LED2_TRIS	TRISA,LED2_Bit
-#Define	Aux1_LED2_LAT	LATA,LED2_Bit
-#Define	Aux1_SW2_PORT	PORTA,LED2_Bit
+#Define	LED2_TRIS	TRISA,LED2_Bit
+#Define	LED2_LAT	LATA,LED2_Bit
+#Define	SW2_PORT	PORTA,LED2_Bit
 ;
 ;    Port B bits
 PortB_Tris_Bits	EQU	b'10101111'	;RS-485, TX/RX are controlled by serial	
@@ -185,19 +182,6 @@ DebounceTime	EQU	.10
 ;
 kMaxMode	EQU	.3
 ;
-; ssAuxNConfig bits
-;------------------------
-; AuxIO modes, Mode is bits 0..2
-kAuxIOnone	EQU	0x00
-kAuxIOLEDBtn	EQU	0x01
-kAuxIODigitalIn	EQU	0x02
-kAuxIODigitalOut	EQU	0x03
-kAuxIOAnalogIn	EQU	0x04
-kAuxIOHomeSw	EQU	0x05
-kAuxIOFwdLimit	EQU	0x06
-kAuxIORevLimit	EQU	0x07
-;
-AuxConfigSwInvert	EQU	0x03
 ;
 ;
 ;================================================================================================
@@ -216,15 +200,13 @@ AuxConfigSwInvert	EQU	0x03
 	SysLED_Blinks		;0=1 flash,1,2,3
 	SysLED_BlinkCount
 	SysLEDCount		;sys LED Timer tick count
-	if UseAuxLEDBlinking
-; Aux0..Aux2 LED blinking
+; LED1, LED2 blinking
 	LED1_Blinks		;0=off,1,2,3
 	LED2_Blinks
 	LED1_BlinkCount		;LED2_Blinks..0
 	LED2_BlinkCount
 	LED1_Count		;tick count
 	LED2_Count
-	endif
 ;
 	ssStatus:4
 	SysFlags1
@@ -260,19 +242,17 @@ AuxConfigSwInvert	EQU	0x03
 	RS485_Address		;my address on the RS-485 bus
 	RS485_MasterAddr
 ;
-	ssAux0Config		;kAuxIO0
-	ssAux1Config		;kAuxIO1
 	SysFlags		
 ;
 	endc
 ;--------------------------------------------------------------
 ;---SysFlags1 bits---
-#Define	Aux0_SW1_Active	SysFlags1,2
-#Define	Aux0_SW1_Debounce	SysFlags1,3
-#Define	Aux0_LED1_Active	SysFlags1,4
-#Define	Aux1_SW2_Active	SysFlags1,5
-#Define	Aux1_SW2_Debounce	SysFlags1,6
-#Define	Aux1_LED2_Active	SysFlags1,7
+#Define	SW1_Active	SysFlags1,2
+#Define	SW1_Debounce	SysFlags1,3
+#Define	LED1_Active	SysFlags1,4
+#Define	SW2_Active	SysFlags1,5
+#Define	SW2_Debounce	SysFlags1,6
+#Define	LED2_Active	SysFlags1,7
 ;
 ;
 ;---SerFlags bits---
@@ -295,6 +275,7 @@ AuxConfigSwInvert	EQU	0x03
 ;
 ;=========================================================================================
 ;  Bank1 Ram 0A0h-0EFh 80 Bytes, RS-232 Packet Serial
+;
 	cblock	0x0A0
 	RX_ParseFlags
 	RX_Flags
@@ -306,54 +287,8 @@ AuxConfigSwInvert	EQU	0x03
 	RX_Data:RP_DataBytes
 	TX_Data:RP_DataBytes
 ;
-	ANFlags		;New Data flags
-	ANxActive		;Skip if 0
-	ANCount		;Current AN being serviced
-	Cur_AN0:2		;Motor_I
-	Cur_AN1:2		;Motor_V, 7815 output volts
-	Cur_AN2:2		;Batt_V, J1.1 +12V
-	Cur_AN3:2		;For_Limit, SW2_LED2
-	Cur_AN4:2		;Rev_Limit, SW3_LED3
-	Cur_AN5:2		;Home, SW4_LED4
-;
 	endc
 ;
-LastAN	EQU	.5	;Sevice 3 AN inputs
-FirstANData	EQU	Cur_AN0
-;
-AN_MotorCurrent	EQU	Cur_AN0
-AN_MotorVolts	EQU	Cur_AN1
-AN_BattVolts	EQU	Cur_AN2
-AN_Aux0	EQU	Cur_AN3
-AN_Aux1	EQU	Cur_AN4
-AN_Aux2	EQU	Cur_AN5
-;
-;---ANFlags bits---
-#Define	NewDataAN0	ANFlags,0
-#Define	NewMotorCurrentData	ANFlags,0
-#Define	NewDataAN1	ANFlags,1
-#Define	NewDataAN2	ANFlags,2
-#Define	NewDataAN3	ANFlags,3
-#Define	NewDataAN4	ANFlags,4
-#Define	NewDataAN5	ANFlags,5
-;
-;---ANxActive bits---
-#Define	AN0_ActiveBit	ANxActive,0
-#Define	AN1_ActiveBit	ANxActive,1
-#Define	AN2_ActiveBit	ANxActive,2
-#Define	AN3_ActiveBit	ANxActive,3
-#Define	AN4_ActiveBit	ANxActive,4
-#Define	AN5_ActiveBit	ANxActive,5
-#Define	AN_Aux0_ActiveBit	ANxActive,3	;Names used by Serial Comms
-#Define	AN_Aux1_ActiveBit	ANxActive,4
-#Define	AN_Aux2_ActiveBit	ANxActive,5
-;
-AN0_Val	EQU	0x00	;ANA0
-AN1_Val	EQU	0x01	;ANA1
-AN2_Val	EQU	0x02	;ANA2
-AN3_Val	EQU	0x03	;ANA3, For_Limit
-AN4_Val	EQU	b'00010101'	;ANC5, Rev_Linit
-AN5_Val	EQU	b'00010000'	;ANC0, Home
 ;
 ;================================================================================================
 ;  Bank2 Ram 120h-16Fh 80 Bytes RS-232 Packet Serial
@@ -455,8 +390,6 @@ SAFAddress	EQU	0x1F80
 	de	kRS485_Address	;me
 	de	kRS485_MasterAddr
 ;
-	de	kAux0Config	;nvssAux0Config
-	de	kAux1Config	;nvssAux1Config
 	de	kSysFlags	;nvSysFlags
 ;
 	ORG	0x1FFF
@@ -474,8 +407,6 @@ SAFStart	equ	0x1F80
 	nvRS485_Address
 	nvRS485_MasterAddr
 ;
-	nvssAux0Config
-	nvssAux1Config
 	nvSysFlags
 ;
 	endc
@@ -533,6 +464,8 @@ ProgStartVector	CLRF	PCLATH
 	call	DecTimer4
 ;	
 	bsf	SysLEDTris	;LED off
+	bsf	LED1_TRIS	;LED off
+	bsf	LED2_TRIS	;LED off
 ;
 ;
 ;--------------------
@@ -546,9 +479,35 @@ SystemBlink_Std	MOVF	SysLED_Time,W
 	bcf	SysLEDTris	;LED ON
 ;
 SystemBlink_end:
-;	
-	call	HandleAuxIO
+;--------------------
+; LED 1
+	bcf	SW1_Active
+	btfss	SW1_PORT
+	bsf	SW1_Active
 ;
+	decfsz	LED1_Count,F
+	bra	LED1Blink_end
+;
+	movlw	.100	;1 second
+	movwf	LED1_Count
+	btfsc	LED1_Active
+	bcf	LED1_TRIS	;LED ON
+LED1Blink_end:
+;--------------------
+; LED 2
+	bcf	SW2_Active
+	btfss	SW2_PORT
+	bsf	SW2_Active
+;
+	decfsz	LED2_Count,F
+	bra	LED2Blink_end
+;
+	movlw	.100	;1 second
+	movwf	LED2_Count
+	btfsc	LED2_Active
+	bcf	LED2_TRIS	;LED ON
+LED2Blink_end:
+;	
 ;
 SystemTick_end:
 ;
@@ -596,6 +555,13 @@ start	call	InitializeIO
 ;*****************************************************************************************
 ;=========================================================================================
 ;
+;
+;tc
+;	bsf	LED1_Active
+;	bcf	LED1_LAT
+;	bcf	LED1_LAT	;LED ON
+;etc
+;
 MainLoop	nop
 ;	CLRWDT
 	nop
@@ -612,11 +578,6 @@ MainLoop	nop
 ;
 ModeReturn:
 ;
-;-----------------------
-;	
-	if UseAnalogInputs
-	CALL	ReadAN
-	endif
 ;
 	movlb	0
 ;
@@ -691,239 +652,6 @@ DoModeThree	goto	ModeReturn
 ;=========================================================================================
 ; ***************************************************************************************
 ;=========================================================================================
-; Interupt Service Routine for Aux IO
-; Call from ISR every 1/100th second.
-;
-HandleAuxIO:
-;-------------------------------
-; Aux0 LED/Switch
-	movf	ssAux0Config,W
-	andlw	0x07	;keep mode
-	brw
-	bra	Aux0_ISR_End	;kAuxIOnone
-	bra	Aux0_LEDBtn	;kAuxIOLEDBtn
-	bra	Aux0_Digital_In	;kAuxIODigitalIn
-	bra	Aux0_ISR_End	;kAuxIODigitalOut
-	bra	Aux0_ISR_End	;kAuxIOAnalogIn
-	bra	Aux0_HomeSW	;kAuxIOHomeSw
-	bra	Aux0_FwdLimit	;kAuxIOFwdLimit
-	bra	Aux0_RevLimit	;kAuxIORevLimit
-	
-;
-Aux0_LEDBtn	bsf	Aux0_LED1_TRIS	;LED off
-	nop
-	nop
-	nop
-	call	Read_Aux0_Sw1
-;
-	btfsc	Aux0_LED1_Active	;LED Active?
-	bcf	Aux0_LED1_TRIS	; Yes, LED On
-	bra	Aux0_ISR_End
-;
-Aux0_Digital_In	call	Read_Aux0_Sw1
-	bra	Aux0_ISR_End
-;
-Aux0_HomeSW	call	Read_Aux0_Sw1
-;
-;	bcf	HomeSwitch
-;	btfsc	Aux0_SW1_Active	;Active?
-;	bsf	HomeSwitch	; Yes
-	bra	Aux0_ISR_End
-;
-Aux0_FwdLimit	call	Read_Aux0_Sw1
-;
-;	bcf	ForwardLimit
-;	btfsc	Aux0_SW1_Active	;Active?
-;	bsf	ForwardLimit	; Yes
-	bra	Aux0_ISR_End
-;
-Aux0_RevLimit	call	Read_Aux0_Sw1
-;
-;	bcf	ReverseLimit
-;	btfsc	Aux0_SW1_Active	;Active?
-;	bsf	ReverseLimit	; Yes
-	bra	Aux0_ISR_End
-;
-Read_Aux0_Sw1	bcf	Aux0_SW1_Active
-	btfsc	ssAux0Config,AuxConfigSwInvert ;Inverted input?
-	bra	Read_Aux0_Sw1_1	; Yes
-; Default is active low.
-	btfss	Aux0_SW1_PORT	;Switch input low?
-	bsf	Aux0_SW1_Active	; Yes
-	bra	Read_Aux0_Sw1_2
-; Inverted, active High input.
-Read_Aux0_Sw1_1	btfsc	Aux0_SW1_PORT	;Switch input high?
-	bsf	Aux0_SW1_Active	; Yes
-;
-Read_Aux0_Sw1_2	btfss	Aux0_SW1_Active	;Active?
-	bcf	Aux0_SW1_Debounce	; No
-	return
-;
-Aux0_ISR_End:
-;
-;-------------------------------
-; Aux1 LED/Switch
-	movf	ssAux1Config,W
-	andlw	0x07	;keep mode
-	brw
-	bra	Aux1_ISR_End	;kAuxIOnone
-	bra	Aux1_LEDBtn	;kAuxIOLEDBtn
-	bra	Aux1_Digital_In	;kAuxIODigitalIn
-	bra	Aux1_ISR_End	;kAuxIODigitalOut
-	bra	Aux1_ISR_End	;kAuxIOAnalogIn
-	bra	Aux1_HomeSW	;kAuxIOHomeSw
-	bra	Aux1_FwdLimit	;kAuxIOFwdLimit
-	bra	Aux1_RevLimit	;kAuxIORevLimit
-	
-;
-Aux1_LEDBtn	bsf	Aux1_LED2_TRIS	;LED off
-	nop
-	nop
-	nop
-	call	Read_Aux1_Sw2
-;
-	btfsc	Aux1_LED2_Active	;LED Active?
-	bcf	Aux1_LED2_TRIS	; Yes, LED On
-	bra	Aux1_ISR_End
-;
-Aux1_Digital_In	call	Read_Aux1_Sw2
-	bra	Aux1_ISR_End
-;
-Aux1_HomeSW	call	Read_Aux1_Sw2
-;
-;	bcf	HomeSwitch
-;	btfsc	Aux1_SW2_Active	;Active?
-;	bsf	HomeSwitch	; Yes
-	bra	Aux1_ISR_End
-;
-Aux1_FwdLimit	call	Read_Aux1_Sw2
-;
-;	bcf	ForwardLimit
-;	btfsc	Aux1_SW2_Active	;Active?
-;	bsf	ForwardLimit	; Yes
-	bra	Aux1_ISR_End
-;
-Aux1_RevLimit	call	Read_Aux1_Sw2
-;
-;	bcf	ReverseLimit
-;	btfsc	Aux1_SW2_Active	;Active?
-;	bsf	ReverseLimit	; Yes
-	bra	Aux1_ISR_End
-;
-Read_Aux1_Sw2	bcf	Aux1_SW2_Active
-	btfsc	ssAux1Config,AuxConfigSwInvert ;Inverted input?
-	bra	Read_Aux1_Sw2_1	; Yes
-; Default is active low.
-	btfss	Aux1_SW2_PORT	;Switch input low?
-	bsf	Aux1_SW2_Active	; Yes
-	bra	Read_Aux1_Sw2_2
-; Inverted, active High input.
-Read_Aux1_Sw2_1	btfss	Aux1_SW2_PORT	;Switch input low?
-	bsf	Aux1_SW2_Active	; Yes
-;
-Read_Aux1_Sw2_2	btfss	Aux1_SW2_Active	;Active?
-	bcf	Aux1_SW2_Debounce	; No
-	return
-;
-Aux1_ISR_End:
-	return
-;
-	if UseAnalogInputs
-;=========================================================================================
-; ***************************************************************************************
-;=========================================================================================
-; Read analog inputs in sequence, Call from main loop
-; Use with PIC16F188xx, sets up and manages the ADC
-;
-; Entry: ANCount, FirstANData.., LastAN, ANFlags, ANxActive
-; Exit: FirstANData.., ANFlags
-; Ram Used: Param78
-; Calls: ANx_GetADPCHVal
-;
-ReadAN	movlb	ADCON0	;bank 1
-	BTFSS	ADCON0,ADON	;Is the Analog input ON?
-	BRA	ReadAN0_ColdStart	; No, go start it
-;
-	BTFSC	ADCON0,ADGO	;Conversion done?
-	BRA	ReadAN_Rtn	; No
-;
-	movlw	HIGH FirstANData
-	movwf	FSR0H
-	lslf	ANCount,W
-	addlw	LOW FirstANData
-	movwf	FSR0L
-; move result into ram
-	MOVF	ADRESL,W
-	MOVWI	FSR0++
-	MOVF	ADRESH,W
-	MOVWI	FSR0++
-; notify app of new data
-	incf	ANCount,W
-	movwf	Param78
-;
-	clrw
-	bsf	_C
-ReadAN_L2	rlf	WREG,F
-	decfsz	Param78,F
-	bra	ReadAN_L2
-	iorwf	ANFlags,F	;set the new data bit
-;
-; setup for next AN
-ReadAN_Next	movlw	LastAN
-	subwf	ANCount,W
-	SKPNZ		;Last one?
-	bra	ReadAN_Start0	; Yes, start over w/ AN0
-	incf	ANCount,F	;AN#++
-	incf	ANCount,W	;W = AN#+1
-	movwf	Param78
-	clrw
-	bsf	_C
-ReadAN_L1	rlf	WREG,F
-	decfsz	Param78,F
-	bra	ReadAN_L1
-	andwf	ANxActive,W	;Is this one active?
-	SKPNZ
-	bra	ReadAN_Next	; No
-;
-	bra	ReadAN_Start
-;
-;==========================================================
-;
-ReadAN0_ColdStart	movlb	ADREF                  ;bank 1
-	movlw	b'00000000'	;Default Vref- >> Vss, Vref+ >> Vdd
-	movwf	ADREF
-	movlw	b'10000100'	;ADC On, Right Just
-	movwf	ADCON0
-	MOVLW	b'00000000'	
-	MOVWF	ADCON1	;default, single sample
-; ADCON2 default 0x00, Basic (Legacy) mode
-	MOVLW	b'00111111'	;fosc/128
-	movwf	ADCLK
-	movlw	0x04	;Acquisition time x ADCLK
-	movwf	ADACQ	
-;
-; Start acquisition of AN0
-ReadAN_Start0	CLRF	ANCount
-ReadAN_Start	call	ANx_GetADPCHVal
-	movwf	ADPCH	;Set channel
-	BSF	ADCON0,ADGO	;Begin
-ReadAN_Rtn:
-Bank0_Rtn	movlb	0                      ;bank 0
-	return
-;
-ANx_GetADPCHVal	movf	ANCount,W	;0..LastAN
-	brw
-	retlw	AN0_Val	;Motor Current
-	retlw	AN1_Val	;Motor Volts
-	retlw	AN2_Val	;Batt Volts
-	retlw	AN3_Val	;Aux 0
-	retlw	AN4_Val	;Aux 1
-	retlw	AN5_Val	;Aux 2
-;
-	endif
-;=========================================================================================
-; ***************************************************************************************
-;=========================================================================================
 ; Initialization routine for PIC16F18854 based BLDC_Drive.
 ; Call once before starting main loop.
 ;
@@ -966,14 +694,6 @@ InitializeIO	movlb	WDTCON0
 	endif
 ;
 ;-----------------------
-;
-	if UseAnalogInputs
-	movlb	1	; bank 0
-	bsf	AN0_ActiveBit
-	bsf	AN1_ActiveBit
-	endif
-;
-;-----------------------
 ;Setup T0 for 100/s
 ;
 T0CON0_Value	equ	b'10001001'	;T0EN, 8bit timer, 1:10 Postscaler
@@ -1009,19 +729,17 @@ TMR0H_Value	equ	.125
 ;=========================================================================================
 	if useRS232
 ;
-; setup serial I/O on RC0/TX2, RC1/RX2
+; setup serial I/O on RC0/TX2 In/Out, RC1/RX2 In
 ;
-;Note:using dfault values
+	movlb	RX2DTPPS	;bank 29
+	movlw	0x11	;RC1, default
+	movwf	RX2DTPPS	; input
+	movlw	0x10	;RC0, default
+	movwf	TX2CKPPS	; input
 ;
-;	movlb	RX2DTPPS	;bank 29
-;	movlw	0x11	;RC1, default
-;	movwf	RX2DTPPS
-;	movlw	0x10	;RC0, default
-;	movwf	TX2CKPPS
-;
-;	movlb	RC0PPS                 ;bank 30
-;	movlw	0x10	;TX2/CK2  signal
-;	movwf	RC0PPS
+	movlb	RC0PPS                 ;bank 30
+	movlw	0x11	;TX2/CK2  output signal
+	movwf	RC0PPS	; output
 ;
 	movlb	BAUD2CON	;bank 2
 	movlw	BAUD2CON_Value
@@ -1042,6 +760,7 @@ TMR0H_Value	equ	.125
 ;
 	movlb	PIE3	; bank 14
 	BSF	PIE3,RC2IE	; Serial Receive interupt
+	movlb	0
 	endif
 ;=========================================================================================
 	if useRS485
@@ -1086,11 +805,13 @@ TMR0H_Value	equ	.125
 ;
 	movlb	PIE3	; bank 14
 	BSF	PIE3,RC1IE	; Serial Receive interupt
+	movlb	0
 	endif
 ;
 ;=========================================================================================
 ;
 ;
+	movlb	0
 	return
 ;
 ;

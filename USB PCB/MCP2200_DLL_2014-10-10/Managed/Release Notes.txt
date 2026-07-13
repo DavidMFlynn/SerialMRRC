@@ -1,0 +1,58 @@
+-------------------------------------------------------------------
+              Readme for the MCP2200 DLL (Managed)
+-------------------------------------------------------------------
+
+                  Microchip Technology, Inc.
+
+
+
+
+-------------------------------------------------------------------
+System Requirements
+-------------------------------------------------------------------
+The system requirements will vary based off which managed DLL is used.
+Both support Windows XP SP3 or later.
+
+.NET4 Version: .NET4 Framework and Microsoft Visual C++ 2010 Redistributable Package (x86)*
+.NET2 Version: .NET2 Framework and Microsoft Visual C++ 2008 Redistributable Package (x86)**
+
+
+*= Or include msvcr100.dll in same directory as DLL
+**= Or include msvcm90.dll and msvcr90.dll in same directory as DLL
+
+
+-------------------------------------------------------------------
+Versioning History
+-------------------------------------------------------------------
+Version 1.3.0 (Released 10/10/2014):
+ - Improvements to performance and memory management
+ - Added function to set VID/PID of the part
+ - Created two versions of the DLL: one for .NET2 and one for .NET4 
+
+Version 1.2.0 (Released 01/28/2013):
+ - Added support for inverting UART polarity through ConfigureMCP2200() function
+ - Added dedicated function for inverting UART polarity: fnInvertUartPol()
+
+Version 1.1.2 (Released 08/16/2012):
+ - Corrected issue that could cause incorrect number to be returned
+   by the GetNoOfDevices() function on some systems
+ - Resolved issue that caused baud rate to change when the function 
+   ConfigureMCP2200() was used
+
+Version 1.1.1:
+ - Resolved bug in DLL memory management
+
+Version 1.1.0:
+ - Added EEPROM read/write support
+- Added example project/demo
+
+Version 1.0.0:
+ - Initial release
+  
+
+-------------------------------------------------------------------
+Contact Information
+-------------------------------------------------------------------
+Main Website: 		http://www.microchip.com
+Technical Support: 	http://support.microchip.com
+

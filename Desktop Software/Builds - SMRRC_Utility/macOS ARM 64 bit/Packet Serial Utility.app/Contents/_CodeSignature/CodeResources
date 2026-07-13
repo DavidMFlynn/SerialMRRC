@@ -15,24 +15,6 @@
 			<key>requirement</key>
 			<string>cdhash H"8973dd8f9c882596d39fb0e15ae7ee11a7bac589"</string>
 		</dict>
-		<key>Frameworks/GUIKitCocoa.dylib</key>
-		<dict>
-			<key>cdhash</key>
-			<data>
-			EqDmgIXUDL6yb/C6oDLwHJ5y1vY=
-			</data>
-			<key>requirement</key>
-			<string>cdhash H"12a0e68085d40cbeb26ff0baa032f01c9e72d6f6"</string>
-		</dict>
-		<key>Frameworks/GameInput.dylib</key>
-		<dict>
-			<key>cdhash</key>
-			<data>
-			v82tcvEl0caEXGYBhXWXpXnC0to=
-			</data>
-			<key>requirement</key>
-			<string>cdhash H"bfcdad72f125d1c6845c6601857597a579c2d2da"</string>
-		</dict>
 		<key>Frameworks/InternetEncodings.dylib</key>
 		<dict>
 			<key>cdhash</key>
