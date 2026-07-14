@@ -178,7 +178,7 @@ RS485_Parse_Data	btfsc	RS485AllDataRXd
 	if UseRS485Chksum
 	bra	RS485_Parse_Rtn
 	endif
-RS485_Parse_Data_end
+RS485_Parse_Data_end:
 ;
 	if UseRS485Chksum
 ; checksum
@@ -275,7 +275,7 @@ RS485_Send:
 	endif
 ;
 	movlb	Ser485_Buff_Bank
-	movlw	RP_DataBytes
+	movlw	RP485_DataBytes
 	movwf	Param79
 	movlw	low TX_Data
 	movwf	FSR1L
@@ -294,6 +294,61 @@ RS485_Send_L1	moviw	FSR1++
 	endif
 ;
 	goto	RS485_ClearTXData
+;
+;=========================================================================================
+; Forward a data packet from RS232
+;
+;Entry: TX_Data = Data to send 
+;Exit: TX_Data is cleared
+;Ram used: Param78,Param79,Param7A,FSR0,FSR1
+;Calls: (1+0) StoreSer485Out
+;
+RS485_Forward:
+;
+	movlb	RX_SrcAdd	;bank 1
+	clrf	Param7A	;CSum=0
+	movf	RX_SrcAdd,W	;source address
+	xorwf	Param7A,F	;CSum=CSum xor data
+	call	StoreSer485Out
+;
+	if RP_LongAddr
+	movlb	RX_SrcAdd	;bank 1
+	movf	RX_SrcAdd+1,W	;source address high byte
+	xorwf	Param7A,F	;CSum=CSum xor data
+	call	StoreSer485Out
+	endif
+;
+	movlb	RX_DstAdd	;bank 1
+	movf	RX_DstAdd,W	;destination address
+	xorwf	Param7A,F	;CSum=CSum xor data
+	call	StoreSer485Out
+;
+	if RP_LongAddr
+	movlb	RX_DstAdd	;bank 1
+	movf	RX_DstAdd+1,W	;destination address
+	xorwf	Param7A,F	;CSum=CSum xor data
+	call	StoreSer485Out
+	endif
+;
+	movlw	RP_DataBytes
+	movwf	Param79
+	movlw	low RX_TempData
+	movwf	FSR1L
+	movlw	high RX_TempData
+	movwf	FSR1H
+;
+RS485_Forward_L1	moviw	FSR1++
+	xorwf	Param7A,F	;CSum=CSum xor data
+	call	StoreSer485Out
+	decfsz	Param79,F
+	bra	RS485_Forward_L1
+;
+	if UseRS485Chksum
+	movf	Param7A,W
+	call	StoreSer485Out
+	endif
+;
+	return
 ;
 ;=========================================================================================
 ;

@@ -102,7 +102,7 @@
 ;=========================================================================================
 ; Parse any bytes received by the serial port
 ;
-; Receive 0xFF,0xFF,SA0,(SA1),DA0,(DA1),Cmd,Data0,Data1,Data2,CS
+; Receive 0xDD,0xDD,SA0,(SA1),DA0,(DA1),Cmd,Data0,Data1,Data2,CS
 ;
 ;
 ; Entry: none
@@ -151,10 +151,6 @@ RS232_Parse_Sync2	btfsc	SyncByte2RXd
 	SKPZ
 	goto	RS232_Parse_Error
 	bsf	SyncByte2RXd
-;tc
-;	movlb	0	
-;	bsf	LED1_Active
-;etc
 	bra	RS232_Parse_Rtn
 	endif
 ;
@@ -174,7 +170,7 @@ RS232_Parse_SALo	movlb	0x01	;bank 1
 	bcf	RXSrcIsMaster
 	bsf	SourceAddLoRXd
 	movf	Param78,W
-	movwf	RX_SrcAdd
+	movwf	RX_SrcAdd	;Save for later
 	xorwf	RX_CSUM,F
 RS232_Parse_Rtn	movlb	0x00	;bank 0
 	return
@@ -192,7 +188,7 @@ RS232_Parse_SAHi	btfsc	SourceAddHiRXd
 	bcf	RXSrcIsMaster
 	bsf	SourceAddHiRXd
 	movf	Param78,W
-	movwf	RX_SrcAdd+1
+	movwf	RX_SrcAdd+1	;Save for later
 	xorwf	RX_CSUM,F
 	bra	RS232_Parse_Rtn
 RS232_Parse_SAHi_end:
@@ -210,7 +206,7 @@ RS232_Parse_DALo	btfsc	DestAddLoRXd
 	bcf	RXDstIsMe
 	bsf	DestAddLoRXd
 	movf	Param78,W
-	movwf	RX_DstAdd
+	movwf	RX_DstAdd	;Save for later
 	xorwf	RX_CSUM,F
 	bra	RS232_Parse_Rtn
 RS232_Parse_DALo_End:
@@ -227,7 +223,7 @@ RS232_Parse_DAHi	btfsc	DestAddHiRXd
 	bcf	RXDstIsMe
 	bsf	DestAddHiRXd
 	movf	Param78,W
-	movwf	RX_DstAdd+1
+	movwf	RX_DstAdd+1	;Save for later
 	xorwf	RX_CSUM,F
 	bra	RS232_Parse_Rtn
 RS232_Parse_DAHi_end:
@@ -235,25 +231,28 @@ RS232_Parse_DAHi_end:
 ;
 RS232_Parse_Data	btfsc	AllDataRXd
 	bra	RS232_Parse_Data_end
+; setup pointer to RX_TempData
 	movf	RX_DataCount,W
 	addlw	low RX_TempData
 	movwf	FSR0L
 	movlw	high RX_TempData
 	movwf	FSR0H
+;
 	movf	Param78,W
 	xorwf	RX_CSUM,F
-	movwf	INDF0
+	movwf	INDF0	;Save for later
 	incf	RX_DataCount,F
 	movlw	RP_DataBytes
 	subwf	RX_DataCount,W
-	SKPZ
-	bra	RS232_Parse_Rtn
-	bsf	AllDataRXd
+	SKPZ		;All bytes received?
+	bra	RS232_Parse_Rtn	; No
+	bsf	AllDataRXd	; Yes
 ;
 	if UseRS232Chksum
 	bra	RS232_Parse_Rtn
 	endif
-RS232_Parse_Data_end
+;
+RS232_Parse_Data_end:
 ;
 	if UseRS232Chksum
 ; checksum
@@ -263,6 +262,8 @@ RS232_Parse_Data_end
 	bra	RS232_Parse_Error	; No
 ;
 	endif
+;
+; Copy RP_DataBytes bytes of data from RX_TempData to RX_Data
 ;
 	movlw	low RX_TempData
 	movwf	FSR0L
@@ -282,30 +283,20 @@ RS232_Parse_L1	moviw	FSR0++
 	bra	RS232_Parse_L1
 ;
 	bsf	RXDataIsNew	;good packet rx'd
-	bsf	RXDataValidFlag
+	bsf	RXDataValidFlag	;Addr from Master to Me?
 	btfss	RXSrcIsMaster	;from master?
 	bcf	RXDataValidFlag	; no
 	btfss	RXDstIsMe	;to me?
 	bcf	RXDataValidFlag	; no
 ;
 	clrf	RX_ParseFlags
-;
-;tc
-;	btfss	RXSrcIsMaster
-;	bra	TC_End	
-;	movlb	0
-;	movf	RS232_MasterAddr,W
-;	sublw	1
-;	SKPNZ
-;	bsf	LED1_Active
-TC_End:
-;etc
 ;	
 	movlb	0x00
 	return
 ;
 ;
 ; We didn't get the sync byte we were expecting so restart the parser
+;
 RS232_Parse_Error	CLRF	RX_ParseFlags
 	goto	FlushInBuff
 ;

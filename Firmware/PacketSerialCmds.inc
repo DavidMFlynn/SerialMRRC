@@ -48,11 +48,25 @@ RS232_Send_S0	mLongCall	RS232_Send
 ;
 HandleRXData	movlb	RX_Flags	;bank 1
 	bcf	RXDataIsNew
-	btfsc	RXDataValidFlag	;from master to me?
-	bra	HandleRXData_1
+	btfsc	RXDataValidFlag	;From master to me?
+	bra	HandleRXData_1	; Yes
+;
+	btfss	RXSrcIsMaster	;from master?
+	bra	HandleRXData_Rtn	; No, ignore it
+	btfsc	RXDstIsMe	;to Me?
+	bra	HandleRXData_Rtn	; Yes, must be a bad CS or ?, ignore it
+; forward packet on RS485 bus
+;	RX_CSUM		;bank1
+;	RX_SrcAdd:RP_AddressBytes	;1 or 2
+;	RX_DstAdd:RP_AddressBytes	;1 or 2
+;	RX_TempData:RP_DataBytes	;4
+;
+	call	RS485_Forward
+;
 HandleRXData_Rtn	movlb	0	;bank 0
 	return		; no, ignore this packet
 ;
+; Data is from Master to Me, handle it.
 HandleRXData_1	movlb	0	;bank 0
 	mMOVLF	RX_Data,FSR1
 	mMOVLF	TX_Data,FSR0

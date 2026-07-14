@@ -60,6 +60,8 @@
 ; POP_Ser485Out	(X/0) Remove the last char stored in the output buffer
 ; GetSer485Out	(X/0) Get a byte from the serial Output buffer, FSR0
 ;	       W=Byte, Param78:0=ValidFlag
+; RS485ActivateRX	(X/0) If TX is Idle switch mode to receive, RS485TXActive=0
+; RS485ActivateTX	(X/0) RS485TXActive=1
 ;=========================================================================================
 ;=========================================================================================
 ; *** Put in main loop ***
@@ -180,6 +182,13 @@ RS485ActivateRX_1	movlb	TX1STA
 	bcf	RS485DE	;DriverEnable=0
 	bcf	RS485nRE	;nRecieverEnable=0
 RS485ActivateRX_End	movlb	0	
+	return
+;
+;=========================================================================================
+;
+;
+RS485ActivateTX	movlb	0
+RS485ActivateTX_End	movlb	0	
 	return
 ;
 ;=========================================================================================

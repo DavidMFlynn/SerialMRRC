@@ -2,7 +2,7 @@
 ;
 ;   Filename:	SMRRC.asm
 ;   Created:	4/1/2025
-;   File Revision:	0.9.1a   7/9/2026
+;   File Revision:	0.9.2a   7/13/2026
 ;   Project:	Serial Model Railroad Control
 ;   Author:	David M. Flynn
 ;   Company:	DMF-Enterprises
@@ -13,6 +13,7 @@
 ;
 ;
 ;    History:
+; 0.9.2a   7/13/2026   Good data to/from Master. Working on RS485...
 ; 0.9.1a   7/9/2026	It compiles...
 ; 0.9a   4/1/2025	Copied from BLDC_Servo, Blink an LED
 ;
@@ -23,6 +24,17 @@
 ;=========================================================================================
 ; What happens next:
 ;   At power up the system LED will blink.
+;
+; When a command packet is received from RX2 (USB):
+;  Source=Master, Destination=Me: Parse and Process the command.
+;     Send any requested data back to Master on TX2 (USB).
+;  Source=Master, Destination<>Me: Retransmit on TX1 (RS485)
+;
+; When a command packet is received from RX1 (RS485):
+;  Source=any, Destination=Me: Parse and Process the command. 
+;     Send any requested data back to the sender on TX1 (RS485).
+;  Source=any, Destination=Master: Retransmit on TX2 (USB)
+;  Source=any, Destination= other than Master or Me do nothing.
 ;
 ;=========================================================================================
 ; uController pinout (PIC16F15345):
@@ -281,11 +293,11 @@ kMaxMode	EQU	.3
 	RX_Flags
 	RX_DataCount
 	RX_CSUM
-	RX_SrcAdd:RP_AddressBytes
-	RX_DstAdd:RP_AddressBytes
-	RX_TempData:RP_DataBytes
-	RX_Data:RP_DataBytes
-	TX_Data:RP_DataBytes
+	RX_SrcAdd:RP_AddressBytes	;1 or 2
+	RX_DstAdd:RP_AddressBytes	;1 or 2
+	RX_TempData:RP_DataBytes	;4
+	RX_Data:RP_DataBytes		;4
+	TX_Data:RP_DataBytes		;4
 ;
 	endc
 ;
@@ -322,7 +334,7 @@ MathAddress	EQU	0x1A0
 	RX485_CSUM
 	RX485_SrcAdd:RP485_AddressBytes
 	RX485_DstAdd:RP485_AddressBytes
-	RX485_TempData:RP_DataBytes
+	RX485_TempData:RP485_DataBytes
 	RX485_Data:RP485_DataBytes
 	TX485_Data:RP485_DataBytes
 ;
@@ -555,13 +567,6 @@ start	call	InitializeIO
 ;*****************************************************************************************
 ;=========================================================================================
 ;
-;
-;tc
-;	bsf	LED1_Active
-;	bcf	LED1_LAT
-;	bcf	LED1_LAT	;LED ON
-;etc
-;
 MainLoop	nop
 ;	CLRWDT
 	nop
@@ -622,6 +627,10 @@ ML_Ser_Out	BTFSS	DataSentFlag
 	BCF	DataSentFlag
 ML_Ser_End:
 	endif		; if useRS232
+;-----------------------------------------------------------------------------------------
+	if useRS485
+	
+	endif
 ;-----------------------------------------------------------------------------------------
 ;
 ;
@@ -769,15 +778,15 @@ TMR0H_Value	equ	.125
 ;
 ;Note:using dfault values
 ;
-;	movlb	RX1DTPPS	;bank 29
-;	movlw	0x0D	;RB5, default
-;	movwf	RX1DTPPS
-;	movlw	0x0F	;RB7, default
-;	movwf	TX1CKPPS
+	movlb	RX1DTPPS	;bank 29
+	movlw	0x0D	;RB5, default
+	movwf	RX1DTPPS
+	movlw	0x0F	;RB7, default
+	movwf	TX1CKPPS
 ;
-;	movlb	RB7PPS                 ;bank 30, Output pin routing
-;	movlw	0x0F	;TX1/CK1  signal
-;	movwf	RB7PPS
+	movlb	RB7PPS                 ;bank 30, Output pin routing
+	movlw	0x0F	;TX1/CK1  signal
+	movwf	RB7PPS
 ;
 	movlb	BAUD1CON	;bank 2
 	movlw	BAUD1CON_Value
@@ -801,6 +810,7 @@ TMR0H_Value	equ	.125
 	movlb	0
 	bcf	RS485DE	;DriverEnable=0
 	bcf	RS485nRE	;nRecieverEnable=0
+	bcf	RS485TXActive
 ;
 ;
 	movlb	PIE3	; bank 14
@@ -813,7 +823,6 @@ TMR0H_Value	equ	.125
 ;
 	movlb	0
 	return
-;
 ;
 ;=========================================================================================
 ;
