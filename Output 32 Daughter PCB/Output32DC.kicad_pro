@@ -511,7 +511,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "Input32DC.kicad_pro",
+    "filename": "Output32DC.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -702,18 +702,18 @@
     "subpart_id_separator": 0,
     "top_level_sheets": [
       {
-        "filename": "Input32DC.kicad_sch",
-        "name": "Input32DC",
+        "filename": "Output32DC.kicad_sch",
+        "name": "Output32DC",
         "uuid": "f03bad2b-0691-444d-89b5-a771fc29451c"
       }
     ],
-    "used_designators": "H5-8,C1-40,#PWR3-58,Q2-33,D2-37,R4-100,JP1-2,U1-6,J3",
+    "used_designators": "H1-8,C1-40,#PWR1-68,Q1-33,D1-37,R1-101,JP1-2,U1-6,J1-3",
     "variants": []
   },
   "sheets": [
     [
       "f03bad2b-0691-444d-89b5-a771fc29451c",
-      "Input32DC"
+      "Output32DC"
     ]
   ],
   "text_variables": {},
