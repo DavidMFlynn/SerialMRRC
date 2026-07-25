@@ -171,7 +171,7 @@ RS232_Parse_SALo	movlb	0x01	;bank 1
 	bsf	SourceAddLoRXd
 	movf	Param78,W
 	movwf	RX_SrcAdd	;Save for later
-	xorwf	RX_CSUM,F
+	addwf	RX_CSUM,F
 RS232_Parse_Rtn	movlb	0x00	;bank 0
 	return
 RS232_Parse_SALo_end:
@@ -189,7 +189,7 @@ RS232_Parse_SAHi	btfsc	SourceAddHiRXd
 	bsf	SourceAddHiRXd
 	movf	Param78,W
 	movwf	RX_SrcAdd+1	;Save for later
-	xorwf	RX_CSUM,F
+	addwf	RX_CSUM,F
 	bra	RS232_Parse_Rtn
 RS232_Parse_SAHi_end:
 	endif
@@ -207,7 +207,7 @@ RS232_Parse_DALo	btfsc	DestAddLoRXd
 	bsf	DestAddLoRXd
 	movf	Param78,W
 	movwf	RX_DstAdd	;Save for later
-	xorwf	RX_CSUM,F
+	addwf	RX_CSUM,F
 	bra	RS232_Parse_Rtn
 RS232_Parse_DALo_End:
 ;
@@ -224,7 +224,7 @@ RS232_Parse_DAHi	btfsc	DestAddHiRXd
 	bsf	DestAddHiRXd
 	movf	Param78,W
 	movwf	RX_DstAdd+1	;Save for later
-	xorwf	RX_CSUM,F
+	addwf	RX_CSUM,F
 	bra	RS232_Parse_Rtn
 RS232_Parse_DAHi_end:
 	endif
@@ -239,7 +239,7 @@ RS232_Parse_Data	btfsc	AllDataRXd
 	movwf	FSR0H
 ;
 	movf	Param78,W
-	xorwf	RX_CSUM,F
+	addwf	RX_CSUM,F
 	movwf	INDF0	;Save for later
 	incf	RX_DataCount,F
 	movlw	RP_DataBytes
@@ -256,8 +256,9 @@ RS232_Parse_Data_end:
 ;
 	if UseRS232Chksum
 ; checksum
-	movf	Param78,W
-	subwf	RX_CSUM,W
+	movlw	0xFF
+	xorwf	RX_CSUM,W
+	subwf	Param78,W
 	SKPZ		;Checksum matches?
 	bra	RS232_Parse_Error	; No
 ;

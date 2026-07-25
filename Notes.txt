@@ -1,0 +1,35 @@
+Notes:
+
+Serial data, standard packet
+0xDD 0xDD Src Dst Data Data Data Data CS
+Starting with two sync bytes 0xDD
+Source address 1 to 255
+Destination address 1 to 255
+Four data bytes, Command and 3 data or 4 data
+Check sum, add the six bytes and xor with 0xFF
+
+On RS485 the receiver is always active so any packets transmitted are echoed back.
+  Test for a match? Resend if no match?
+
+Master node. (USB and RS485)
+ When a command packet is received from RX2 (USB):
+  Source=Master, Destination=Me: Parse and Process the command.
+     Send any requested data back to Master on TX2 (USB).
+  Source=Master, Destination<>Me: Retransmit on TX1 (RS485)
+
+ When a command packet is received from RX1 (RS485):
+  Source=any, Destination=Me: Parse and Process the command. 
+     Send any requested data back to the sender on TX1 (RS485).
+  Source=any, Destination=Master: Retransmit on TX2 (USB)
+  Source=any, Destination= other than Master or Me do nothing.
+
+
+Common node. (RS485 only)
+Receiving: 
+   Process only packet addressed to this node ignore all others.
+Transmitting:
+   Only transmits in response to a command packed requesting data.
+
+
+
+

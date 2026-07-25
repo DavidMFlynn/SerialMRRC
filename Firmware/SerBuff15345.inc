@@ -160,6 +160,7 @@ RX_TheByte	movlb	RC2STA	; bank ?
 	ANDLW	0x06
 	SKPZ		;Frame or Overrun Err?
 	BRA	RX_TheByte_Err	; yes
+;
 	movf	RC2REG,W
 	movlb	0	; bank 0
 	MOVWF	RXByte

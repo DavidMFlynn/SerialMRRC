@@ -61,7 +61,7 @@ HandleRXData	movlb	RX_Flags	;bank 1
 ;	RX_DstAdd:RP_AddressBytes	;1 or 2
 ;	RX_TempData:RP_DataBytes	;4
 ;
-	call	RS485_Forward
+	mLongCall	RS485_Forward
 ;
 HandleRXData_Rtn	movlb	0	;bank 0
 	return		; no, ignore this packet
@@ -279,7 +279,7 @@ Cmd_SendIDString_L1	movf	Param79,W
 	SKPNZ
 	return
 	call	StoreSerOut_S0
-	bsf	LED1_Active	;tc
+;	bsf	LED1_Active	;tc
 	incf	Param79,F
 	bra	Cmd_SendIDString_L1
 ;

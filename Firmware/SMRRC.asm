@@ -2,7 +2,7 @@
 ;
 ;   Filename:	SMRRC.asm
 ;   Created:	4/1/2025
-;   File Revision:	0.9.2a   7/13/2026
+;   File Revision:	0.9.3a   7/19/2026
 ;   Project:	Serial Model Railroad Control
 ;   Author:	David M. Flynn
 ;   Company:	DMF-Enterprises
@@ -13,6 +13,7 @@
 ;
 ;
 ;    History:
+; 0.9.3a   7/19/2026   Node types.
 ; 0.9.2a   7/13/2026   Good data to/from Master. Working on RS485...
 ; 0.9.1a   7/9/2026	It compiles...
 ; 0.9a   4/1/2025	Copied from BLDC_Servo, Blink an LED
@@ -102,13 +103,14 @@ kRS232SyncByteValue	EQU	0xDD
 	constant	RP485_LongAddr=0
 	constant	RP485_AddressBytes=1
 	constant	RP485_DataBytes=4
+	constant	UseRS485SyncBytes=1
+kRS485SyncByteValue	EQU	0xDD
 	constant	UseRS485Chksum=1
 ;
 kRS232_MasterAddr	EQU	0x01	;Master's Address
 kRS232_SlaveAddr	EQU	0x02	;This Slave's Address
 ;
 kRS485_Address	EQU	0x02	;my Address on the RS-485 bus
-kRS485_MasterAddr	EQU	0x01
 ;
 kSysMode	EQU	.0	;Default Mode
 ;
@@ -187,6 +189,7 @@ Baud_19200	EQU	.416	;19.18k, -0.08%
 Baud_38400	EQU	.207	;38.46k, +0.16%
 Baud_57600	EQU	.138	;57.55k, -0.08%
 BaudRate	EQU	Baud_38400
+RS485BaudRate	EQU	Baud_38400
 ;
 kSysFlags	EQU	.0
 ;
@@ -252,7 +255,6 @@ kMaxMode	EQU	.3
 	RS232_SlaveAddr
 ;
 	RS485_Address		;my address on the RS-485 bus
-	RS485_MasterAddr
 ;
 	SysFlags		
 ;
@@ -276,9 +278,8 @@ kMaxMode	EQU	.3
 #Define	RS485DataReceivedFlag	Ser485Flags,1
 #Define	RS485DataSentFlag	Ser485Flags,2
 #Define	RS485RX_Timeout	Ser485Flags,3	;cleared by host read
-#Define	RS485RX_IsAddress	Ser485Flags,4
-#Define	RS485DestAddLoRXd	Ser485Flags,5
-#Define	RS485SourceAddLoRXd	Ser485Flags,6
+#Define	RS485DestAddLoRXd	Ser485Flags,4
+#Define	RS485SourceAddLoRXd	Ser485Flags,5
 ;
 ;---------------
 #Define	FirstRAMParam	SysMode
@@ -336,6 +337,9 @@ MathAddress	EQU	0x1A0
 	RX485_DstAdd:RP485_AddressBytes
 	RX485_TempData:RP485_DataBytes
 	RX485_Data:RP485_DataBytes
+;
+	TX485_SrcAdd:RP485_AddressBytes
+	TX485_DstAdd:RP485_AddressBytes
 	TX485_Data:RP485_DataBytes
 ;
 	Ser485_In_Bytes		;Bytes in Ser_In_Buff
@@ -346,6 +350,7 @@ MathAddress	EQU	0x1A0
 	Ser485_Out_OutPtr
 	Ser485_In_Buff:20
 	Ser485_Out_Buff:20
+	endc
 ;
 ;=========================================================================================
 ;  Bank5 Ram 2A0h-2EFh 80 Bytes
@@ -400,7 +405,6 @@ SAFAddress	EQU	0x1F80
 	de	kRS232_SlaveAddr	;nvRS232_SlaveAddr, 0x10
 ;
 	de	kRS485_Address	;me
-	de	kRS485_MasterAddr
 ;
 	de	kSysFlags	;nvSysFlags
 ;
@@ -629,7 +633,25 @@ ML_Ser_End:
 	endif		; if useRS232
 ;-----------------------------------------------------------------------------------------
 	if useRS485
-	
+;
+; If there are byte in the input buffer send them to the parser.
+	call	GetSer485InBytes
+	SKPZ		;Any data?
+	CALL	RS485_Parse	; yes
+;
+; Handle RS-485 Serial Communications
+;
+	CALL	TX_The485Byte
+;
+; move any serial data received into the 32 byte input buffer
+	BTFSS	RS485DataReceivedFlag
+	bra	ML_Ser485_End
+	MOVF	RX485Byte,W
+	BCF	RS485DataReceivedFlag
+	CALL	StoreSer485In
+;
+ML_Ser485_End:
+;
 	endif
 ;-----------------------------------------------------------------------------------------
 ;
@@ -770,6 +792,7 @@ TMR0H_Value	equ	.125
 	movlb	PIE3	; bank 14
 	BSF	PIE3,RC2IE	; Serial Receive interupt
 	movlb	0
+	bsf	DataSentFlag
 	endif
 ;=========================================================================================
 	if useRS485
@@ -777,7 +800,7 @@ TMR0H_Value	equ	.125
 ; setup serial I/O on RB7/TX1, RB5/RX1, RB4/nRE, RB6/DE
 ;
 ;Note:using dfault values
-;
+; Configure pins
 	movlb	RX1DTPPS	;bank 29
 	movlw	0x0D	;RB5, default
 	movwf	RX1DTPPS
@@ -787,24 +810,21 @@ TMR0H_Value	equ	.125
 	movlb	RB7PPS                 ;bank 30, Output pin routing
 	movlw	0x0F	;TX1/CK1  signal
 	movwf	RB7PPS
-;
+; Set baud rate
 	movlb	BAUD1CON	;bank 2
 	movlw	BAUD1CON_Value
 	movwf	BAUD1CON
-	MOVLW	low BaudRate
+	MOVLW	low RS485BaudRate
 	MOVWF	SP1BRGL
-	MOVLW	high BaudRate
+	MOVLW	high RS485BaudRate
 	MOVWF	SP1BRGH
 ;
 	bsf	RC1STA,RC1STA_SPEN	;Enable Serial port
-	bsf	RC1STA,RC1STA_RX9	;Enable 9 bit receive
 	bsf	RC1STA,RC1STA_CREN	;Continuous Receive
-	bsf	RC1STA,RC1STA_ADDEN	;Address detect on
 ;
 	bcf	TX1STA,TX1STA_SYNC	;Asynchronous
 	bsf	TX1STA,TX1STA_BRGH	;High Speed
 	bcf	TX1STA,TX1STA_TXEN	;Transmitter Off
-	bsf	TX1STA,TX1STA_TX9	;Enable 9 bit transmit
 ;
 ; Enable Receive
 	movlb	0
@@ -816,6 +836,7 @@ TMR0H_Value	equ	.125
 	movlb	PIE3	; bank 14
 	BSF	PIE3,RC1IE	; Serial Receive interupt
 	movlb	0
+	bsf	RS485DataSentFlag
 	endif
 ;
 ;=========================================================================================

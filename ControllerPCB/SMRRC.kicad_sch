@@ -6,8 +6,8 @@
 	(paper "A")
 	(title_block
 		(title "Serial Model Railroad Control")
-		(date "2025-03-23")
-		(rev "n/c")
+		(date "2026-07-16")
+		(rev "A")
 		(company "DMFE")
 		(comment 1 "Remote Mother Board")
 		(comment 2 "\"Node Board\"")
@@ -2635,6 +2635,172 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Jumper:Jumper_2_Open"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "JP"
+				(at 0 2.794 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Jumper_2_Open"
+				(at 0 -2.286 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Jumper, 2-pole, open"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "Jumper SPST"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "Jumper* TestPoint*2Pads* TestPoint*Bridge*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "Jumper_2_Open_0_0"
+				(circle
+					(center -2.032 0)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.032 0)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "Jumper_2_Open_0_1"
+				(arc
+					(start -1.524 1.27)
+					(mid 0 1.778)
+					(end 1.524 1.27)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "Jumper_2_Open_1_1"
+				(pin passive line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 0 180)
+					(length 2.54)
+					(name "B"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "MCU_Microchip_PIC16:PIC16F18344-SO"
 			(pin_names
 				(offset 1.016)
@@ -3876,6 +4042,27 @@
 		)
 		(uuid "50cf1aad-0ad6-4fe2-9613-72df91852cee")
 	)
+	(text "Optional"
+		(exclude_from_sim no)
+		(at 255.27 88.138 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "905a57ce-ac19-4e75-ad59-e162b149c012")
+	)
+	(text "Rev. A Added termination resistors and jumpers."
+		(exclude_from_sim no)
+		(at 160.02 170.18 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "9a4a4c66-f4c7-4fe8-96a7-34cd53f3f0a1")
+	)
 	(text "Button 2"
 		(exclude_from_sim no)
 		(at 40.894 122.174 0)
@@ -3897,6 +4084,16 @@
 			(justify right)
 		)
 		(uuid "adb0eb95-4618-498d-9bae-1612f20dcb08")
+	)
+	(text "Optional"
+		(exclude_from_sim no)
+		(at 255.016 72.898 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "b132c451-5365-4645-b21b-3b2af070ba98")
 	)
 	(text "Screw Terminal"
 		(exclude_from_sim no)
@@ -3971,6 +4168,18 @@
 		(uuid "302b9ac3-c0d4-4eee-a31a-a2ff361581b5")
 	)
 	(junction
+		(at 248.92 83.82)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "516bdd1a-0cb5-411f-996a-8879e32396c1")
+	)
+	(junction
+		(at 229.87 66.04)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "6503226d-27a0-480b-9465-64ea4c8ad007")
+	)
+	(junction
 		(at 227.33 45.72)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4025,6 +4234,12 @@
 		(uuid "a9c8e03a-8979-4c7b-82a8-f55e7be7f891")
 	)
 	(junction
+		(at 248.92 76.2)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a9d5421e-037e-4602-be60-4beee562117f")
+	)
+	(junction
 		(at 93.98 92.71)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4035,6 +4250,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "c6a1120e-9db7-4e79-b5a3-e4adb8084a2f")
+	)
+	(junction
+		(at 227.33 60.96)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c6b2d427-57a6-4635-8042-39f1ffa3914d")
 	)
 	(junction
 		(at 95.25 121.92)
@@ -4142,6 +4363,16 @@
 	)
 	(wire
 		(pts
+			(xy 229.87 83.82) (xy 229.87 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0639065f-e14a-4367-af8e-7767503e0a5b")
+	)
+	(wire
+		(pts
 			(xy 71.12 109.22) (xy 95.25 109.22)
 		)
 		(stroke
@@ -4209,6 +4440,16 @@
 			(type default)
 		)
 		(uuid "10a549fa-bcc8-49ba-81ec-8824e033faeb")
+	)
+	(wire
+		(pts
+			(xy 248.92 83.82) (xy 248.92 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "10e9d601-71b1-4ab9-a0d7-fc3d8c91c6a0")
 	)
 	(wire
 		(pts
@@ -4632,6 +4873,16 @@
 	)
 	(wire
 		(pts
+			(xy 248.92 76.2) (xy 248.92 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4b3fe5ed-00d5-4ef3-af4d-883d15ab3a89")
+	)
+	(wire
+		(pts
 			(xy 154.94 59.69) (xy 156.21 59.69)
 		)
 		(stroke
@@ -4719,6 +4970,16 @@
 			(type default)
 		)
 		(uuid "55f0ece1-c30a-4b87-8f7f-b2cc7da9c3f5")
+	)
+	(wire
+		(pts
+			(xy 247.65 76.2) (xy 248.92 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "58e67f30-ce4a-4960-813f-a4a3618d04da")
 	)
 	(wire
 		(pts
@@ -4882,6 +5143,16 @@
 	)
 	(wire
 		(pts
+			(xy 248.92 68.58) (xy 248.92 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6bf322f2-649b-418b-8c82-2ce0d83af1b3")
+	)
+	(wire
+		(pts
 			(xy 62.23 87.63) (xy 66.04 87.63)
 		)
 		(stroke
@@ -4952,6 +5223,16 @@
 	)
 	(wire
 		(pts
+			(xy 237.49 76.2) (xy 233.68 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "764599d7-a24e-436b-9657-61b00c8efe29")
+	)
+	(wire
+		(pts
 			(xy 50.8 92.71) (xy 50.8 97.79)
 		)
 		(stroke
@@ -5019,6 +5300,16 @@
 			(type default)
 		)
 		(uuid "802d5c80-2b86-4cfc-bd91-990a17bbd460")
+	)
+	(wire
+		(pts
+			(xy 233.68 60.96) (xy 227.33 60.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8084bef1-8a62-496a-a66b-0e9c19994acd")
 	)
 	(wire
 		(pts
@@ -5122,6 +5413,16 @@
 	)
 	(wire
 		(pts
+			(xy 248.92 90.17) (xy 248.92 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "91e8ff7e-b766-4ebc-9d2a-b26e0db82b1c")
+	)
+	(wire
+		(pts
 			(xy 91.44 66.04) (xy 78.74 66.04)
 		)
 		(stroke
@@ -5129,6 +5430,16 @@
 			(type default)
 		)
 		(uuid "92eef05f-6a50-4561-8ed2-2ff4dc1a29b5")
+	)
+	(wire
+		(pts
+			(xy 248.92 82.55) (xy 248.92 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9304d62a-900e-48dc-b7bc-26521980736a")
 	)
 	(wire
 		(pts
@@ -5169,6 +5480,16 @@
 			(type default)
 		)
 		(uuid "9fbb69af-4422-47fc-9708-34b74ea1ce97")
+	)
+	(wire
+		(pts
+			(xy 237.49 83.82) (xy 229.87 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a06a24be-4629-4e52-8c41-2269f3fd9143")
 	)
 	(wire
 		(pts
@@ -5299,6 +5620,16 @@
 			(type default)
 		)
 		(uuid "aeea31e3-88ec-4235-bc86-8ee44c071496")
+	)
+	(wire
+		(pts
+			(xy 233.68 76.2) (xy 233.68 60.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b079c1fe-ad12-4579-a10a-ec53c27bf459")
 	)
 	(wire
 		(pts
@@ -5582,6 +5913,16 @@
 	)
 	(wire
 		(pts
+			(xy 248.92 74.93) (xy 248.92 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e765ef9f-bde6-459e-8746-0543d8e20757")
+	)
+	(wire
+		(pts
 			(xy 146.05 67.31) (xy 149.86 67.31)
 		)
 		(stroke
@@ -5669,6 +6010,16 @@
 			(type default)
 		)
 		(uuid "eebc1281-8cd6-4ea6-846b-25a2b46f0e7e")
+	)
+	(wire
+		(pts
+			(xy 247.65 83.82) (xy 248.92 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ef9fbf43-0adb-481e-871c-9fae430e5fd3")
 	)
 	(wire
 		(pts
@@ -6247,6 +6598,85 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R_Small")
+		(at 248.92 80.01 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "1e7aa659-4e98-4ba1-bb4f-161ddae306ec")
+		(property "Reference" "R6"
+			(at 246.38 80.264 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "120"
+			(at 248.92 80.01 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+			(at 248.92 80.01 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 248.92 80.01 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 248.92 80.01 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "9f61594b-d53f-4a5e-98aa-16e4a216541a")
+		)
+		(pin "2"
+			(uuid "d162c64d-cc0b-4af4-b351-f5398a17dd4c")
+		)
+		(instances
+			(project "SMRRC"
+				(path "/256d9eaf-63b3-4e0d-9ae8-9d6979ba55b0"
+					(reference "R6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 45.72 127 0)
 		(unit 1)
@@ -6804,6 +7234,85 @@
 			(project "SMRRC"
 				(path "/256d9eaf-63b3-4e0d-9ae8-9d6979ba55b0"
 					(reference "SW2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small")
+		(at 248.92 72.39 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "4f89f822-291d-43e9-bc76-6844f20646ab")
+		(property "Reference" "R7"
+			(at 246.38 72.644 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10K"
+			(at 248.92 72.39 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+			(at 248.92 72.39 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 248.92 72.39 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 248.92 72.39 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "677d439d-18da-40b7-971f-7b151ce43e64")
+		)
+		(pin "2"
+			(uuid "69251b0d-108d-4726-b8c2-196ef9dffafa")
+		)
+		(instances
+			(project "SMRRC"
+				(path "/256d9eaf-63b3-4e0d-9ae8-9d6979ba55b0"
+					(reference "R7")
 					(unit 1)
 				)
 			)
@@ -7402,6 +7911,84 @@
 	)
 	(symbol
 		(lib_id "power:GND")
+		(at 248.92 91.44 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "7d4a1807-47b2-44e4-847f-88a817d9fb7e")
+		(property "Reference" "#PWR020"
+			(at 248.92 97.79 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 248.92 96.52 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 248.92 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 248.92 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 248.92 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "4ba30469-a4eb-44d9-8755-9714a512efa5")
+		)
+		(instances
+			(project "SMRRC"
+				(path "/256d9eaf-63b3-4e0d-9ae8-9d6979ba55b0"
+					(reference "#PWR020")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
 		(at 201.93 54.61 0)
 		(unit 1)
 		(body_style 1)
@@ -7804,6 +8391,165 @@
 		)
 	)
 	(symbol
+		(lib_id "Jumper:Jumper_2_Open")
+		(at 242.57 83.82 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "b0f5c183-21f3-4b2f-8fd8-60019af15203")
+		(property "Reference" "JP2"
+			(at 239.522 81.026 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Jumper_2_Open"
+			(at 242.57 80.01 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm"
+			(at 242.57 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 242.57 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Jumper, 2-pole, open"
+			(at 242.57 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "8a9036f1-d246-46eb-86e9-e87d99aa38f8")
+		)
+		(pin "1"
+			(uuid "bc4dc9fd-2623-4a4b-aabe-52e3d6f13f11")
+		)
+		(instances
+			(project "SMRRC"
+				(path "/256d9eaf-63b3-4e0d-9ae8-9d6979ba55b0"
+					(reference "JP2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small")
+		(at 248.92 87.63 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "b3d159dc-7fe9-4b42-aa83-32c98f975e40")
+		(property "Reference" "R8"
+			(at 246.38 87.884 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10K"
+			(at 248.92 87.63 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+			(at 248.92 87.63 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 248.92 87.63 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 248.92 87.63 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "b022f833-f66b-4aec-ac8d-0d179645d2ba")
+		)
+		(pin "2"
+			(uuid "4000f50f-06d0-4e49-9697-da19125889a7")
+		)
+		(instances
+			(project "SMRRC"
+				(path "/256d9eaf-63b3-4e0d-9ae8-9d6979ba55b0"
+					(reference "R8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C_Small")
 		(at 74.93 36.83 0)
 		(unit 1)
@@ -8171,6 +8917,84 @@
 			(project "SMRRC"
 				(path "/256d9eaf-63b3-4e0d-9ae8-9d6979ba55b0"
 					(reference "#PWR019")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+5V")
+		(at 248.92 68.58 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "bf1327d9-46d9-4231-a7d8-86dab800d549")
+		(property "Reference" "#PWR021"
+			(at 248.92 72.39 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+5V"
+			(at 248.92 63.5 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 248.92 68.58 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 248.92 68.58 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+5V\""
+			(at 248.92 68.58 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "049985eb-2003-4337-b554-45206055b5d8")
+		)
+		(instances
+			(project "SMRRC"
+				(path "/256d9eaf-63b3-4e0d-9ae8-9d6979ba55b0"
+					(reference "#PWR021")
 					(unit 1)
 				)
 			)
@@ -8643,6 +9467,86 @@
 			(project "SMRRC"
 				(path "/256d9eaf-63b3-4e0d-9ae8-9d6979ba55b0"
 					(reference "#PWR010")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Jumper:Jumper_2_Open")
+		(at 242.57 76.2 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "dd3fc741-f4e4-412f-ab1b-ac9e6a3953dd")
+		(property "Reference" "JP1"
+			(at 239.522 73.66 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Jumper_2_Open"
+			(at 242.57 72.39 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm"
+			(at 242.57 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 242.57 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Jumper, 2-pole, open"
+			(at 242.57 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "c826e348-d6cb-4c9f-a9f7-6e393c49df11")
+		)
+		(pin "1"
+			(uuid "0f230499-c3bc-4f75-8257-b1ae8479c6dc")
+		)
+		(instances
+			(project "SMRRC"
+				(path "/256d9eaf-63b3-4e0d-9ae8-9d6979ba55b0"
+					(reference "JP1")
 					(unit 1)
 				)
 			)
