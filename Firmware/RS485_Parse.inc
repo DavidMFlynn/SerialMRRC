@@ -1,12 +1,13 @@
 ;=========================================================================================
 ;
-;    Filename:  RS485_Parse.inc
-;    Created:   4/5/2025
-;    Revision:  1.0d1  4/5/2025
+;   Filename:  RS485_Parse.inc
+;   Created:   4/5/2025
+;   Revision:  1.0.2  7/26/2026
 ;
-;    Author:        David M. Flynn
-;    Company:       Oxford V.U.E., Inc.
-;    E-Mail:        dflynn@oxfordvue.com
+;   Author:  David M. Flynn
+;   Company: DMF-Enterprises
+;   E-Mail: dflynn.oxfordvue@gmail.com
+;   License: MIT License
 ;
 ;=========================================================================================
 ; Routines:
@@ -14,11 +15,14 @@
 ; RS485_Parse	Call from main loop
 ; RS485_ClearTXData	Clear the TX data, FSR1
 ; RS485_Send	Send the data at TX_data, FSR0, FSR1
+; RS485_Init	Setup serial I/O on RB7/TX1, RB5/RX1, RB4/nRE, RB6/DE
 ;
 ;=========================================================================================
 ; Notes:
 ;
 ; History:
+; 1.0.2  7/26/2026	Code cleanup. Moved header stuff to RS485_Parse.H
+; 1.0.1  7/25/2026	Moved RS485_Init into this file.
 ; 1.0d1  4/5/2025	Copied from RS232_Parse 1.0b5
 ;
 ; RS485_Parse	(X/0) Parse any bytes received by the serial port
@@ -51,35 +55,6 @@
 ;	RS485_Address
 ;	endc
 ;
-; Bank4 variables used by RS485_Parse:
-;#Define	Ser485_Buff_Bank	4
-;
-;	cblock
-;	RX485_ParseFlags
-;	RX485_Flags
-;	RX485_DataCount
-;	RX485_CSUM
-;	RX485_SrcAdd:RP485_AddressBytes
-;	RX485_DstAdd:RP485_AddressBytes
-;	RX485_TempData:RP_DataBytes
-;	RX485_Data:RP485_DataBytes
-;	TX485_Data:RP485_DataBytes
-;	endc
-;RX485_ParseFlags Bits
-#Define	RS485SyncByte1RXd	RX485_ParseFlags,0
-#Define	RS485SyncByte2RXd	RX485_ParseFlags,1
-#Define	RS485SourceAddrLoRXd	RX485_ParseFlags,2
-#Define	RS485SourceAddrHiRXd	RX485_ParseFlags,3
-#Define	RS485DestAddrLoRXd	RX485_ParseFlags,4
-#Define	RS485DestAddrHiRXd	RX485_ParseFlags,5
-#Define	RS485AllDataRXd	RX485_ParseFlags,6
-;
-;RX485_Flags Bits
-#Define	RX485DataValidFlag	RX485_Flags,0
-#Define	RX485DataIsNew	RX485_Flags,1
-#Define	RX485DstIsMe	RX485_Flags,2
-;
-;
 ; *** put in main loop
 ;	CALL	RS485_Parse
 ; if RX485DataValidFlag is set data may be used
@@ -110,31 +85,33 @@ RS485_Parse	movlb	Ser485_Buff_Bank
 	clrf	RX485_ParseFlags
 ;
 RS485_Parse_Byte	CALL	GetSer485In
-	BTFSS	Param78,0	;Got a byte?
-	RETURN		; No
+	btfss	Param78,0	;Got a byte?
+	return		; No
 ;
-	MOVWF	Param78	;Data Byte RXd
+	movwf	Param78	;Data Byte RXd
 	movlw	RX485Timeout	;Reset time-out timer
 	movwf	Timer2Lo
 ; Command inturpreter
 	if UseRS485SyncBytes
 ;
 	movlb	Ser485_Buff_Bank	;bank 4
-	MOVF	RX485_ParseFlags,F
+	movf	RX485_ParseFlags,F
 	SKPZ		;Beginning new packet?
-	BRA	RS485_Parse_Sync2	; No
-	MOVLW	kRS485SyncByteValue
-	SUBWF	Param78,W
-	SKPNZ		;Sync byte OK?
-	BSF	RS485SyncByte1RXd	; Yes
-	bra	RS485_Parse_Rtn
+	bra	RS485_Parse_Sync2	; No
 ;
-RS485_Parse_Sync2	btfsc	RS485SyncByte2RXd
-	bra	RS485_Parse_SALo
 	movlw	kRS485SyncByteValue
 	subwf	Param78,W
-	SKPZ
-	goto	RS485_Parse_Error
+	SKPNZ		;Sync byte OK?
+	bsf	RS485SyncByte1RXd	; Yes
+	bra	RS485_Parse_Rtn
+;
+RS485_Parse_Sync2	btfsc	RS485SyncByte2RXd	;Second sync byte rec'd?
+	bra	RS485_Parse_SALo	; Yes
+;
+	movlw	kRS485SyncByteValue
+	subwf	Param78,W
+	SKPZ		;Got the second sync byte?
+	goto	RS485_Parse_Error	; No, need 2
 	bsf	RS485SyncByte2RXd
 	bra	RS485_Parse_Rtn
 ;
@@ -142,74 +119,115 @@ RS485_Parse_Sync2	btfsc	RS485SyncByte2RXd
 ;
 ;
 ; Source Address
-RS485_Parse_SALo	movlb	0
-	btfsc	RS485SourceAddLoRXd
-	bra	RS485_Parse_SALo_end
+RS485_Parse_SALo	btfsc	RS485SourceAddrLoRXd	;Looking for the source address?
+	bra	RS485_Parse_SALo_end	; No
+;My data is echoed back
+	movlb	0	;Bank 0
+	movf	RS485_Address,W
+	movlb	Ser485_Buff_Bank	;Bank 4
+	bsf	RX485SrcIsMe	;default to it being my message
+	subwf	Param78,W
+	SKPZ		;RS485_Address=RXd byte?
+	bcf	RX485SrcIsMe	; No, it's not for me.
 ;
-	bsf	RS485SourceAddLoRXd
-	movlb	Ser485_Buff_Bank	;bank 4
-	clrf	RX485_CSUM
+; Save the source address
 	clrf	RX485_DataCount
 	movf	Param78,W
-	movwf	RX485_SrcAdd
-	addwf	RX485_CSUM,F
+	movwf	RX485_SrcAdd	;Save the source address
+	movwf	RX485_CSUM	;Start a checksum
+	bsf	RS485SourceAddrLoRXd
+;
 RS485_Parse_Rtn	movlb	0	;bank 0
 	return
 RS485_Parse_SALo_end:
 ;
-; MSB of Source Address
 	if RP485_LongAddr
 ;
-RS485_Parse_SAHi	btfsc	RS485SourceAddHiRXd
-	bra	RS485_Parse_SAHi_end
+; MSB of Source Address
+RS485_Parse_SAHi	btfsc	RS485SourceAddrHiRXd	;Have a high source address byte?
+	bra	RS485_Parse_SAHi_end	; Yes
 ;
-	bsf	RS485SourceAddHiRXd
-	movlb	Ser485_Buff_Bank	;bank 4
+	movlb	0	;Bank 0
+	movf	RS485_Address+1,W
+	movlb	Ser485_Buff_Bank	;Bank 4
+	subwf	Param78,W
+	SKPZ		;RS485_Address=RXd byte?
+	bcf	RX485SrcIsMe	; No, it's not for me.
+;
 	movf	Param78,W
 	movwf	RX485_SrcAdd+1	;Save for later
 	addwf	RX485_CSUM,F
-	bra	RS232_Parse_Rtn
+	bsf	RS485SourceAddrHiRXd
+	bra	RS485_Parse_Rtn
 RS485_Parse_SAHi_end:
 	endif
 ;
 ; Destination Address
-RS485_Parse_DALo	movlb	0	;Bank 0
-	btfsc	RS485DestAddLoRXd
-	bra	RS485_Parse_DALo_End
+RS485_Parse_DALo	bsf	RX485RXDataEquTXData
+	btfss	RX485SrcIsMe
+	bcf	RX485RXDataEquTXData
 ;
-	bsf	RX485DstIsMe	;default to it being my message
+	btfsc	RS485DestAddrLoRXd	;Have a source address low byte?
+	bra	RS485_Parse_DALo_End	; Yes
+;
+	movlb	0	;Bank 0
 	movf	RS485_Address,W
 	movlb	Ser485_Buff_Bank	;Bank 4
+	bsf	RX485DstIsMe	;default to it being my message
 	subwf	Param78,W
 	SKPZ		;RS485_Address=RXd byte?
-	bcf	RX485DstIsMe	; No
-	bsf	RS485DestAddLoRXd
+	bcf	RX485DstIsMe	; No, it's not for me.
+;
 	movf	Param78,W
 	movwf	RX485_DstAdd	;Save RXd byte as dest addr
 	addwf	RX485_CSUM,F
+	bsf	RS485DestAddrLoRXd
 	bra	RS485_Parse_Rtn
 RS485_Parse_DALo_End:
 ;
+	if RP485_LongAddr
+; MSB of Destination Address
+RS485_Parse_DAHi	btfsc	RS485DestAddrHiRXd	;Have a source address low byte?
+	bra	RS485_Parse_DAHi_End	; Yes
 ;
-RS485_Parse_Data	btfsc	RS485AllDataRXd
-	bra	RS485_Parse_Data_end
+	movlb	0	;Bank 0
+	movf	RS485_Address+1,W
+	movlb	Ser485_Buff_Bank	;Bank 4
+	subwf	Param78,W
+	SKPZ		;RS485_Address=RXd byte?
+	bcf	RX485DstIsMe	; No, it's not for me.
+;
+	movf	Param78,W
+	movwf	RX485_DstAdd+1	;Save RXd byte as dest addr
+	addwf	RX485_CSUM,F
+	bsf	RS485DestAddrHiRXd
+	bra	RS485_Parse_Rtn
+RS485_Parse_DAHi_End:
+;
+	endif
+;
+; Receive the data bytes, store them in RX485_TempData
+RS485_Parse_Data	btfsc	RS485AllDataRXd	;Got all data bytes?
+	bra	RS485_Parse_Data_end	; Yes
+;FSR0 is data ptr
 	movf	RX485_DataCount,W
 	addlw	low RX485_TempData
 	movwf	FSR0L
 	movlw	high RX485_TempData
 	movwf	FSR0H
+;
 	movf	Param78,W
-	addwf	RX485_CSUM,F
-	movwf	INDF0
+	addwf	RX485_CSUM,F	;Update ckecksum
+	movwf	INDF0	;Save the data byte
 	incf	RX485_DataCount,F
-	movlw	RP_DataBytes
+	movlw	RP485_DataBytes
 	subwf	RX485_DataCount,W
-	SKPZ
-	bra	RS485_Parse_Rtn
-	bsf	RS485AllDataRXd
+	SKPZ		;All data bytes RX'd?
+	bra	RS485_Parse_Rtn	; No
+	bsf	RS485AllDataRXd	; Yes
 ;
 	if UseRS485Chksum
-	bra	RS485_Parse_Rtn
+	bra	RS485_Parse_Rtn	;Wait for a checksum
 	endif
 RS485_Parse_Data_end:
 ;
@@ -223,6 +241,8 @@ RS485_Parse_Data_end:
 ;
 	endif
 ;
+;Copy data from RX485_TempData to RX485_Data
+;
 	movlw	low RX485_TempData
 	movwf	FSR0L
 	movlw	high RX485_TempData
@@ -233,7 +253,7 @@ RS485_Parse_Data_end:
 	movlw	high RX485_Data
 	movwf	FSR1H
 ;
-	movlw	RP_DataBytes
+	movlw	RP485_DataBytes
 	movwf	Param78
 RS485_Parse_L1	moviw	FSR0++
 	movwi	FSR1++
@@ -246,16 +266,13 @@ RS485_Parse_L1	moviw	FSR0++
 	bcf	RX485DataValidFlag	; no
 ;
 	clrf	RX485_ParseFlags
-	movlb	0x00
-;tc
-;	bsf	LED2_Active
-;etc
+	movlb	0	;Bank 0
 	return
 ;
 ;
 ; We didn't get the sync byte we were expecting so restart the parser
 RS485_Parse_Error	CLRF	RX485_ParseFlags
-	goto	FlushInBuff
+	goto	Flush485InBuff
 ;
 ;=========================================================================================
 ; Clear the TX data, unused bytes are sent as 0x00
@@ -282,7 +299,9 @@ RS485_ClearTXData	movlb	Ser485_Buff_Bank	;bank 4
 RS485_ClearTXData_L1	movwi	FSR1++
 	decfsz	Param78,F
 	bra	RS485_ClearTXData_L1
-	movlb	0x00
+;
+	clrf	TX485_Csum
+	movlb	0	;Bank 0
 	return
 ;
 ;=========================================================================================
@@ -305,7 +324,7 @@ RS485_Send:
 ;
 	endif
 ;
-	clrf	Param7A	;CSum=CSum + data
+	clrf	Param7A	;CSum=0
 ; Source Address
 	movlb	Ser485_Buff_Bank	;bank 4
 	movf	TX485_SrcAdd,W	;source address is Me
@@ -332,7 +351,7 @@ RS485_Send:
 	call	StoreSer485Out
 	endif
 ;
-	movlb	Ser485_Buff_Bank
+	movlb	Ser485_Buff_Bank	;bank 4
 	movlw	RP485_DataBytes
 	movwf	Param79
 	movlw	low TX485_Data
@@ -349,11 +368,14 @@ RS485_Send_L1	moviw	FSR1++
 	if UseRS485Chksum
 	movlw	0xFF
 	xorwf	Param7A,W	;CSum
+	movlb	Ser485_Buff_Bank	;bank 4
+	movwf	TX485_Csum	;Save ckecksum for later.
 	call	StoreSer485Out
 	endif
 ;
 	goto	RS485_ClearTXData
 ;
+	if useRS232
 ;=========================================================================================
 ; Forward a data packet from RS232 (USB)
 ;  send data from RS232 (RX_SrcAdd, RX_DstAdd, RX_TempData)
@@ -419,10 +441,51 @@ RS485_Forward_L1	moviw	FSR1++
 	call	StoreSer485Out
 	endif
 ;
-;tc
-;	bsf	LED1_Active
-;etc
 	return
+;
+	endif
+;=========================================================================================
+; Setup serial I/O on RB7/TX1, RB5/RX1, RB4/nRE, RB6/DE
+;
+;Note:using dfault values
+; Configure pins
+RS485_Init	movlb	RX1DTPPS	;bank 29
+	movlw	0x0D	;RB5, default
+	movwf	RX1DTPPS
+	movlw	0x0F	;RB7, default
+	movwf	TX1CKPPS
+;
+	movlb	RB7PPS                 ;bank 30, Output pin routing
+	movlw	0x0F	;TX1/CK1  signal
+	movwf	RB7PPS
+; Set baud rate
+	movlb	BAUD1CON	;bank 2
+	movlw	BAUD1CON_Value
+	movwf	BAUD1CON
+	MOVLW	low RS485BaudRate
+	MOVWF	SP1BRGL
+	MOVLW	high RS485BaudRate
+	MOVWF	SP1BRGH
+;
+	bsf	RC1STA,RC1STA_SPEN	;Enable Serial port
+	bsf	RC1STA,RC1STA_CREN	;Continuous Receive
+;
+	bcf	TX1STA,TX1STA_SYNC	;Asynchronous
+	bsf	TX1STA,TX1STA_BRGH	;High Speed
+	bcf	TX1STA,TX1STA_TXEN	;Transmitter Off
+;
+; Enable Receive
+	movlb	0
+	bcf	RS485DE	;DriverEnable=0
+	bcf	RS485nRE	;nRecieverEnable=0
+	bcf	RS485TXActive
+;
+;
+	movlb	PIE3	; bank 14
+	BSF	PIE3,RC1IE	; Serial Receive interupt
+	movlb	0
+	bsf	RS485DataSentFlag
+	return;
 ;
 ;=========================================================================================
 ;

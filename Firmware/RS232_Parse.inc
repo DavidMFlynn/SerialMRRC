@@ -2,7 +2,7 @@
 ;
 ;    Filename:      RS232_Parse.inc
 ;    Date:          5/25/2018
-;    File Version:  1.0d5
+;    File Version:  1.0.1  7/25/2026
 ;
 ;    Author:        David M. Flynn
 ;    Company:       Oxford V.U.E., Inc.
@@ -14,11 +14,14 @@
 ; RS232_Parse	Call from main loop
 ; RS232_ClearTXData	Clear the TX data, FSR1
 ; RS232_Send	Send the data at TX_data, FSR0, FSR1
+; RS232_Init 	Setup serial I/O on RC0/TX2 In/Out, RC1/RX2 In
+;
 ;
 ;=========================================================================================
 ; Notes:
 ;
 ; History:
+; 1.0.1  7/25/2026	Moved RS232_Init into this file
 ; 1.0b5  5/25/2018	RS232_MasterAddr, RS232_SlaveAddr now in ram
 ; 1.0d4  5/18/2018	Added RS232_ClearTXData, RS232_Send.
 ; 1.0d3  5/17/2018	Used Timer1Lo for RXTimeout.
@@ -385,8 +388,43 @@ RS232_Send_L1	moviw	FSR1++
 ;
 ;=========================================================================================
 ;
-
-
+; setup serial I/O on RC0/TX2 In/Out, RC1/RX2 In
+;
+RS232_Init	movlb	RX2DTPPS	;bank 29
+	movlw	0x11	;RC1, default
+	movwf	RX2DTPPS	; input
+	movlw	0x10	;RC0, default
+	movwf	TX2CKPPS	; input
+;
+	movlb	RC0PPS                 ;bank 30
+	movlw	0x11	;TX2/CK2  output signal
+	movwf	RC0PPS	; output
+;
+	movlb	BAUD2CON	;bank 2
+	movlw	BAUD2CON_Value
+	movwf	BAUD2CON
+	MOVLW	low BaudRate
+	MOVWF	SP2BRGL
+	MOVLW	high BaudRate
+	MOVWF	SP2BRGH
+;
+	bsf	RC2STA,RC2STA_SPEN	;Enable Serial port
+	bsf	RC2STA,RC2STA_CREN
+;
+	bcf	TX2STA,TX2STA_SYNC
+	bsf	TX2STA,TX2STA_BRGH
+	bsf	TX2STA,TX2STA_TXEN
+;
+;
+;
+	movlb	PIE3	; bank 14
+	BSF	PIE3,RC2IE	; Serial Receive interupt
+	movlb	0
+	bsf	DataSentFlag
+	return
+;
+;=========================================================================================
+;
 
 
 

@@ -1,8 +1,8 @@
 ;=========================================================================================
 ;
-;   Filename:	SMRRC.asm
-;   Created:	4/1/2025
-;   File Revision:	0.9.3a   7/19/2026
+;   Filename:	SMRRC_Output.asm
+;   Created:	7/25/2026
+;   File Revision:	0.9.1d   7/25/2026
 ;   Project:	Serial Model Railroad Control
 ;   Author:	David M. Flynn
 ;   Company:	DMF-Enterprises
@@ -12,13 +12,11 @@
 ;=========================================================================================
 ;   Serial Model Railroad Control:
 ;
-; USB to RS485 Buffer and translator. Sits between a desctop computer and the Railroad.
+; RS485 Node. Sits on the RS485 bus and does stuff for the Railroad.
+; This version is for the Lighting Daughter Board.
 ;
 ;    History:
-; 0.9.3a   7/19/2026   Node types.
-; 0.9.2a   7/13/2026   Good data to/from Master. Working on RS485...
-; 0.9.1a   7/9/2026	It compiles...
-; 0.9a   4/1/2025	Copied from BLDC_Servo, Blink an LED
+; 0.9.1d   7/25/2026   Copied from SMRRC.asm 0.9.3a
 ;
 ;=========================================================================================
 ; Options:
@@ -28,16 +26,9 @@
 ; What happens next:
 ;   At power up the system LED will blink.
 ;
-; When a command packet is received from RX2 (USB):
-;  Source=Master, Destination=Me: Parse and Process the command.
-;     Send any requested data back to Master on TX2 (USB).
-;  Source=Master, Destination<>Me: Retransmit on TX1 (RS485)
-;
 ; When a command packet is received from RX1 (RS485):
 ;  Source=any, Destination=Me: Parse and Process the command. 
 ;     Send any requested data back to the sender on TX1 (RS485).
-;  Source=any, Destination=Master: Retransmit on TX2 (USB)
-;  Source=any, Destination= other than Master or Me do nothing.
 ;
 ;=========================================================================================
 ; uController pinout (PIC16F15345):
@@ -87,11 +78,11 @@
 ;=========================================================================================
 ;
 	constant	oldCode=0
-	constant	useRS232=1	;TX2/RX2 to USB
+	constant	useRS232=0	;TX2/RX2 to USB
 	constant	useRS485=1	;TX1/RX1 to RS-485 SMRRC devices
-	constant	useRS232PacketCmds=1
-	constant	useRS485PacketCmds=0
-	constant	useBootloader=1
+	constant	useRS232PacketCmds=0
+	constant	useRS485PacketCmds=1
+	constant	useBootloader=0	;TX2/RX2 only.
 	constant	UseEEParams=1
 ;
 	constant	RP_LongAddr=0
@@ -109,9 +100,9 @@ kRS485SyncByteValue	EQU	0xDD
 	constant	UseRS485Chksum=1
 ;
 kRS232_MasterAddr	EQU	0x01	;Master's Address
-kRS232_SlaveAddr	EQU	0x02	;This Slave's Address
+kRS232_SlaveAddr	EQU	0x03	;This Slave's Address
 ;
-kRS485_Address	EQU	0x02	;my Address on the RS-485 bus
+kRS485_Address	EQU	0x03	;my Address on the RS-485 bus
 ;
 kSysMode	EQU	.0	;Default Mode
 ;
@@ -152,7 +143,7 @@ PortB_ANSel_Value	EQU	b'00000000'	;All digital
 #Define	RS485DE	LATB,6
 ;
 ;    Port C bits
-PortC_Tris_Bits	EQU	b'11111111'	;RC0=TX2, RC1=RX2
+PortC_Tris_Bits	EQU	b'00000000'	;RC0=TX2, RC1=RX2
 PortC_Init_Value	EQU	b'00000000'
 PortC_ANSel_Value	EQU	b'00000000'	;All digital
 ;
@@ -700,6 +691,11 @@ TMR0H_Value	equ	.125
 	if useRS232PacketCmds
 	org	0x0800
 	include	PacketSerialCmds.inc
+	endif
+;
+	if useRS485PacketCmds
+	org	0x0800
+	include	RS485_OutputDC_Cmds.inc
 	endif
 ;
 	if useBootloader
