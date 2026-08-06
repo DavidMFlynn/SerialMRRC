@@ -15,6 +15,7 @@
 ; RS485_Parse	Call from main loop
 ; RS485_ClearTXData	Clear the TX data, FSR1
 ; RS485_Send	Send the data at TX_data, FSR0, FSR1
+; RS485_Forward	Forward a data packet from RS232 (USB)
 ; RS485_Init	Setup serial I/O on RB7/TX1, RB5/RX1, RB4/nRE, RB6/DE
 ;
 ;=========================================================================================
@@ -354,10 +355,7 @@ RS485_Send:
 	movlb	Ser485_Buff_Bank	;bank 4
 	movlw	RP485_DataBytes
 	movwf	Param79
-	movlw	low TX485_Data
-	movwf	FSR1L
-	movlw	high TX485_Data
-	movwf	FSR1H
+	mMOVLF	TX485_Data,FSR1L
 ;
 RS485_Send_L1	moviw	FSR1++
 	addwf	Param7A,F	;CSum=CSum + data
@@ -373,7 +371,7 @@ RS485_Send_L1	moviw	FSR1++
 	call	StoreSer485Out
 	endif
 ;
-	goto	RS485_ClearTXData
+	return
 ;
 	if useRS232
 ;=========================================================================================
@@ -387,61 +385,41 @@ RS485_Send_L1	moviw	FSR1++
 ;Calls: (1+0) StoreSer485Out
 ;
 RS485_Forward:
-	if UseRS485SyncBytes
-;
-	movlw	kRS485SyncByteValue
-	call	StoreSer485Out
-	movlw	kRS485SyncByteValue
-	call	StoreSer485Out
-;
-	endif
-;
-	clrf	Param7A	;CSum
 ;
 	movlb	RX_SrcAdd	;bank 1
 	movf	RX_SrcAdd,W	;source address
-	addwf	Param7A,F	;CSum=CSum + data
-	call	StoreSer485Out
+	movlb	Ser485_Buff_Bank
+	movwf	TX485_SrcAdd
 ;
 	if RP485_LongAddr
 	movlb	RX_SrcAdd	;bank 1
 	movf	RX_SrcAdd+1,W	;source address high byte
-	addwf	Param7A,F	;CSum=CSum + data
-	call	StoreSer485Out
+	movlb	Ser485_Buff_Bank
+	movwf	TX485_SrcAdd+1
 	endif
 ;
 	movlb	RX_DstAdd	;bank 1
 	movf	RX_DstAdd,W	;destination address
-	addwf	Param7A,F	;CSum=CSum + data
-	call	StoreSer485Out
+	movlb	Ser485_Buff_Bank
+	movwf	TX485_DstAdd
 ;
 	if RP_LongAddr
 	movlb	RX_DstAdd	;bank 1
 	movf	RX_DstAdd+1,W	;destination address
-	addwf	Param7A,F	;CSum=CSum + data
-	call	StoreSer485Out
+	movlb	Ser485_Buff_Bank
+	movwf	TX485_DstAdd+1
 	endif
 ;
 	movlw	RP485_DataBytes
 	movwf	Param79
-	movlw	low RX_TempData
-	movwf	FSR1L
-	movlw	high RX_TempData
-	movwf	FSR1H
+	mMOVLF	TX485_Data,FSR0L
+	mMOVLF	RX_TempData,FSR1L
 ;
 RS485_Forward_L1	moviw	FSR1++
-	addwf	Param7A,F	;CSum=CSum + data
-	call	StoreSer485Out
+	movwi	FSR0++
 	decfsz	Param79,F
 	bra	RS485_Forward_L1
-;
-	if UseRS485Chksum
-	movlw	0xFF
-	xorwf	Param7A,W
-	call	StoreSer485Out
-	endif
-;
-	return
+	bra	RS485_Send
 ;
 	endif
 ;=========================================================================================

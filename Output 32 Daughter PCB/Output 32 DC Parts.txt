@@ -1,0 +1,19 @@
+Output 32 Daughter Board Parts List
+
+Ref.	Desc.	Digi-Key #
+==========================================================================================
+R17,R18,R19,R20	Res. 1KΩ 1/8W 0805
+R29	Res. 4.7KΩ 1/8W 0805
+RXX	Res. 1KΩ 1/8W 0805
+D1,D2,D3,D4	LED 1206
+U1,U2,U5,U6	74HC259 16-SOIC	296-14847-1-ND
+U3	74HC138 16-SOIC	
+U4	L78L05 SOT89	
+Q1-Q32	2N7000 TO-92 MOSFET
+J1	12P 2.54mm DIL Pin Hdr
+J2,J3	16P 3.5mm Screw Term	ED2739-ND
+C1,C3,C4,C5,C6,C7,C8	0.1uf 50V 0805
+C2,C9	10uf 25V Al Elec.
+
+
+

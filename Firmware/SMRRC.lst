@@ -1932,7 +1932,7 @@ SMRRC.asm                                                             Page: 1
 00681 0253 		endif
 00682 0253 	;=========================================================================================
 00683 0253 		if useRS485
-00684 0253 23BC 		call	RS485_Init
+00684 0253 23B7 		call	RS485_Init
 00685 0254 		endif
 00686 0254 	;
 00687 0254 	;=========================================================================================
@@ -2442,475 +2442,465 @@ SMRRC.asm                                                             Page: 1
 00015 0301 	; RS485_Parse	Call from main loop
 00016 0301 	; RS485_ClearTXData	Clear the TX data, FSR1
 00017 0301 	; RS485_Send	Send the data at TX_data, FSR0, FSR1
-00018 0301 	; RS485_Init	Setup serial I/O on RB7/TX1, RB5/RX1, RB4/nRE, RB6/DE
-00019 0301 	;
-00020 0301 	;=========================================================================================
-00021 0301 	; Notes:
+00018 0301 	; RS485_Forward	Forward a data packet from RS232 (USB)
+00019 0301 	; RS485_Init	Setup serial I/O on RB7/TX1, RB5/RX1, RB4/nRE, RB6/DE
+00020 0301 	;
+00021 0301 	;=========================================================================================
 SMRRC.asm                                                             Page: 25
 /Users/davidflynn/Projects/SerialMRRC/Firmware/
 
-00022 0301 	;
-00023 0301 	; History:
-00024 0301 	; 1.0.2  7/26/2026	Code cleanup. Moved header stuff to RS485_Parse.H
-00025 0301 	; 1.0.1  7/25/2026	Moved RS485_Init into this file.
-00026 0301 	; 1.0d1  4/5/2025	Copied from RS232_Parse 1.0b5
-00027 0301 	;
-00028 0301 	; RS485_Parse	(X/0) Parse any bytes received by the serial port
-00029 0301 	; Packet format: (DD DD) DA SA D0 D1 D2 D3 D4 D5 D6 D7 (CS)
-00030 0301 	;  DD = Sync byte added if address is received
-00031 0301 	;  DA = Destination Address, SA = Source Address, 
-00032 0301 	;       Dn = Data, CS Check Sum (xor of Address and Data bytes)
-00033 0301 	;  SA RS485_SAddr ( the sender )
-00034 0301 	;  DA must be RS485_MyAddr ( this program, must match )
-00035 0301 	;  If the checksum matches put the data bytes in the RX485_Data buffer,
-00036 0301 	;   set RX485DataValidFlag and RX485DataIsNew.
-00037 0301 	;=========================================================================================
-00038 0301 	;
-00039 0301 	; default to a 6 byte packet 0xDD 0xDD DA SA D0 D1 D2 D3 CS
-00040 0301 	;
+00022 0301 	; Notes:
+00023 0301 	;
+00024 0301 	; History:
+00025 0301 	; 1.0.2  7/26/2026	Code cleanup. Moved header stuff to RS485_Parse.H
+00026 0301 	; 1.0.1  7/25/2026	Moved RS485_Init into this file.
+00027 0301 	; 1.0d1  4/5/2025	Copied from RS232_Parse 1.0b5
+00028 0301 	;
+00029 0301 	; RS485_Parse	(X/0) Parse any bytes received by the serial port
+00030 0301 	; Packet format: (DD DD) DA SA D0 D1 D2 D3 D4 D5 D6 D7 (CS)
+00031 0301 	;  DD = Sync byte added if address is received
+00032 0301 	;  DA = Destination Address, SA = Source Address, 
+00033 0301 	;       Dn = Data, CS Check Sum (xor of Address and Data bytes)
+00034 0301 	;  SA RS485_SAddr ( the sender )
+00035 0301 	;  DA must be RS485_MyAddr ( this program, must match )
+00036 0301 	;  If the checksum matches put the data bytes in the RX485_Data buffer,
+00037 0301 	;   set RX485DataValidFlag and RX485DataIsNew.
+00038 0301 	;=========================================================================================
+00039 0301 	;
+00040 0301 	; default to a 6 byte packet 0xDD 0xDD DA SA D0 D1 D2 D3 CS
 00041 0301 	;
-00042 0301 		ifndef RP485_DataBytes
-00044 0301 		endif
-00045 0301 	;
-00046 0301 		ifndef UseRS485Chksum
-00048 0301 		endif
-00049 0301 	;
-00050 0301 		constant RX485Timeout=5	;50 mS max between incoming bytes
-00051 0301 	;=========================================================================================
-00052 0301 	; Bank0 variable used by RS232_Parse:
-00053 0301 	;
-00054 0301 	;	cblock
-00055 0301 	;	RS485_Address
-00056 0301 	;	endc
-00057 0301 	;
-00058 0301 	; *** put in main loop
-00059 0301 	;	CALL	RS485_Parse
-00060 0301 	; if RX485DataValidFlag is set data may be used
-00061 0301 	;
-00062 0301 	;=========================================================================================
-00063 0301 	; Parse any bytes received by the serial port
-00064 0301 	;
-00065 0301 	; Receive 0xDD,0xDD,SA0,DA0,Cmd,Data0,Data1,Data2,CS
-00066 0301 	;
+00042 0301 	;
+00043 0301 		ifndef RP485_DataBytes
+00045 0301 		endif
+00046 0301 	;
+00047 0301 		ifndef UseRS485Chksum
+00049 0301 		endif
+00050 0301 	;
+00051 0301 		constant RX485Timeout=5	;50 mS max between incoming bytes
+00052 0301 	;=========================================================================================
+00053 0301 	; Bank0 variable used by RS232_Parse:
+00054 0301 	;
+00055 0301 	;	cblock
+00056 0301 	;	RS485_Address
+00057 0301 	;	endc
+00058 0301 	;
+00059 0301 	; *** put in main loop
+00060 0301 	;	CALL	RS485_Parse
+00061 0301 	; if RX485DataValidFlag is set data may be used
+00062 0301 	;
+00063 0301 	;=========================================================================================
+00064 0301 	; Parse any bytes received by the serial port
+00065 0301 	;
+00066 0301 	; Receive 0xDD,0xDD,SA0,DA0,Cmd,Data0,Data1,Data2,CS
 00067 0301 	;
-00068 0301 	; Entry: none
-00069 0301 	; Exit: none
-00070 0301 	; Ram Used: Param78, FSR0
-00071 0301 	; Calls (1+0): GetSer485In
-00072 0301 	;
-00073 0301 0144 	RS485_Parse	movlb	Ser485_Buff_Bank
-00074 0302 08A0 		movf	RX485_ParseFlags,F
-00075 0303 		SKPNZ		;Receive in process?
-00075 0303 1903      M		BTFSC	STATUS,Z		BTFSC	STATUS,Z
-00076 0304 3207 		bra	RS485_Parse_Byte	; no
-00077 0305 	;
-00078 0305 0140 		movlb	0	;bank 0
-00079 0306 08B4 		movf	Timer2Lo,F
-00080 0307 		SKPZ		;Timed out?
-00080 0307 1D03      M		BTFSS	STATUS,Z		BTFSS	STATUS,Z
-00081 0308 3203 		bra	RS485_Parse_Byte	; no
-00082 0309 	;timed out
-00083 0309 15BF 		bsf	RS485RX_Timeout
-00084 030A 0144 		movlb	Ser485_Buff_Bank
-00085 030B 01A0 		clrf	RX485_ParseFlags
-00086 030C 	;
-00087 030C 22BB 	RS485_Parse_Byte	CALL	GetSer485In
-00088 030D 1C78 		btfss	Param78,0	;Got a byte?
-00089 030E 0008 		return		; No
-00090 030F 	;
-00091 030F 00F8 		movwf	Param78	;Data Byte RXd
-00092 0310 3005 		movlw	RX485Timeout	;Reset time-out timer
-00093 0311 00B4 		movwf	Timer2Lo
-00094 0312 	; Command inturpreter
-00095 0312 		if UseRS485SyncBytes
-00096 0312 	;
-00097 0312 0144 		movlb	Ser485_Buff_Bank	;bank 4
-00098 0313 08A0 		movf	RX485_ParseFlags,F
-00099 0314 		SKPZ		;Beginning new packet?
-00099 0314 1D03      M		BTFSS	STATUS,Z		BTFSS	STATUS,Z
-00100 0315 3205 		bra	RS485_Parse_Sync2	; No
-00101 0316 	;
-00102 0316 30DD 		movlw	kRS485SyncByteValue
-00103 0317 0278 		subwf	Param78,W
-00104 0318 		SKPNZ		;Sync byte OK?
-00104 0318 1903      M		BTFSC	STATUS,Z		BTFSC	STATUS,Z
-00105 0319 1420 		bsf	RS485SyncByte1RXd	; Yes
-00106 031A 3216 		bra	RS485_Parse_Rtn
-00107 031B 	;
-00108 031B 18A0 	RS485_Parse_Sync2	btfsc	RS485SyncByte2RXd	;Second sync byte rec'd?
-00109 031C 3206 		bra	RS485_Parse_SALo	; Yes
-00110 031D 	;
-00111 031D 30DD 		movlw	kRS485SyncByteValue
-00112 031E 0278 		subwf	Param78,W
-00113 031F 		SKPZ		;Got the second sync byte?
-00113 031F 1D03      M		BTFSS	STATUS,Z		BTFSS	STATUS,Z
-00114 0320 2B6F 		goto	RS485_Parse_Error	; No, need 2
-00115 0321 14A0 		bsf	RS485SyncByte2RXd
-00116 0322 320E 		bra	RS485_Parse_Rtn
-00117 0323 	;
+00068 0301 	;
+00069 0301 	; Entry: none
+00070 0301 	; Exit: none
+00071 0301 	; Ram Used: Param78, FSR0
+00072 0301 	; Calls (1+0): GetSer485In
+00073 0301 	;
+00074 0301 0144 	RS485_Parse	movlb	Ser485_Buff_Bank
+00075 0302 08A0 		movf	RX485_ParseFlags,F
+00076 0303 		SKPNZ		;Receive in process?
+00076 0303 1903      M		BTFSC	STATUS,Z		BTFSC	STATUS,Z
+00077 0304 3207 		bra	RS485_Parse_Byte	; no
+00078 0305 	;
+00079 0305 0140 		movlb	0	;bank 0
+00080 0306 08B4 		movf	Timer2Lo,F
+00081 0307 		SKPZ		;Timed out?
+00081 0307 1D03      M		BTFSS	STATUS,Z		BTFSS	STATUS,Z
+00082 0308 3203 		bra	RS485_Parse_Byte	; no
+00083 0309 	;timed out
+00084 0309 15BF 		bsf	RS485RX_Timeout
+00085 030A 0144 		movlb	Ser485_Buff_Bank
+00086 030B 01A0 		clrf	RX485_ParseFlags
+00087 030C 	;
+00088 030C 22BB 	RS485_Parse_Byte	CALL	GetSer485In
+00089 030D 1C78 		btfss	Param78,0	;Got a byte?
+00090 030E 0008 		return		; No
+00091 030F 	;
+00092 030F 00F8 		movwf	Param78	;Data Byte RXd
+00093 0310 3005 		movlw	RX485Timeout	;Reset time-out timer
+00094 0311 00B4 		movwf	Timer2Lo
+00095 0312 	; Command inturpreter
+00096 0312 		if UseRS485SyncBytes
+00097 0312 	;
+00098 0312 0144 		movlb	Ser485_Buff_Bank	;bank 4
+00099 0313 08A0 		movf	RX485_ParseFlags,F
+00100 0314 		SKPZ		;Beginning new packet?
+00100 0314 1D03      M		BTFSS	STATUS,Z		BTFSS	STATUS,Z
+00101 0315 3205 		bra	RS485_Parse_Sync2	; No
+00102 0316 	;
+00103 0316 30DD 		movlw	kRS485SyncByteValue
+00104 0317 0278 		subwf	Param78,W
+00105 0318 		SKPNZ		;Sync byte OK?
+00105 0318 1903      M		BTFSC	STATUS,Z		BTFSC	STATUS,Z
+00106 0319 1420 		bsf	RS485SyncByte1RXd	; Yes
+00107 031A 3216 		bra	RS485_Parse_Rtn
+00108 031B 	;
+00109 031B 18A0 	RS485_Parse_Sync2	btfsc	RS485SyncByte2RXd	;Second sync byte rec'd?
+00110 031C 3206 		bra	RS485_Parse_SALo	; Yes
+00111 031D 	;
+00112 031D 30DD 		movlw	kRS485SyncByteValue
+00113 031E 0278 		subwf	Param78,W
+00114 031F 		SKPZ		;Got the second sync byte?
+00114 031F 1D03      M		BTFSS	STATUS,Z		BTFSS	STATUS,Z
+00115 0320 2B6F 		goto	RS485_Parse_Error	; No, need 2
+00116 0321 14A0 		bsf	RS485SyncByte2RXd
+00117 0322 320E 		bra	RS485_Parse_Rtn
 SMRRC.asm                                                             Page: 26
 /Users/davidflynn/Projects/SerialMRRC/Firmware/
 
-00118 0323 		endif
-00119 0323 	;
+00118 0323 	;
+00119 0323 		endif
 00120 0323 	;
-00121 0323 	; Source Address
-00122 0323 1920 	RS485_Parse_SALo	btfsc	RS485SourceAddrLoRXd	;Looking for the source address?
-00123 0324 320E 		bra	RS485_Parse_SALo_end	; No
-00124 0325 	;My data is echoed back
-00125 0325 0140 		movlb	0	;Bank 0
-00126 0326 0843 		movf	RS485_Address,W
-00127 0327 0144 		movlb	Ser485_Buff_Bank	;Bank 4
-00128 0328 15A1 		bsf	RX485SrcIsMe	;default to it being my message
-00129 0329 0278 		subwf	Param78,W
-00130 032A 		SKPZ		;RS485_Address=RXd byte?
-00130 032A 1D03      M		BTFSS	STATUS,Z		BTFSS	STATUS,Z
-00131 032B 11A1 		bcf	RX485SrcIsMe	; No, it's not for me.
-00132 032C 	;
-00133 032C 	; Save the source address
-00134 032C 01A2 		clrf	RX485_DataCount
-00135 032D 0878 		movf	Param78,W
-00136 032E 00A4 		movwf	RX485_SrcAdd	;Save the source address
-00137 032F 00A3 		movwf	RX485_CSUM	;Start a checksum
-00138 0330 1520 		bsf	RS485SourceAddrLoRXd
-00139 0331 	;
-00140 0331 0140 	RS485_Parse_Rtn	movlb	0	;bank 0
-00141 0332 0008 		return
-00142 0333 	RS485_Parse_SALo_end:
-00143 0333 	;
-00144 0333 		if RP485_LongAddr
-00163 0333 		endif
-00164 0333 	;
-00165 0333 	; Destination Address
-00166 0333 1621 	RS485_Parse_DALo	bsf	RX485RXDataEquTXData
-00167 0334 1DA1 		btfss	RX485SrcIsMe
-00168 0335 1221 		bcf	RX485RXDataEquTXData
-00169 0336 	;
-00170 0336 1A20 		btfsc	RS485DestAddrLoRXd	;Have a source address low byte?
-00171 0337 320C 		bra	RS485_Parse_DALo_End	; Yes
-00172 0338 	;
-00173 0338 0140 		movlb	0	;Bank 0
-00174 0339 0843 		movf	RS485_Address,W
-00175 033A 0144 		movlb	Ser485_Buff_Bank	;Bank 4
-00176 033B 1521 		bsf	RX485DstIsMe	;default to it being my message
-00177 033C 0278 		subwf	Param78,W
-00178 033D 		SKPZ		;RS485_Address=RXd byte?
-00178 033D 1D03      M		BTFSS	STATUS,Z		BTFSS	STATUS,Z
-00179 033E 1121 		bcf	RX485DstIsMe	; No, it's not for me.
-00180 033F 	;
-00181 033F 0878 		movf	Param78,W
-00182 0340 00A5 		movwf	RX485_DstAdd	;Save RXd byte as dest addr
-00183 0341 07A3 		addwf	RX485_CSUM,F
-00184 0342 1620 		bsf	RS485DestAddrLoRXd
-00185 0343 33ED 		bra	RS485_Parse_Rtn
-00186 0344 	RS485_Parse_DALo_End:
-00187 0344 	;
-00188 0344 		if RP485_LongAddr
-00207 0344 		endif
-00208 0344 	;
-00209 0344 	; Receive the data bytes, store them in RX485_TempData
-00210 0344 1B20 	RS485_Parse_Data	btfsc	RS485AllDataRXd	;Got all data bytes?
-00211 0345 320F 		bra	RS485_Parse_Data_end	; Yes
-00212 0346 	;FSR0 is data ptr
-00213 0346 0822 		movf	RX485_DataCount,W
-00214 0347 3E26 		addlw	low RX485_TempData
-00215 0348 0084 		movwf	FSR0L
-00216 0349 3002 		movlw	high RX485_TempData
-00217 034A 0085 		movwf	FSR0H
-00218 034B 	;
-00219 034B 0878 		movf	Param78,W
-00220 034C 07A3 		addwf	RX485_CSUM,F	;Update ckecksum
-00221 034D 0080 		movwf	INDF0	;Save the data byte
-00222 034E 0AA2 		incf	RX485_DataCount,F
-00223 034F 3004 		movlw	RP485_DataBytes
-00224 0350 0222 		subwf	RX485_DataCount,W
-00225 0351 		SKPZ		;All data bytes RX'd?
-00225 0351 1D03      M		BTFSS	STATUS,Z		BTFSS	STATUS,Z
-00226 0352 33DE 		bra	RS485_Parse_Rtn	; No
-00227 0353 1720 		bsf	RS485AllDataRXd	; Yes
-00228 0354 	;
-00229 0354 		if UseRS485Chksum
-00230 0354 33DC 		bra	RS485_Parse_Rtn	;Wait for a checksum
-00231 0355 		endif
-00232 0355 	RS485_Parse_Data_end:
-00233 0355 	;
-00234 0355 		if UseRS485Chksum
-00235 0355 	; checksum
-00236 0355 30FF 		movlw	0xFF
-00237 0356 0623 		xorwf	RX485_CSUM,W
-00238 0357 0278 		subwf	Param78,W
-00239 0358 		SKPZ		;Checksum matches?
-00239 0358 1D03      M		BTFSS	STATUS,Z		BTFSS	STATUS,Z
-00240 0359 3215 		bra	RS485_Parse_Error	; No
-00241 035A 	;
-00242 035A 		endif
-00243 035A 	;
-00244 035A 	;Copy data from RX485_TempData to RX485_Data
-00245 035A 	;
-00246 035A 3026 		movlw	low RX485_TempData
-00247 035B 0084 		movwf	FSR0L
-00248 035C 3002 		movlw	high RX485_TempData
+00121 0323 	;
+00122 0323 	; Source Address
+00123 0323 1920 	RS485_Parse_SALo	btfsc	RS485SourceAddrLoRXd	;Looking for the source address?
+00124 0324 320E 		bra	RS485_Parse_SALo_end	; No
+00125 0325 	;My data is echoed back
+00126 0325 0140 		movlb	0	;Bank 0
+00127 0326 0843 		movf	RS485_Address,W
+00128 0327 0144 		movlb	Ser485_Buff_Bank	;Bank 4
+00129 0328 15A1 		bsf	RX485SrcIsMe	;default to it being my message
+00130 0329 0278 		subwf	Param78,W
+00131 032A 		SKPZ		;RS485_Address=RXd byte?
+00131 032A 1D03      M		BTFSS	STATUS,Z		BTFSS	STATUS,Z
+00132 032B 11A1 		bcf	RX485SrcIsMe	; No, it's not for me.
+00133 032C 	;
+00134 032C 	; Save the source address
+00135 032C 01A2 		clrf	RX485_DataCount
+00136 032D 0878 		movf	Param78,W
+00137 032E 00A4 		movwf	RX485_SrcAdd	;Save the source address
+00138 032F 00A3 		movwf	RX485_CSUM	;Start a checksum
+00139 0330 1520 		bsf	RS485SourceAddrLoRXd
+00140 0331 	;
+00141 0331 0140 	RS485_Parse_Rtn	movlb	0	;bank 0
+00142 0332 0008 		return
+00143 0333 	RS485_Parse_SALo_end:
+00144 0333 	;
+00145 0333 		if RP485_LongAddr
+00164 0333 		endif
+00165 0333 	;
+00166 0333 	; Destination Address
+00167 0333 1621 	RS485_Parse_DALo	bsf	RX485RXDataEquTXData
+00168 0334 1DA1 		btfss	RX485SrcIsMe
+00169 0335 1221 		bcf	RX485RXDataEquTXData
+00170 0336 	;
+00171 0336 1A20 		btfsc	RS485DestAddrLoRXd	;Have a source address low byte?
+00172 0337 320C 		bra	RS485_Parse_DALo_End	; Yes
+00173 0338 	;
+00174 0338 0140 		movlb	0	;Bank 0
+00175 0339 0843 		movf	RS485_Address,W
+00176 033A 0144 		movlb	Ser485_Buff_Bank	;Bank 4
+00177 033B 1521 		bsf	RX485DstIsMe	;default to it being my message
+00178 033C 0278 		subwf	Param78,W
+00179 033D 		SKPZ		;RS485_Address=RXd byte?
+00179 033D 1D03      M		BTFSS	STATUS,Z		BTFSS	STATUS,Z
+00180 033E 1121 		bcf	RX485DstIsMe	; No, it's not for me.
+00181 033F 	;
+00182 033F 0878 		movf	Param78,W
+00183 0340 00A5 		movwf	RX485_DstAdd	;Save RXd byte as dest addr
+00184 0341 07A3 		addwf	RX485_CSUM,F
+00185 0342 1620 		bsf	RS485DestAddrLoRXd
+00186 0343 33ED 		bra	RS485_Parse_Rtn
+00187 0344 	RS485_Parse_DALo_End:
+00188 0344 	;
+00189 0344 		if RP485_LongAddr
+00208 0344 		endif
+00209 0344 	;
+00210 0344 	; Receive the data bytes, store them in RX485_TempData
+00211 0344 1B20 	RS485_Parse_Data	btfsc	RS485AllDataRXd	;Got all data bytes?
+00212 0345 320F 		bra	RS485_Parse_Data_end	; Yes
+00213 0346 	;FSR0 is data ptr
+00214 0346 0822 		movf	RX485_DataCount,W
+00215 0347 3E26 		addlw	low RX485_TempData
+00216 0348 0084 		movwf	FSR0L
+00217 0349 3002 		movlw	high RX485_TempData
+00218 034A 0085 		movwf	FSR0H
+00219 034B 	;
+00220 034B 0878 		movf	Param78,W
+00221 034C 07A3 		addwf	RX485_CSUM,F	;Update ckecksum
+00222 034D 0080 		movwf	INDF0	;Save the data byte
+00223 034E 0AA2 		incf	RX485_DataCount,F
+00224 034F 3004 		movlw	RP485_DataBytes
+00225 0350 0222 		subwf	RX485_DataCount,W
+00226 0351 		SKPZ		;All data bytes RX'd?
+00226 0351 1D03      M		BTFSS	STATUS,Z		BTFSS	STATUS,Z
+00227 0352 33DE 		bra	RS485_Parse_Rtn	; No
+00228 0353 1720 		bsf	RS485AllDataRXd	; Yes
+00229 0354 	;
+00230 0354 		if UseRS485Chksum
+00231 0354 33DC 		bra	RS485_Parse_Rtn	;Wait for a checksum
+00232 0355 		endif
+00233 0355 	RS485_Parse_Data_end:
+00234 0355 	;
+00235 0355 		if UseRS485Chksum
+00236 0355 	; checksum
+00237 0355 30FF 		movlw	0xFF
+00238 0356 0623 		xorwf	RX485_CSUM,W
+00239 0357 0278 		subwf	Param78,W
+00240 0358 		SKPZ		;Checksum matches?
+00240 0358 1D03      M		BTFSS	STATUS,Z		BTFSS	STATUS,Z
+00241 0359 3215 		bra	RS485_Parse_Error	; No
+00242 035A 	;
+00243 035A 		endif
+00244 035A 	;
+00245 035A 	;Copy data from RX485_TempData to RX485_Data
+00246 035A 	;
+00247 035A 3026 		movlw	low RX485_TempData
+00248 035B 0084 		movwf	FSR0L
 SMRRC.asm                                                             Page: 27
 /Users/davidflynn/Projects/SerialMRRC/Firmware/
 
-00249 035D 0085 		movwf	FSR0H
-00250 035E 	;
-00251 035E 302A 		movlw	low RX485_Data
-00252 035F 0086 		movwf	FSR1L
-00253 0360 3002 		movlw	high RX485_Data
-00254 0361 0087 		movwf	FSR1H
-00255 0362 	;
-00256 0362 3004 		movlw	RP485_DataBytes
-00257 0363 00F8 		movwf	Param78
-00258 0364 0012 	RS485_Parse_L1	moviw	FSR0++
-00259 0365 001E 		movwi	FSR1++
-00260 0366 0BF8 		decfsz	Param78,F
-00261 0367 33FC 		bra	RS485_Parse_L1
-00262 0368 	;
-00263 0368 14A1 		bsf	RX485DataIsNew	;good packet rx'd
-00264 0369 1421 		bsf	RX485DataValidFlag
-00265 036A 1D21 		btfss	RX485DstIsMe	;to me?
-00266 036B 1021 		bcf	RX485DataValidFlag	; no
-00267 036C 	;
-00268 036C 01A0 		clrf	RX485_ParseFlags
-00269 036D 0140 		movlb	0	;Bank 0
-00270 036E 0008 		return
-00271 036F 	;
+00249 035C 3002 		movlw	high RX485_TempData
+00250 035D 0085 		movwf	FSR0H
+00251 035E 	;
+00252 035E 302A 		movlw	low RX485_Data
+00253 035F 0086 		movwf	FSR1L
+00254 0360 3002 		movlw	high RX485_Data
+00255 0361 0087 		movwf	FSR1H
+00256 0362 	;
+00257 0362 3004 		movlw	RP485_DataBytes
+00258 0363 00F8 		movwf	Param78
+00259 0364 0012 	RS485_Parse_L1	moviw	FSR0++
+00260 0365 001E 		movwi	FSR1++
+00261 0366 0BF8 		decfsz	Param78,F
+00262 0367 33FC 		bra	RS485_Parse_L1
+00263 0368 	;
+00264 0368 14A1 		bsf	RX485DataIsNew	;good packet rx'd
+00265 0369 1421 		bsf	RX485DataValidFlag
+00266 036A 1D21 		btfss	RX485DstIsMe	;to me?
+00267 036B 1021 		bcf	RX485DataValidFlag	; no
+00268 036C 	;
+00269 036C 01A0 		clrf	RX485_ParseFlags
+00270 036D 0140 		movlb	0	;Bank 0
+00271 036E 0008 		return
 00272 036F 	;
-00273 036F 	; We didn't get the sync byte we were expecting so restart the parser
-00274 036F 01A0 	RS485_Parse_Error	CLRF	RX485_ParseFlags
-00275 0370 2ACC 		goto	Flush485InBuff
-00276 0371 	;
-00277 0371 	;=========================================================================================
-00278 0371 	; Clear the TX data, unused bytes are sent as 0x00
-00279 0371 	; Entry: none
-00280 0371 	; Exit: Bank 0
-00281 0371 	; Ram used: Param78, FSR1
-00282 0371 	; Calls: none
-00283 0371 0144 	RS485_ClearTXData	movlb	Ser485_Buff_Bank	;bank 4
-00284 0372 01AE 		clrf	TX485_SrcAdd
-00285 0373 01AF 		clrf	TX485_DstAdd
-00286 0374 	;
-00287 0374 		if RP485_LongAddr
-00290 0374 		endif
-00291 0374 	;
-00292 0374 3004 		movlw	RP485_DataBytes
-00293 0375 00F8 		movwf	Param78
-00294 0376 3030 		movlw	low TX485_Data
-00295 0377 0086 		movwf	FSR1L
-00296 0378 3002 		movlw	high TX485_Data
-00297 0379 0087 		movwf	FSR1H
-00298 037A 3000 		movlw	0x00
-00299 037B 001E 	RS485_ClearTXData_L1	movwi	FSR1++
-00300 037C 0BF8 		decfsz	Param78,F
-00301 037D 33FD 		bra	RS485_ClearTXData_L1
-00302 037E 	;
-00303 037E 01B4 		clrf	TX485_Csum
-00304 037F 0140 		movlb	0	;Bank 0
-00305 0380 0008 		return
-00306 0381 	;
-00307 0381 	;=========================================================================================
-00308 0381 	; Send a data packet
-00309 0381 	;  from the TX485 buffer (TX485_SrcAdd,TX485_DstAdd,TX485_Data)
-00310 0381 	;
-00311 0381 	;Entry: TX_Data = Data to send 
-00312 0381 	;Exit: TX_Data is cleared
-00313 0381 	;Ram used: Param78,Param79,Param7A,FSR0,FSR1
-00314 0381 	;Calls: (1+0) StoreSer485Out
-00315 0381 	;
-00316 0381 	RS485_Send:
-00317 0381 	;
-00318 0381 		if UseRS485SyncBytes
-00319 0381 	;
-00320 0381 30DD 		movlw	kRS485SyncByteValue
-00321 0382 22DA 		call	StoreSer485Out
-00322 0383 30DD 		movlw	kRS485SyncByteValue
-00323 0384 22DA 		call	StoreSer485Out
-00324 0385 	;
-00325 0385 		endif
-00326 0385 	;
-00327 0385 01FA 		clrf	Param7A	;CSum=0
-00328 0386 	; Source Address
-00329 0386 0144 		movlb	Ser485_Buff_Bank	;bank 4
-00330 0387 082E 		movf	TX485_SrcAdd,W	;source address is Me
-00331 0388 07FA 		addwf	Param7A,F	;CSum=CSum + data
-00332 0389 22DA 		call	StoreSer485Out
-00333 038A 	;
-00334 038A 		if RP485_LongAddr
-00339 038A 		endif
-00340 038A 	;
-00341 038A 	; Destination Address
-00342 038A 0144 		movlb	Ser485_Buff_Bank	;bank 4
-00343 038B 082F 		movf	TX485_DstAdd,W	;destination address
-00344 038C 07FA 		addwf	Param7A,F	;CSum=CSum + data
-00345 038D 22DA 		call	StoreSer485Out
-00346 038E 	;
-00347 038E 		if RP485_LongAddr
-00352 038E 		endif
-00353 038E 	;
-00354 038E 0144 		movlb	Ser485_Buff_Bank	;bank 4
-00355 038F 3004 		movlw	RP485_DataBytes
-00356 0390 00F9 		movwf	Param79
-00357 0391 3030 		movlw	low TX485_Data
+00273 036F 	;
+00274 036F 	; We didn't get the sync byte we were expecting so restart the parser
+00275 036F 01A0 	RS485_Parse_Error	CLRF	RX485_ParseFlags
+00276 0370 2ACC 		goto	Flush485InBuff
+00277 0371 	;
+00278 0371 	;=========================================================================================
+00279 0371 	; Clear the TX data, unused bytes are sent as 0x00
+00280 0371 	; Entry: none
+00281 0371 	; Exit: Bank 0
+00282 0371 	; Ram used: Param78, FSR1
+00283 0371 	; Calls: none
+00284 0371 0144 	RS485_ClearTXData	movlb	Ser485_Buff_Bank	;bank 4
+00285 0372 01AE 		clrf	TX485_SrcAdd
+00286 0373 01AF 		clrf	TX485_DstAdd
+00287 0374 	;
+00288 0374 		if RP485_LongAddr
+00291 0374 		endif
+00292 0374 	;
+00293 0374 3004 		movlw	RP485_DataBytes
+00294 0375 00F8 		movwf	Param78
+00295 0376 3030 		movlw	low TX485_Data
+00296 0377 0086 		movwf	FSR1L
+00297 0378 3002 		movlw	high TX485_Data
+00298 0379 0087 		movwf	FSR1H
+00299 037A 3000 		movlw	0x00
+00300 037B 001E 	RS485_ClearTXData_L1	movwi	FSR1++
+00301 037C 0BF8 		decfsz	Param78,F
+00302 037D 33FD 		bra	RS485_ClearTXData_L1
+00303 037E 	;
+00304 037E 01B4 		clrf	TX485_Csum
+00305 037F 0140 		movlb	0	;Bank 0
+00306 0380 0008 		return
+00307 0381 	;
+00308 0381 	;=========================================================================================
+00309 0381 	; Send a data packet
+00310 0381 	;  from the TX485 buffer (TX485_SrcAdd,TX485_DstAdd,TX485_Data)
+00311 0381 	;
+00312 0381 	;Entry: TX_Data = Data to send 
+00313 0381 	;Exit: TX_Data is cleared
+00314 0381 	;Ram used: Param78,Param79,Param7A,FSR0,FSR1
+00315 0381 	;Calls: (1+0) StoreSer485Out
+00316 0381 	;
+00317 0381 	RS485_Send:
+00318 0381 	;
+00319 0381 		if UseRS485SyncBytes
+00320 0381 	;
+00321 0381 30DD 		movlw	kRS485SyncByteValue
+00322 0382 22DA 		call	StoreSer485Out
+00323 0383 30DD 		movlw	kRS485SyncByteValue
+00324 0384 22DA 		call	StoreSer485Out
+00325 0385 	;
+00326 0385 		endif
+00327 0385 	;
+00328 0385 01FA 		clrf	Param7A	;CSum=0
+00329 0386 	; Source Address
+00330 0386 0144 		movlb	Ser485_Buff_Bank	;bank 4
+00331 0387 082E 		movf	TX485_SrcAdd,W	;source address is Me
+00332 0388 07FA 		addwf	Param7A,F	;CSum=CSum + data
+00333 0389 22DA 		call	StoreSer485Out
+00334 038A 	;
+00335 038A 		if RP485_LongAddr
+00340 038A 		endif
+00341 038A 	;
+00342 038A 	; Destination Address
+00343 038A 0144 		movlb	Ser485_Buff_Bank	;bank 4
+00344 038B 082F 		movf	TX485_DstAdd,W	;destination address
+00345 038C 07FA 		addwf	Param7A,F	;CSum=CSum + data
+00346 038D 22DA 		call	StoreSer485Out
+00347 038E 	;
+00348 038E 		if RP485_LongAddr
+00353 038E 		endif
+00354 038E 	;
+00355 038E 0144 		movlb	Ser485_Buff_Bank	;bank 4
+00356 038F 3004 		movlw	RP485_DataBytes
+00357 0390 00F9 		movwf	Param79
 SMRRC.asm                                                             Page: 28
 /Users/davidflynn/Projects/SerialMRRC/Firmware/
 
-00358 0392 0086 		movwf	FSR1L
-00359 0393 3002 		movlw	high TX485_Data
-00360 0394 0087 		movwf	FSR1H
-00361 0395 	;
-00362 0395 0016 	RS485_Send_L1	moviw	FSR1++
-00363 0396 07FA 		addwf	Param7A,F	;CSum=CSum + data
-00364 0397 22DA 		call	StoreSer485Out
-00365 0398 0BF9 		decfsz	Param79,F
-00366 0399 33FB 		bra	RS485_Send_L1
-00367 039A 	;
-00368 039A 		if UseRS485Chksum
-00369 039A 30FF 		movlw	0xFF
-00370 039B 067A 		xorwf	Param7A,W	;CSum
-00371 039C 0144 		movlb	Ser485_Buff_Bank	;bank 4
-00372 039D 00B4 		movwf	TX485_Csum	;Save ckecksum for later.
-00373 039E 22DA 		call	StoreSer485Out
-00374 039F 		endif
-00375 039F 	;
-00376 039F 2B71 		goto	RS485_ClearTXData
-00377 03A0 	;
-00378 03A0 		if useRS232
-00379 03A0 	;=========================================================================================
-00380 03A0 	; Forward a data packet from RS232 (USB)
-00381 03A0 	;  send data from RS232 (RX_SrcAdd, RX_DstAdd, RX_TempData)
-00382 03A0 	;  to the RS485 bus 
-00383 03A0 	;
-00384 03A0 	;Entry: TX_Data = Data to send 
-00385 03A0 	;Exit: TX_Data is cleared
-00386 03A0 	;Ram used: Param78,Param79,Param7A,FSR0,FSR1
-00387 03A0 	;Calls: (1+0) StoreSer485Out
+00358 0391 		mMOVLF	TX485_Data,FSR1L
+00358 0391 3030      M		movlw	low TX485_Data	                       movlw                  low ADDRESS
+00358 0392 0086      M		movwf	FSR1L	                       movwf                  DEST
+00358 0393 3002      M		movlw	high TX485_Data	                       movlw                  high ADDRESS
+00358 0394 0087      M		movwf	FSR1L+1	                       movwf                  DEST+1
+00359 0395 	;
+00360 0395 0016 	RS485_Send_L1	moviw	FSR1++
+00361 0396 07FA 		addwf	Param7A,F	;CSum=CSum + data
+00362 0397 22DA 		call	StoreSer485Out
+00363 0398 0BF9 		decfsz	Param79,F
+00364 0399 33FB 		bra	RS485_Send_L1
+00365 039A 	;
+00366 039A 		if UseRS485Chksum
+00367 039A 30FF 		movlw	0xFF
+00368 039B 067A 		xorwf	Param7A,W	;CSum
+00369 039C 0144 		movlb	Ser485_Buff_Bank	;bank 4
+00370 039D 00B4 		movwf	TX485_Csum	;Save ckecksum for later.
+00371 039E 22DA 		call	StoreSer485Out
+00372 039F 		endif
+00373 039F 	;
+00374 039F 0008 		return
+00375 03A0 	;
+00376 03A0 		if useRS232
+00377 03A0 	;=========================================================================================
+00378 03A0 	; Forward a data packet from RS232 (USB)
+00379 03A0 	;  send data from RS232 (RX_SrcAdd, RX_DstAdd, RX_TempData)
+00380 03A0 	;  to the RS485 bus 
+00381 03A0 	;
+00382 03A0 	;Entry: TX_Data = Data to send 
+00383 03A0 	;Exit: TX_Data is cleared
+00384 03A0 	;Ram used: Param78,Param79,Param7A,FSR0,FSR1
+00385 03A0 	;Calls: (1+0) StoreSer485Out
+00386 03A0 	;
+00387 03A0 	RS485_Forward:
 00388 03A0 	;
-00389 03A0 	RS485_Forward:
-00390 03A0 		if UseRS485SyncBytes
-00391 03A0 	;
-00392 03A0 30DD 		movlw	kRS485SyncByteValue
-00393 03A1 22DA 		call	StoreSer485Out
-00394 03A2 30DD 		movlw	kRS485SyncByteValue
-00395 03A3 22DA 		call	StoreSer485Out
-00396 03A4 	;
-00397 03A4 		endif
-00398 03A4 	;
-00399 03A4 01FA 		clrf	Param7A	;CSum
-00400 03A5 	;
-00401 03A5 0141 		movlb	RX_SrcAdd	;bank 1
-00402 03A6 0824 		movf	RX_SrcAdd,W	;source address
-00403 03A7 07FA 		addwf	Param7A,F	;CSum=CSum + data
-00404 03A8 22DA 		call	StoreSer485Out
-00405 03A9 	;
-00406 03A9 		if RP485_LongAddr
-00411 03A9 		endif
-00412 03A9 	;
-00413 03A9 0141 		movlb	RX_DstAdd	;bank 1
-00414 03AA 0825 		movf	RX_DstAdd,W	;destination address
-00415 03AB 07FA 		addwf	Param7A,F	;CSum=CSum + data
-00416 03AC 22DA 		call	StoreSer485Out
-00417 03AD 	;
-00418 03AD 		if RP_LongAddr
-00423 03AD 		endif
-00424 03AD 	;
-00425 03AD 3004 		movlw	RP485_DataBytes
-00426 03AE 00F9 		movwf	Param79
-00427 03AF 30A6 		movlw	low RX_TempData
-00428 03B0 0086 		movwf	FSR1L
-00429 03B1 3000 		movlw	high RX_TempData
-00430 03B2 0087 		movwf	FSR1H
-00431 03B3 	;
-00432 03B3 0016 	RS485_Forward_L1	moviw	FSR1++
-00433 03B4 07FA 		addwf	Param7A,F	;CSum=CSum + data
-00434 03B5 22DA 		call	StoreSer485Out
-00435 03B6 0BF9 		decfsz	Param79,F
-00436 03B7 33FB 		bra	RS485_Forward_L1
-00437 03B8 	;
-00438 03B8 		if UseRS485Chksum
-00439 03B8 30FF 		movlw	0xFF
-00440 03B9 067A 		xorwf	Param7A,W
-00441 03BA 22DA 		call	StoreSer485Out
-00442 03BB 		endif
-00443 03BB 	;
-00444 03BB 0008 		return
-00445 03BC 	;
-00446 03BC 		endif
-00447 03BC 	;=========================================================================================
-00448 03BC 	; Setup serial I/O on RB7/TX1, RB5/RX1, RB4/nRE, RB6/DE
-00449 03BC 	;
-00450 03BC 	;Note:using dfault values
-00451 03BC 	; Configure pins
-00452 03BC 017D 	RS485_Init	movlb	RX1DTPPS	;bank 29
-00453 03BD 300D 		movlw	0x0D	;RB5, default
-00454 03BE 00CB 		movwf	RX1DTPPS
-00455 03BF 300F 		movlw	0x0F	;RB7, default
-00456 03C0 00CC 		movwf	TX1CKPPS
-00457 03C1 	;
-00458 03C1 017E 		movlb	RB7PPS                 ;bank 30, Output pin routing
-00459 03C2 300F 		movlw	0x0F	;TX1/CK1  signal
-00460 03C3 009F 		movwf	RB7PPS
-00461 03C4 	; Set baud rate
-00462 03C4 0142 		movlb	BAUD1CON	;bank 2
-00463 03C5 3008 		movlw	BAUD1CON_Value
-00464 03C6 009F 		movwf	BAUD1CON
+00389 03A0 0141 		movlb	RX_SrcAdd	;bank 1
+00390 03A1 0824 		movf	RX_SrcAdd,W	;source address
+00391 03A2 0144 		movlb	Ser485_Buff_Bank
+00392 03A3 00AE 		movwf	TX485_SrcAdd
+00393 03A4 	;
+00394 03A4 		if RP485_LongAddr
+00399 03A4 		endif
+00400 03A4 	;
+00401 03A4 0141 		movlb	RX_DstAdd	;bank 1
+00402 03A5 0825 		movf	RX_DstAdd,W	;destination address
+00403 03A6 0144 		movlb	Ser485_Buff_Bank
+00404 03A7 00AF 		movwf	TX485_DstAdd
+00405 03A8 	;
+00406 03A8 		if RP_LongAddr
+00411 03A8 		endif
+00412 03A8 	;
+00413 03A8 3004 		movlw	RP485_DataBytes
+00414 03A9 00F9 		movwf	Param79
+00415 03AA 		mMOVLF	TX485_Data,FSR0L
+00415 03AA 3030      M		movlw	low TX485_Data	                       movlw                  low ADDRESS
+00415 03AB 0084      M		movwf	FSR0L	                       movwf                  DEST
+00415 03AC 3002      M		movlw	high TX485_Data	                       movlw                  high ADDRESS
+00415 03AD 0085      M		movwf	FSR0L+1	                       movwf                  DEST+1
+00416 03AE 		mMOVLF	RX_TempData,FSR1L
+00416 03AE 30A6      M		movlw	low RX_TempData	                       movlw                  low ADDRESS
+00416 03AF 0086      M		movwf	FSR1L	                       movwf                  DEST
+00416 03B0 3000      M		movlw	high RX_TempData	                       movlw                  high ADDRESS
+00416 03B1 0087      M		movwf	FSR1L+1	                       movwf                  DEST+1
+00417 03B2 	;
+00418 03B2 0016 	RS485_Forward_L1	moviw	FSR1++
+00419 03B3 001A 		movwi	FSR0++
+00420 03B4 0BF9 		decfsz	Param79,F
+00421 03B5 33FC 		bra	RS485_Forward_L1
+00422 03B6 33CA 		bra	RS485_Send
+00423 03B7 	;
+00424 03B7 		endif
+00425 03B7 	;=========================================================================================
+00426 03B7 	; Setup serial I/O on RB7/TX1, RB5/RX1, RB4/nRE, RB6/DE
+00427 03B7 	;
+00428 03B7 	;Note:using dfault values
+00429 03B7 	; Configure pins
+00430 03B7 017D 	RS485_Init	movlb	RX1DTPPS	;bank 29
+00431 03B8 300D 		movlw	0x0D	;RB5, default
+00432 03B9 00CB 		movwf	RX1DTPPS
+00433 03BA 300F 		movlw	0x0F	;RB7, default
+00434 03BB 00CC 		movwf	TX1CKPPS
+00435 03BC 	;
+00436 03BC 017E 		movlb	RB7PPS                 ;bank 30, Output pin routing
+00437 03BD 300F 		movlw	0x0F	;TX1/CK1  signal
+00438 03BE 009F 		movwf	RB7PPS
+00439 03BF 	; Set baud rate
+00440 03BF 0142 		movlb	BAUD1CON	;bank 2
+00441 03C0 3008 		movlw	BAUD1CON_Value
+00442 03C1 009F 		movwf	BAUD1CON
+00443 03C2 30CF 		MOVLW	low RS485BaudRate
+00444 03C3 009B 		MOVWF	SP1BRGL
+00445 03C4 3000 		MOVLW	high RS485BaudRate
+00446 03C5 009C 		MOVWF	SP1BRGH
+00447 03C6 	;
+00448 03C6 179D 		bsf	RC1STA,RC1STA_SPEN	;Enable Serial port
+00449 03C7 161D 		bsf	RC1STA,RC1STA_CREN	;Continuous Receive
+00450 03C8 	;
+00451 03C8 121E 		bcf	TX1STA,TX1STA_SYNC	;Asynchronous
+00452 03C9 151E 		bsf	TX1STA,TX1STA_BRGH	;High Speed
 SMRRC.asm                                                             Page: 29
 /Users/davidflynn/Projects/SerialMRRC/Firmware/
 
-00465 03C7 30CF 		MOVLW	low RS485BaudRate
-00466 03C8 009B 		MOVWF	SP1BRGL
-00467 03C9 3000 		MOVLW	high RS485BaudRate
-00468 03CA 009C 		MOVWF	SP1BRGH
-00469 03CB 	;
-00470 03CB 179D 		bsf	RC1STA,RC1STA_SPEN	;Enable Serial port
-00471 03CC 161D 		bsf	RC1STA,RC1STA_CREN	;Continuous Receive
-00472 03CD 	;
-00473 03CD 121E 		bcf	TX1STA,TX1STA_SYNC	;Asynchronous
-00474 03CE 151E 		bsf	TX1STA,TX1STA_BRGH	;High Speed
-00475 03CF 129E 		bcf	TX1STA,TX1STA_TXEN	;Transmitter Off
-00476 03D0 	;
-00477 03D0 	; Enable Receive
-00478 03D0 0140 		movlb	0
-00479 03D1 1319 		bcf	RS485DE	;DriverEnable=0
-00480 03D2 1219 		bcf	RS485nRE	;nRecieverEnable=0
-00481 03D3 103F 		bcf	RS485TXActive
+00453 03CA 129E 		bcf	TX1STA,TX1STA_TXEN	;Transmitter Off
+00454 03CB 	;
+00455 03CB 	; Enable Receive
+00456 03CB 0140 		movlb	0
+00457 03CC 1319 		bcf	RS485DE	;DriverEnable=0
+00458 03CD 1219 		bcf	RS485nRE	;nRecieverEnable=0
+00459 03CE 103F 		bcf	RS485TXActive
+00460 03CF 	;
+00461 03CF 	;
+00462 03CF 014E 		movlb	PIE3	; bank 14
+00463 03D0 1699 		BSF	PIE3,RC1IE	; Serial Receive interupt
+00464 03D1 0140 		movlb	0
+00465 03D2 153F 		bsf	RS485DataSentFlag
+00466 03D3 0008 		return;
+00467 03D4 	;
+00468 03D4 	;=========================================================================================
+00469 03D4 	;
+00470 03D4 	;
+00471 03D4 	;
+00472 03D4 	;
+00473 03D4 	;
+00474 03D4 	;
+00475 03D4 	;
+00476 03D4 	;
+00477 03D4 	;
+00478 03D4 	;
+00479 03D4 	;
+00480 03D4 	;
+00481 03D4 	;
 00482 03D4 	;
 00483 03D4 	;
-00484 03D4 014E 		movlb	PIE3	; bank 14
-00485 03D5 1699 		BSF	PIE3,RC1IE	; Serial Receive interupt
-00486 03D6 0140 		movlb	0
-00487 03D7 153F 		bsf	RS485DataSentFlag
-00488 03D8 0008 		return;
-00489 03D9 	;
-00490 03D9 	;=========================================================================================
-00491 03D9 	;
-00492 03D9 	;
-00493 03D9 	;
-00494 03D9 	;
-00495 03D9 	;
-00496 03D9 	;
-00497 03D9 	;
-00498 03D9 	;
-00499 03D9 	;
-00500 03D9 	;
-00501 03D9 	;
-00502 03D9 	;
-00503 03D9 	;
-00504 03D9 	;
-00505 03D9 	;
-00506 03D9 	;
-00507 03D9 	;
-00508 03D9 	;
-00509 03D9 	;
-00510 03D9 	;
-00511 03D9 	;
-00512 03D9 	;
-00513 03D9 	;
-00514 03D9 	;
-00698 03D9 		endif
-00699 03D9 	;
-00700 03D9 		if useRS232PacketCmds
-00701 03D9 		org	0x0800
+00484 03D4 	;
+00485 03D4 	;
+00486 03D4 	;
+00487 03D4 	;
+00488 03D4 	;
+00489 03D4 	;
+00490 03D4 	;
+00491 03D4 	;
+00492 03D4 	;
+00698 03D4 		endif
+00699 03D4 	;
+00700 03D4 		if useRS232PacketCmds
+00701 03D4 		org	0x0800
 00702 0800 		include	PacketSerialCmds.inc
 00001 0800 	;=========================================================================================
 00002 0800 	; 
@@ -2956,9 +2946,6 @@ SMRRC.asm                                                             Page: 1
 00042 0800 	;
 00043 0800 	RS232_Send_S0	mLongCall	RS232_Send
 00043 0800 3181      M		movlp	RS232_Send	                       movlp                  Destination
-SMRRC.asm                                                             Page: 30
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
 00043 0801 21BA      M		call	RS232_Send	                       call                   Destination
 00043 0802 3188      M		movlp	$	                       movlp                  $
 00044 0803 0008 		return
@@ -2969,6 +2956,9 @@ SMRRC.asm                                                             Page: 1
 00049 0804 0141 	HandleRXData	movlb	RX_Flags	;bank 1
 00050 0805 10A1 		bcf	RXDataIsNew
 00051 0806 1821 		btfsc	RXDataValidFlag	;From master to me?
+SMRRC.asm                                                             Page: 30
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 00052 0807 3209 		bra	HandleRXData_1	; Yes
 00053 0808 	;
 00054 0808 1D21 		btfss	RXSrcIsMaster	;from master?
@@ -3058,9 +3048,6 @@ SMRRC.asm                                                             Page: 1
 00125 0848 0878 	Dispatcher_2           movf                   Param78,W
 00126 0849 39F0 	                       andlw                  0xF0
 00127 084A 3C20 	                       sublw                  0x20
-SMRRC.asm                                                             Page: 31
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
 00128 084B 	                       SKPZ
 00128 084B 1D03      M		BTFSS	STATUS,Z		BTFSS	STATUS,Z
 00129 084C 320B 	                       bra                    Dispatcher_3
@@ -3071,6 +3058,9 @@ SMRRC.asm                                                             Page: 1
 00134 0851 0008 	                       return
 00135 0852 0008 	                       return
 00136 0853 0008 	                       return
+SMRRC.asm                                                             Page: 31
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 00137 0854 0008 	                       return
 00138 0855 0008 	                       return
 00139 0856 0008 	                       return
@@ -3160,9 +3150,6 @@ SMRRC.asm                                                             Page: 1
 00219 089D 00C0 		movwf	SysMode
 00220 089E 28E3 		goto	TX_ACK
 00221 089F 	;
-SMRRC.asm                                                             Page: 32
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
 00222 089F 	;---kCmd_GetMode------------------
 00223 089F 0840 	Cmd_GetMode	movf	SysMode,W
 00224 08A0 001A 		movwi	FSR0++
@@ -3173,6 +3160,9 @@ SMRRC.asm                                                             Page: 1
 00229 08A2 	;---kCmd_SaveParams-----------------
 00230 08A2 	Cmd_SaveParams	mLongCall	SaveParams
 00230 08A2 3180      M		movlp	SaveParams	                       movlp                  Destination
+SMRRC.asm                                                             Page: 32
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 00230 08A3 2069      M		call	SaveParams	                       call                   Destination
 00230 08A4 3188      M		movlp	$	                       movlp                  $
 00231 08A5 28E3 		goto	TX_ACK
@@ -3262,9 +3252,6 @@ SMRRC.asm                                                             Page: 1
 00302 08E0 340A 		retlw	'\n'
 00303 08E1 3400 		retlw	0x00
 00304 08E2 	;
-SMRRC.asm                                                             Page: 33
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
 00305 08E2 	;--------------------------------
 00306 08E2 0008 		return
 00307 08E3 	;
@@ -3275,6 +3262,9 @@ SMRRC.asm                                                             Page: 1
 00309 08E6 3188      M		movlp	$	                       movlp                  $
 00310 08E7 0008 		return
 00311 08E8 	;
+SMRRC.asm                                                             Page: 33
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 00312 08E8 	;=========================================================================================
 00313 08E8 	;=========================================================================================
 00703 08E8 		endif
@@ -3364,9 +3354,6 @@ SMRRC.asm                                                             Page: 1
 00080 1D00 0000 M	IHT_Data	EQU	0x00
 00081 1D00 0001 M	IHT_End	EQU	0x01	;ie :00000001FF
 00082 1D00 0002 M	IHT_XSA	EQU	0x02	;extended segment address, not supported
-SMRRC.asm                                                             Page: 34
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
 00083 1D00 0003 M	IHT_SSA	EQU	0x03	;start segment address, not supported
 00084 1D00 0004 M	IHT_HighAddr	EQU	0x04	;extended linear address, :02000004FFFFFC
 00085 1D00 0005 M	IHT_SLA	EQU	0x05	;start linear address, not supported, :04000005000000CD2A
@@ -3377,6 +3364,9 @@ SMRRC.asm                                                             Page: 1
 00090 1D00 0002 M	IHS_AddrMSB	EQU	0x02
 00091 1D00 0003 M	IHS_AddrLSB	EQU	0x03
 00092 1D00 0004 M	IHS_DataType	EQU	0x04
+SMRRC.asm                                                             Page: 34
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 00093 1D00 0005 M	IHS_Data	EQU	0x05
 00094 1D00 0006 M	IHS_CSum	EQU	0x06	;waiting for check sum
 00095 1D00      M	;
@@ -3466,9 +3456,6 @@ SMRRC.asm                                                             Page: 1
 00175 1D26 1C03      M		BTFSS	STATUS,C		BTFSS	STATUS,C
 00176 1D27 33EB 		bra	BL_ParseNextLine	; No start over
 00177 1D28 303A 		movlw	0x3A	;':'
-SMRRC.asm                                                             Page: 35
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
 00178 1D29 0278 		subwf	Param78,W
 00179 1D2A 		SKPNB                                         ;>"9"?
 00179 1D2A 1C03      M		BTFSS	STATUS,C		BTFSS	STATUS,C
@@ -3479,6 +3466,9 @@ SMRRC.asm                                                             Page: 1
 00183 1D2E 1C03      M		BTFSS	STATUS,C		BTFSS	STATUS,C
 00184 1D2F 33E3 		bra	BL_ParseNextLine	; No start over
 00185 1D30 3047 		movlw	0x47	;'G'
+SMRRC.asm                                                             Page: 35
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 00186 1D31 0278 		subwf	Param78,W
 00187 1D32 		SKPB		;Char<"G"
 00187 1D32 1803      M		BTFSC	STATUS,C		BTFSC	STATUS,C
@@ -3568,9 +3558,6 @@ SMRRC.asm                                                             Page: 1
 00268 1D73 		SKPNZ		;Checksum matches?
 00268 1D73 1903      M		BTFSC	STATUS,Z		BTFSC	STATUS,Z
 00269 1D74 3203 		bra	BLP_Validate           ; Yes
-SMRRC.asm                                                             Page: 36
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
 00270 1D75 	;
 00271 1D75 302D 		movlw	IH_ErrorBadCSum
 00272 1D76 25FE 		call	SendChar
@@ -3581,6 +3568,9 @@ SMRRC.asm                                                             Page: 1
 00277 1D78 	;
 00278 1D78 0829 	BLP_Validate	movf                   IH_Type,W
 00279 1D79 39F8 	                       andlw                  0xF8
+SMRRC.asm                                                             Page: 36
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 00280 1D7A 	                       SKPZ
 00280 1D7A 1D03      M		BTFSS	STATUS,Z		BTFSS	STATUS,Z
 00281 1D7B 3218 	                       bra                    BLPV_BadType
@@ -3670,9 +3660,6 @@ SMRRC.asm                                                             Page: 1
 00361 1DAF 	; 
 00362 1DAF 0823 	BIHD_PutInBuff	movf	IH_Addr_Lo,W           ;was converted to words
 00363 1DB0 39E0 		andlw	AddressMask            ; 0xE0
-SMRRC.asm                                                             Page: 37
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
 00364 1DB1 00A0 		movwf	PROG_ADDR_LO
 00365 1DB2 0824 		movf	IH_Addr_Lo+1,W
 00366 1DB3 00A1 		movwf	PROG_ADDR_HI
@@ -3683,6 +3670,9 @@ SMRRC.asm                                                             Page: 1
 00371 1DB7 00A2 		movwf	ProgWordCount
 00372 1DB8 	;
 00373 1DB8 25DE 	BIHD_PutInBuff_E2	call                   FSR0_SerialBuffer
+SMRRC.asm                                                             Page: 37
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 00374 1DB9 	;
 00375 1DB9 	; FSR1 = SourceBuffer + ProgWordCount * 2
 00376 1DB9 3522 		lslf	ProgWordCount,W	;ProgWordCount * 2
@@ -3772,9 +3762,6 @@ SMRRC.asm                                                             Page: 1
 00458 1DED 	; Entry: none
 00459 1DED 	; Exit: W=Char
 00460 1DED 	;
-SMRRC.asm                                                             Page: 38
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
 00461 1DED 014E 	GetChar	movlb	PIR3                   ;bank 14
 00462 1DEE 1F8F 		btfss	PIR3,RC2IF	;RX has a byte?
 00463 1DEF 33FD 		bra	GetChar
@@ -3785,6 +3772,9 @@ SMRRC.asm                                                             Page: 1
 00468 1DF3 		SKPZ		;Frame or Overrun Err?
 00468 1DF3 1D03      M		BTFSS	STATUS,Z		BTFSS	STATUS,Z
 00469 1DF4 3203 		bra	GetChar_Err	; yes
+SMRRC.asm                                                             Page: 38
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 00470 1DF5 0819 		movf	RC2REG,W
 00471 1DF6 	;
 00472 1DF6 0140 		movlb	0	;bank 0
@@ -3874,9 +3864,6 @@ SMRRC.asm                                                             Page: 1
 00553 1E28 	;
 00554 1E28 	;==============================================
 00555 1E28 	; Compare Block
-SMRRC.asm                                                             Page: 39
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
 00556 1E28 	;
 00557 1E28 	; Entry: FSR0 -> new data, FSR1 -> current data
 00558 1E28 	; Exit: W=1 if new = current else W=0
@@ -3887,6 +3874,9 @@ SMRRC.asm                                                             Page: 1
 00563 1E2B 00F7 		movwf	Param77
 00564 1E2C 0012 		moviw	FSR0++	;MSB
 00565 1E2D 00F8 		movwf	Param78
+SMRRC.asm                                                             Page: 39
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 00566 1E2E 	; skip?
 00567 1E2E 3C3F 		sublw	0x3F
 00568 1E2F 		SKPZ
@@ -3976,9 +3966,6 @@ SMRRC.asm                                                             Page: 1
 00648 1E64 	;
 00649 1E64 	;=========================================================
 00650 1E64 	; Load the program address PROG_ADDR_HI:PROG_ADDR_LO into EEADRH:EEADRL
-SMRRC.asm                                                             Page: 40
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
 00651 1E64 	;
 00652 1E64 	; Entry: PROG_ADDR_HI:PROG_ADDR_LO, bank 0
 00653 1E64 	; Exit: bank 16
@@ -3989,6 +3976,9 @@ SMRRC.asm                                                             Page: 1
 00658 1E67 0140 		movlb	0	;bank 0
 00659 1E68 0820 		movf	PROG_ADDR_LO,W
 00660 1E69 0150 		movlb	NVMADRL	;bank 16
+SMRRC.asm                                                             Page: 40
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 00661 1E6A 009A 		movwf	NVMADRL	; Store LSB of address
 00662 1E6B 0008 		return
 00663 1E6C 	;
@@ -4078,9 +4068,6 @@ SMRRC.asm                                                             Page: 1
 00747 1E9C 009F 		movwf	BAUD2CON
 00748 1E9D 30CF 		MOVLW	low BaudRate
 00749 1E9E 009B 		MOVWF	SP2BRGL
-SMRRC.asm                                                             Page: 41
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
 00750 1E9F 3000 		MOVLW	high BaudRate
 00751 1EA0 009C 		MOVWF	SP2BRGH
 00752 1EA1 	;
@@ -4091,6 +4078,9 @@ SMRRC.asm                                                             Page: 1
 00757 1EA4 151E 		bsf	TX2STA,TX2STA_BRGH
 00758 1EA5 169E 		bsf	TX2STA,TX2STA_TXEN
 00759 1EA6 	;
+SMRRC.asm                                                             Page: 41
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 00760 1EA6 	;
 00761 1EA6 0140 		movlb	0	; bank 0
 00762 1EA7 	;
@@ -4180,9 +4170,6 @@ CB_NotBlank ^	1E37 	CompareBlock_L1
 ChkSum	002D 	BootLoaderStart, BL_ParseNextLine, BLP_SaveIH_Length, BLP_IHS_AddrMSB
 		BLP_IHS_AddrLSB, BLP_IHS_DataType, BLP_IHS_Data, BLP_IHS_CSum
 ClearRam ^	0032 	InitializeIO
-SMRRC.asm   X-Ref Table                                                  Page: 42
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
 ClearRam_2 ^	004E 	ClearRam
 ClearRam_L2 ^	0057 	ClearRam, ClearRam_2, ClearRam_L2
 Cmd_GetMode ^	089F 	HandleRXData_1
@@ -4193,6 +4180,9 @@ Cmd_SaveParams ^	08A2 	Dispatcher_4
 Cmd_SendIDString ^	08C7 	Dispatcher_6
 Cmd_SendIDString_L1 ^	08C8 	Cmd_SendIDString_L1
 Cmd_SetMasterAddr ^	08BB 	Dispatcher_6
+SMRRC.asm   X-Ref Table                                                  Page: 42
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 Cmd_SetMode ^	0898 	Dispatcher_1
 Cmd_SetSlaveAddr ^	08C1 	Dispatcher_6
 CompareBlock ^	1E28 	BLP_WriteBuffer
@@ -4240,11 +4230,10 @@ F	0001 	ProgStartVector, SystemBlink_end, LED1Blink_end, ClearRam, ClearRam_L2, 
 		RS232_Parse_L1, RS232_ClearTXData_L1, RS232_Send, RS232_Send_L1, RS485ActivateTX
 		StoreSer485In, GetSer485In, StoreSer485Out, GetSer485Out, RS485_Parse, RS485_Parse_Byte
 		RS485_Parse_SALo_end, RS485_Parse_DALo_End, RS485_Parse_L1, RS485_ClearTXData_L1
-		RS485_Send_L1, RS485_Forward, RS485_Forward_L1, Cmd_SendIDString_L1, BLP_TestNum
-		BLP_TestNum_1, BLP_TestNum_2, BLP_SaveIH_Length, BLP_NextState, BLP_IHS_AddrMSB
-		BLP_IHS_AddrLSB, BLP_IHS_DataType, BLP_IHS_Data, BufferIHData, BIHD_PutInBuff_E2
-		BIHD_PutInBuff_L1, TestErased_L1, CB_Next, EraseBlock_L1, ReadProgBlock_L1, ReadProgBlock_1
-		WriteProgBlock_L1
+		RS485_Send, RS485_Send_L1, RS485_Forward_L1, Cmd_SendIDString_L1, BLP_TestNum, BLP_TestNum_1
+		BLP_TestNum_2, BLP_SaveIH_Length, BLP_NextState, BLP_IHS_AddrMSB, BLP_IHS_AddrLSB
+		BLP_IHS_DataType, BLP_IHS_Data, BufferIHData, BIHD_PutInBuff_E2, BIHD_PutInBuff_L1
+		TestErased_L1, CB_Next, EraseBlock_L1, ReadProgBlock_L1, ReadProgBlock_1, WriteProgBlock_L1
 FSR0	0004 	HandleRXData_1
 FSR0H	0005 	ClearRam, SaveParams, DecTimer, EERead, StoreSerIn, GetSerIn, StoreSerOut
 		GetSerOut, RS232_Parse_DALo_End, RS232_Parse_Data_end, StoreSer485In, GetSer485In
@@ -4253,14 +4242,13 @@ FSR0H	0005 	ClearRam, SaveParams, DecTimer, EERead, StoreSerIn, GetSerIn, StoreS
 FSR0L	0004 	ClearRam, ClearRam_2, ClearRam_L2, SaveParams, SaveParams_L1, DecTimer
 		EERead, StoreSerIn, GetSerIn, StoreSerOut, GetSerOut, RS232_Parse_DALo_End, RS232_Parse_Data_end
 		StoreSer485In, GetSer485In, StoreSer485Out, GetSer485Out, RS485_Parse_DALo_End
-		RS485_Parse_Data_end, BLP_WriteBuffer, FSR0_SerialBuffer, ReadEEData
+		RS485_Parse_Data_end, RS485_Forward, BLP_WriteBuffer, FSR0_SerialBuffer, ReadEEData
 FSR0_SerialBuffer ^	1DDE 	BL_ParseNextLine, BLPV_HighAddr, BIHD_PutInBuff_E2
 FSR1	0006 	HandleRXData_1
 FSR1H	0007 	CopyToRam, RS232_Parse_Data_end, RS232_ClearTXData, RS232_Send, RS485_Parse_Data_end
-		RS485_ClearTXData, RS485_ClearTXData_L1, RS485_Forward, BIHD_PutInBuff_E2, FSR1_DestBuff
-		FSR1_SourceBuffer
+		RS485_Parse_Error, BIHD_PutInBuff_E2, FSR1_DestBuff, FSR1_SourceBuffer
 FSR1L	0006 	CopyToRam, CopyToRam_L1, RS232_Parse_Data_end, RS232_ClearTXData, RS232_Send
-		RS485_Parse_Data_end, RS485_ClearTXData, RS485_ClearTXData_L1, RS485_Forward, BIHD_PutInBuff_E2
+		RS485_Parse_Data_end, RS485_Parse_Error, RS485_Send, RS485_Forward, BIHD_PutInBuff_E2
 		FSR1_DestBuff, FSR1_SourceBuffer
 FSR1_DestBuff ^	1DE3 	BLP_WriteBuffer
 FSR1_SourceBuffer ^	1DE8 	BLP_WriteBuffer, EraseSourceBuffer
@@ -4282,9 +4270,6 @@ GetSerOut ^	012B 	RS232ML_Ser_Out
 GetSerOut_End ^	013A 	GetSerOut
 HandleRXData ^	0804 	ModeReturn
 HandleRXData_1 ^	0811 	HandleRXData
-SMRRC.asm   X-Ref Table                                                  Page: 43
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
 HandleRXData_Rtn ^	080F 	HandleRXData, Cmd_SetMode
 IDString ^	08D0 	Cmd_SendIDString_L1
 IHS_Length	0001 	BLP_L2
@@ -4297,6 +4282,9 @@ IH_Bytes	0027 	BootLoaderStart, BLP_SaveIH_Length, BLP_IHS_DataType, BLP_IHS_Dat
 IH_ErrorBadCSum	002D 	BLP_IHS_CSum
 IH_ErrorBadLen	002B 	BLP_IHS_Length
 IH_ErrorBadType	003D 	BLPV_BadType
+SMRRC.asm   X-Ref Table                                                  Page: 43
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 IH_Flags	002C 	BootLoaderStart, BL_Parse, BLP_L1, BLP_TestNum_1, BLPV_EndCmd, BufferIHData
 		BIHD_PutInBuff_L1, EraseSourceBuffer
 IH_State	002A 	BootLoaderStart, BL_ParseNextLine, BLP_L2, BLP_TestNum, BLP_TestNum_2
@@ -4368,15 +4356,14 @@ Param78	0078 	StoreSerIn, GetSerIn, StoreSerOut, GetSerOut, RS232_Parse_Byte, RS
 		RS232_Parse_L1, RS232_ClearTXData, RS232_ClearTXData_L1, RS232ML_Ser_Out, TX_The485Byte
 		StoreSer485In, GetSer485In, StoreSer485Out, GetSer485Out, RS485_Parse_Byte, RS485_Parse_Sync2
 		RS485_Parse_SALo, RS485_Parse_SALo_end, RS485_Parse_DALo_End, RS485_Parse_Data_end
-		RS485_Parse_L1, RS485_ClearTXData, RS485_ClearTXData_L1, HandleRXData_1, Dispatcher_1
+		RS485_Parse_L1, RS485_Parse_Error, RS485_ClearTXData_L1, HandleRXData_1, Dispatcher_1
 		Dispatcher_2, Dispatcher_3, Dispatcher_4, Dispatcher_5, BLP_L2, BLP_TestNum, BLP_TestNum_1
 		BLP_TestNum_2, BLP_IHS_CSum, BufferIHData, CompareBlock_L1, CB_NotBlank
-Param79	0079 	RS232_Send, RS232_Send_L1, RS485_ClearTXData_L1, RS485_Send_L1, RS485_Forward
+Param79	0079 	RS232_Send, RS232_Send_L1, RS485_Send, RS485_Send_L1, RS485_Forward
 		RS485_Forward_L1, Cmd_SendIDString, Cmd_SendIDString_L1, BIHD_PutInBuff_E2, BIHD_PutInBuff_L1
 		TestErased, TestErased_L1, CompareBlock, CB_Next, EraseSourceBuffer, EraseBlock_L1
 		ReadProgBlock, ReadProgBlock_L1, WriteProgBlock
-Param7A	007A 	RS232_Send, RS232_Send_L1, RS485_ClearTXData_L1, RS485_Send_L1, RS485_Forward
-		RS485_Forward_L1
+Param7A	007A 	RS232_Send, RS232_Send_L1, RS485_Send, RS485_Send_L1
 Param7F	007F 	ClearRam, ClearRam_2, ClearRam_L2
 PortA_ANSel_Value	0000 	InitializeIO
 PortA_Init_Value	0000 	InitializeIO, InitializeBLIO
@@ -4384,9 +4371,6 @@ PortA_Tris_Bits	00FF 	InitializeIO, InitializeBLIO
 PortB_ANSel_Value	0000 	InitializeIO
 PortB_Init_Value	0000 	InitializeIO, InitializeBLIO
 PortB_Tris_Bits	00AF 	InitializeIO, InitializeBLIO
-SMRRC.asm   X-Ref Table                                                  Page: 44
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
 PortC_ANSel_Value	0000 	InitializeIO
 PortC_Init_Value	0000 	InitializeIO, InitializeBLIO
 PortC_Tris_Bits	00FF 	InitializeIO, InitializeBLIO
@@ -4400,6 +4384,9 @@ RC1REG	0119 	RX_The485Byte, RX_The485Byte_Err
 RC1STA	011D 	RX_The485Byte, RX_The485Byte_Err, RS485_Init
 RC1STA_CREN	0004 	RX_The485Byte_Err, RS485_Init
 RC1STA_FERR	0002 	RX_The485Byte_Err
+SMRRC.asm   X-Ref Table                                                  Page: 44
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 RC1STA_OERR	0001 	RX_The485Byte_Err
 RC1STA_SPEN	0007 	RS485_Init
 RC2IE	0007 	RS232_Init
@@ -4410,10 +4397,10 @@ RC2STA_CREN	0004 	RX_TheByte_Err, RS232_Init, GetChar_Err, InitializeBLIO
 RC2STA_FERR	0002 	RX_TheByte_Err, GetChar_Err
 RC2STA_OERR	0001 	RX_TheByte_Err, GetChar_Err
 RC2STA_SPEN	0007 	RS232_Init, InitializeBLIO
-RP485_DataBytes	0004 	RS485_Parse, RS485_Parse_DALo_End, RS485_Parse_Data_end, RS485_ClearTXData
-		RS485_ClearTXData_L1, RS485_Forward
-RP485_LongAddr	0000 	RS485_Parse_SALo_end, RS485_Parse_DALo_End, RS485_ClearTXData
-		RS485_ClearTXData_L1, RS485_Forward
+RP485_DataBytes	0004 	RS485_Parse, RS485_Parse_DALo_End, RS485_Parse_Data_end, RS485_Parse_Error
+		RS485_Send, RS485_Forward
+RP485_LongAddr	0000 	RS485_Parse_SALo_end, RS485_Parse_DALo_End, RS485_Parse_Error
+		RS485_Send, RS485_Forward
 RP_DataBytes	0004 	RS232_Parse, RS232_Parse_DALo_End, RS232_Parse_Data_end, RS232_ClearTXData
 		RS232_Send
 RP_LongAddr	0000 	RS232_Parse, RS232_Parse_SALo_end, RS232_Parse_DALo_End, RS232_Send
@@ -4458,11 +4445,10 @@ RS485SyncByte2RXd	RX485_ParseFlags,1	RS485_Parse_Sync2
 RS485TXActive	Ser485Flags,0	RS485DeactivateTX, RS485ActivateTX, TX_The485Byte_1, TX_The485Byte_NoData
 		RS485_Init
 RS485_Address	0043 	RS485_Parse_SALo, RS485_Parse_SALo_end
-RS485_ClearTXData ^	0371 	RS485_Send_L1
 RS485_ClearTXData_L1 ^	037B 	RS485_ClearTXData_L1
 RS485_Forward ^	03A0 	HandleRXData
-RS485_Forward_L1 ^	03B3 	RS485_Forward_L1
-RS485_Init ^	03BC 	InitializeIO
+RS485_Forward_L1 ^	03B2 	RS485_Forward_L1
+RS485_Init ^	03B7 	InitializeIO
 RS485_Parse ^	0301 	RS232ML_Ser_End
 RS485_Parse_Byte ^	030C 	RS485_Parse
 RS485_Parse_DALo_End ^	0344 	RS485_Parse_SALo_end
@@ -4474,6 +4460,7 @@ RS485_Parse_Rtn ^	0331 	RS485_Parse_Byte, RS485_Parse_Sync2, RS485_Parse_SALo_en
 RS485_Parse_SALo ^	0323 	RS485_Parse_Sync2
 RS485_Parse_SALo_end ^	0333 	RS485_Parse_SALo
 RS485_Parse_Sync2 ^	031B 	RS485_Parse_Byte
+RS485_Send ^	0381 	RS485_Forward_L1
 RS485_Send_L1 ^	0395 	RS485_Send_L1
 RS485nRE	LATB,4	RS485DeactivateTX, RS485ActivateTX, RS485_Init
 RX1DTPPS	1ECB 	RS485_Init
@@ -4486,9 +4473,6 @@ RX485RXDataEquTXData	RX485_Flags,4	RS485_Parse_SALo_end
 RX485SrcIsMe	RX485_Flags,3	RS485_Parse_SALo, RS485_Parse_SALo_end
 RX485Timeout	0005 	RS485_Parse_Byte
 RX485_CSUM	0223 	RS485_Parse_SALo, RS485_Parse_SALo_end, RS485_Parse_DALo_End, RS485_Parse_Data_end
-SMRRC.asm   X-Ref Table                                                  Page: 45
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
 RX485_Data	022A 	RS485_Parse_Data_end
 RX485_DataCount	0222 	RS485_Parse_SALo, RS485_Parse_DALo_End
 RX485_DstAdd	0225 	RS485_Parse_SALo_end
@@ -4502,6 +4486,9 @@ RXDataIsNew	RX_Flags,1	RS232_Parse, RS232_Parse_L1, ModeReturn, HandleRXData
 RXDataValidFlag	RX_Flags,0	RS232_Parse, RS232_Parse_L1, HandleRXData
 RXDstIsMe	RX_Flags,3	RS232_Parse, RS232_Parse_SALo_end, RS232_Parse_L1, HandleRXData
 RXSrcIsMaster	RX_Flags,2	RS232_Parse, RS232_Parse_SALo, RS232_Parse_L1, HandleRXData
+SMRRC.asm   X-Ref Table                                                  Page: 45
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 RXTimeout	0005 	RS232_Parse_Byte
 RX_CSUM	00A3 	RS232_Parse_SALo, RS232_Parse_SALo_end, RS232_Parse_DALo_End, RS232_Parse_Data_end
 RX_Data	00AA 	RS232_Parse_Data_end, HandleRXData_1
@@ -4550,7 +4537,7 @@ Ser485Flags	003F 	RS232ML_Ser_End, RS485DeactivateTX, RS485ActivateTX, TX_The485
 		TX_The485Byte_1, TX_The485Byte_NoData, RX_The485Byte, RS485_Parse, RS485_Init
 Ser485_Buff_Bank	4	StoreSer485In, GetSer485In, Flush485InBuff, GetSer485InBytes, StoreSer485Out
 		GetSer485Out, RS485_Parse, RS485_Parse_Byte, RS485_Parse_SALo, RS485_Parse_SALo_end
-		RS485_ClearTXData, RS485_ClearTXData_L1, RS485_Send_L1
+		RS485_Parse_Error, RS485_Send, RS485_Send_L1, RS485_Forward
 Ser485_In_Buff	023B 	StoreSer485In, GetSer485In, StoreSer485Out, GetSer485Out
 Ser485_In_Bytes	0235 	StoreSer485In, GetSer485In, Flush485InBuff, GetSer485InBytes
 Ser485_In_InPtr	0237 	StoreSer485In, Flush485InBuff
@@ -4575,7 +4562,7 @@ SourceAddHiRXd	RX_ParseFlags,3	RS232_Parse
 SourceAddLoRXd	RX_ParseFlags,2	RS232_Parse, RS232_Parse_SALo
 SourceBuffer	2100 	BootLoaderStart, BIHD_PutInBuff_E2, BLP_WriteBuffer, FSR1_SourceBuffer
 StoreSer485In ^	02AD 	RS232ML_Ser_End
-StoreSer485Out ^	02DA 	RS485_ClearTXData_L1, RS485_Send_L1, RS485_Forward, RS485_Forward_L1
+StoreSer485Out ^	02DA 	RS485_Send, RS485_Send_L1
 StoreSerIn ^	00E8 	RS232ML_1
 StoreSerOut ^	0115 	RS232_Send, RS232_Send_L1, StoreSerOut_S0
 StoreSerOut_S0 ^	08E4 	Cmd_SendIDString_L1
@@ -4588,9 +4575,6 @@ SysLEDCount	0023 	ProgStartVector, InitializeIO
 SysLEDTris	TRISA,SysLED_Bit	ProgStartVector, InitializeIO
 SysLED_Bit	0002 	ProgStartVector, InitializeIO
 SysLED_BlinkCount	0022 	InitializeIO
-SMRRC.asm   X-Ref Table                                                  Page: 46
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
 SysLED_Blinks	0021 	InitializeIO
 SysLED_Time	0020 	ProgStartVector, InitializeIO
 SysMode	0040 	CopyToRam, SaveParams, MainLoop, Cmd_SetMode, Cmd_GetMode
@@ -4604,6 +4588,9 @@ T0EN	0007 	InitializeIO
 TMR0H	059D 	InitializeIO
 TMR0H_Value	007D 	InitializeIO
 TMR0IE	0005 	InitializeIO
+SMRRC.asm   X-Ref Table                                                  Page: 46
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 TMR0IF	0005 	ProgStartVector
 TRISA	0012 	ProgStartVector, SystemBlink_end, LED1Blink_end, InitializeIO, InitializeBLIO
 TRISB	0013 	InitializeIO, InitializeBLIO
@@ -4625,9 +4612,9 @@ TX2STA_SYNC	0004 	RS232_Init, InitializeBLIO
 TX2STA_TXEN	0005 	RS232_Init, InitializeBLIO
 TX485Byte	003D 	TX_The485Byte, TX_The485Byte_1
 TX485_Csum	0234 	RS485_ClearTXData_L1, RS485_Send_L1
-TX485_Data	0230 	RS485_ClearTXData, RS485_ClearTXData_L1
-TX485_DstAdd	022F 	RS485_ClearTXData, RS485_ClearTXData_L1
-TX485_SrcAdd	022E 	RS485_ClearTXData, RS485_ClearTXData_L1
+TX485_Data	0230 	RS485_Parse_Error, RS485_Send, RS485_Forward
+TX485_DstAdd	022F 	RS485_Parse_Error, RS485_Send, RS485_Forward
+TX485_SrcAdd	022E 	RS485_Parse_Error, RS485_Send, RS485_Forward
 TXByte	003A 	TX_TheByte, RS232ML_Ser_Out
 TX_ACK ^	08E3 	Cmd_SetMode, Cmd_SaveParams, Cmd_RestoreParams
 TX_Data	00AE 	RS232_ClearTXData, RS232_Send, HandleRXData_1
@@ -4651,22 +4638,20 @@ UseRS232Chksum	0001 	RS232_Parse, RS232_Parse_DALo_End, RS232_Parse_Data_end, RS
 UseRS232SendSyncBytes	0000 	RS232_Parse, RS232_Send
 UseRS232SyncBytes	0001 	RS232_Parse, RS232_Parse_Byte
 UseRS485Chksum	0001 	RS485_Parse, RS485_Parse_DALo_End, RS485_Parse_Data_end, RS485_Send_L1
-		RS485_Forward_L1
-UseRS485SyncBytes	0001 	RS485_Parse_Byte, RS485_ClearTXData_L1, RS485_Forward
+UseRS485SyncBytes	0001 	RS485_Parse_Byte, RS485_Send
 W	0000 	ProgStartVector, CopyToRam_L1, SaveParams_L1, DecTimer, EERead, EEWrite, TX_TheByte
 		RX_TheByte, RX_TheByte_Err, StoreSerIn, GetSerIn, GetSerInBytes, StoreSerOut, GetSerOut
 		RS232_Parse_Byte, RS232_Parse_Sync2, RS232_Parse_SALo, RS232_Parse_SALo_end, RS232_Parse_DALo_End
 		RS232_Parse_Data_end, RS232_Send, RS232_Send_L1, MainLoop, RS232ML_1, RS232ML_Ser_End
 		TX_The485Byte_1, RX_The485Byte, RX_The485Byte_Err, StoreSer485In, GetSer485In, GetSer485InBytes
 		StoreSer485Out, GetSer485Out, RS485_Parse_Byte, RS485_Parse_Sync2, RS485_Parse_SALo
-		RS485_Parse_SALo_end, RS485_Parse_DALo_End, RS485_Parse_Data_end, RS485_ClearTXData_L1
-		RS485_Send_L1, RS485_Forward, RS485_Forward_L1, HandleRXData_1, Dispatcher_1, Dispatcher_2
-		Dispatcher_3, Dispatcher_4, Dispatcher_5, Cmd_SetMode, Cmd_GetMode, Cmd_GetStatus
-		Cmd_SendIDString_L1, BLP_L2, BLP_TestNum, BLP_TestNum_1, BLP_TestNum_2, BLP_IHS_Length
-		BLP_SaveIH_Length, BLP_IHS_AddrMSB, BLP_IHS_AddrLSB, BLP_IHS_DataType, BLP_IHS_Data
-		BLP_IHS_CSum, BLP_Validate, BufferIHData, BIHD_PutInBuff, BIHD_PutInBuff_E2, BIHD_PutInBuff_L1
-		GetChar, GetChar_Err, ReadEEData, CompareBlock_L1, CB_NotBlank, ReadProgBlock_L1
-		LoadProgAddr, WriteProgBlock_L1
+		RS485_Parse_SALo_end, RS485_Parse_DALo_End, RS485_Parse_Data_end, RS485_Send, RS485_Send_L1
+		RS485_Forward, HandleRXData_1, Dispatcher_1, Dispatcher_2, Dispatcher_3, Dispatcher_4
+		Dispatcher_5, Cmd_SetMode, Cmd_GetMode, Cmd_GetStatus, Cmd_SendIDString_L1, BLP_L2
+		BLP_TestNum, BLP_TestNum_1, BLP_TestNum_2, BLP_IHS_Length, BLP_SaveIH_Length, BLP_IHS_AddrMSB
+		BLP_IHS_AddrLSB, BLP_IHS_DataType, BLP_IHS_Data, BLP_IHS_CSum, BLP_Validate, BufferIHData
+		BIHD_PutInBuff, BIHD_PutInBuff_E2, BIHD_PutInBuff_L1, GetChar, GetChar_Err, ReadEEData
+		CompareBlock_L1, CB_NotBlank, ReadProgBlock_L1, LoadProgAddr, WriteProgBlock_L1
 WDTCON0	080C 	InitializeIO
 WREG	0009 	EERead, BLP_WriteBuffer, ReadEEData
 WriteEEData ^	1E0D 	BootLoaderStart
@@ -4688,11 +4673,7 @@ kMaxMode	0003 	Cmd_SetMode
 kRS232SyncByteValue	00DD 	RS232_Parse_Byte, RS232_Parse_Sync2
 kRS232_MasterAddr	0001 	InitializeBLIO
 kRS232_SlaveAddr	0002 	InitializeBLIO
-kRS485SyncByteValue	00DD 	RS485_Parse_Byte, RS485_Parse_Sync2, RS485_ClearTXData_L1
-		RS485_Forward
-SMRRC.asm   X-Ref Table                                                  Page: 47
-/Users/davidflynn/Projects/SerialMRRC/Firmware/
-
+kRS485SyncByteValue	00DD 	RS485_Parse_Byte, RS485_Parse_Sync2, RS485_Send
 kRS485_Address	0002 	InitializeBLIO
 kSysFlags	0000 	InitializeBLIO
 kSysMode	0000 	InitializeBLIO
@@ -4709,6 +4690,9 @@ ssRX_Timeout	SerFlags,3	RS232_Parse, Cmd_GetStatus
 ssStatus	002A 	Cmd_GetStatus
 start ^	01EA 	ProgStartVector
 useBootloader	0001 	StoreSerOut_S0
+SMRRC.asm   X-Ref Table                                                  Page: 47
+/Users/davidflynn/Projects/SerialMRRC/Firmware/
+
 useRS232	0001 	LED2Blink_end, TX_TheByte, ModeReturn, InitializeIO, RS485_Forward
 useRS232PacketCmds	0001 	ModeReturn, RS485_Init
 useRS485	0001 	IRQ_Ser_End, RS232ML_Ser_End, InitializeIO, RS485DeactivateTX
@@ -4731,9 +4715,9 @@ POP_SerOut !	0123
 RS232_Parse_DALo !	0170 	
 RS232_Parse_Data !	017E 	
 RS485DeactivateTX_1 !	0261 	
+RS485_ClearTXData !	0371 	
 RS485_Parse_DALo !	0333 	
 RS485_Parse_Data !	0344 	
-RS485_Send !	0381 	
 RX_The485Byte_1 !	029F 	
 SystemBlink_Std !	0014 	
 TestT1_Zero !	0097 	
@@ -4759,7 +4743,7 @@ Memory Usage Map ('X' = Used, '-' = Unused)
 0300  : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
 0340  : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
 0380  : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
-03C0  : XXXXXXXXXXXXXXXX XXXXXXXXX------- ---------------- ----------------
+03C0  : XXXXXXXXXXXXXXXX XXXX------------ ---------------- ----------------
 0800  : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
 0840  : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
 0880  : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
@@ -4774,8 +4758,8 @@ Memory Usage Map ('X' = Used, '-' = Unused)
 1F80  : XXXXX----------- ---------------- ---------------- ----------------
 1FC0  : ---------------- ---------------- ---------------- ---------------X
  
-Program Memory Words Used:1647
-Program Memory Words Free:6545
+Program Memory Words Used:1642
+Program Memory Words Free:6550
  
 UserID
 8000  :----
