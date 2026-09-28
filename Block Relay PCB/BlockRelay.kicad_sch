@@ -5315,7 +5315,7 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "Block Detection Module\nQuad Detector w/ TTL Output"
+	(text "Block Detection Module\nQuad Detector w/ OC Output"
 		(exclude_from_sim no)
 		(at 99.06 140.208 0)
 		(effects
@@ -5336,6 +5336,16 @@
 		)
 		(uuid "31d29758-7090-48c8-8d89-e14a377ba3aa")
 	)
+	(text "Block 2\nNorth Rail"
+		(exclude_from_sim no)
+		(at 96.012 167.894 0)
+		(effects
+			(font
+				(size 1.016 1.016)
+			)
+		)
+		(uuid "41bff3e4-ea8c-445a-a73b-4dccac3a1434")
+	)
 	(text "Node Board Connector"
 		(exclude_from_sim no)
 		(at 42.926 176.022 0)
@@ -5345,6 +5355,36 @@
 			)
 		)
 		(uuid "815b74de-7dc8-408b-a87b-6ec50458f3b4")
+	)
+	(text "Block 2\nSouth Rail"
+		(exclude_from_sim no)
+		(at 106.934 167.894 0)
+		(effects
+			(font
+				(size 1.016 1.016)
+			)
+		)
+		(uuid "aae15098-bea3-447a-b625-84e98334141a")
+	)
+	(text "Block 1\nSouth Rail"
+		(exclude_from_sim no)
+		(at 86.614 167.894 0)
+		(effects
+			(font
+				(size 1.016 1.016)
+			)
+		)
+		(uuid "b10f24dc-687f-4750-bab6-f12f06f8e7bb")
+	)
+	(text "Block 1\nNorth Rail"
+		(exclude_from_sim no)
+		(at 76.454 167.894 0)
+		(effects
+			(font
+				(size 1.016 1.016)
+			)
+		)
+		(uuid "e82e273f-6160-4bbe-8ac9-77ee1fcff80e")
 	)
 	(junction
 		(at 175.26 59.69)
@@ -5357,6 +5397,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "05bb158b-caeb-4263-84be-58c036f9fe90")
+	)
+	(junction
+		(at 123.19 148.59)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "05eeeeb2-8f6a-475d-aeb6-9b3587a9067e")
 	)
 	(junction
 		(at 49.53 93.98)
@@ -5389,6 +5435,12 @@
 		(uuid "1aba4d7d-9532-4c44-9800-8a89aff9749d")
 	)
 	(junction
+		(at 96.52 153.67)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "1c8c3dcc-10c3-48ca-bdc2-cc35fb9569d7")
+	)
+	(junction
 		(at 49.53 115.57)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5411,6 +5463,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "21504d28-6535-413f-8c61-0d61a56f1bb8")
+	)
+	(junction
+		(at 119.38 156.21)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "2250c280-d4eb-49c1-9e33-1e28bf9a29bf")
 	)
 	(junction
 		(at 49.53 50.8)
@@ -5467,6 +5525,12 @@
 		(uuid "3dad05f2-b196-48e1-925a-51730eb38c26")
 	)
 	(junction
+		(at 76.2 148.59)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3f42abff-809f-4e17-b47e-6488f37d5105")
+	)
+	(junction
 		(at 30.48 30.48)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5485,6 +5549,12 @@
 		(uuid "49523934-fd37-49cc-8acb-95cf5701d0eb")
 	)
 	(junction
+		(at 96.52 148.59)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "4976e226-15a7-4817-9564-e9dd7c768306")
+	)
+	(junction
 		(at 49.53 97.79)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5495,6 +5565,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "4bf58331-f7c9-4697-9aa7-27b653a27096")
+	)
+	(junction
+		(at 86.36 153.67)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "549c0c2d-d346-4227-8de5-a73018446487")
 	)
 	(junction
 		(at 49.53 72.39)
@@ -5525,6 +5601,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "619baafc-94ef-4289-a792-b753c3e4f6bd")
+	)
+	(junction
+		(at 86.36 148.59)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "62bee8c6-ba29-46dd-b444-1c33817453f6")
 	)
 	(junction
 		(at 209.55 114.3)
@@ -5587,10 +5669,22 @@
 		(uuid "85aa8f74-2235-477b-bcb6-257258e88bc7")
 	)
 	(junction
+		(at 106.68 153.67)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8729cf1d-1fe7-476b-88b8-64b47593aba6")
+	)
+	(junction
 		(at 85.09 196.85)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "8b83effd-f28d-43dd-8ad1-d74f25c30ff5")
+	)
+	(junction
+		(at 106.68 148.59)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8f2f794e-1634-4f11-af27-066f95815803")
 	)
 	(junction
 		(at 49.53 111.76)
@@ -5725,6 +5819,18 @@
 		(uuid "c3f15bb7-529a-461a-b88c-b4c9f7a325ff")
 	)
 	(junction
+		(at 76.2 153.67)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c5c9bbdd-8559-411f-8e37-a34313e08bd6")
+	)
+	(junction
+		(at 120.65 153.67)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c9c8f8e7-f5f3-42fc-8500-4c03e3ac7562")
+	)
+	(junction
 		(at 60.96 95.25)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5753,6 +5859,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "d011fdb0-3e27-4d40-b7b6-40f681180689")
+	)
+	(junction
+		(at 121.92 151.13)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "d2ab91c1-2d49-4bbe-8d19-cc02adab2ca7")
 	)
 	(junction
 		(at 49.53 66.04)
@@ -6012,6 +6124,16 @@
 	)
 	(wire
 		(pts
+			(xy 71.12 153.67) (xy 76.2 153.67)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0c10dddf-3b71-4441-be1c-4d33f4c2555c")
+	)
+	(wire
+		(pts
 			(xy 60.96 119.38) (xy 58.42 119.38)
 		)
 		(stroke
@@ -6109,6 +6231,16 @@
 			(type default)
 		)
 		(uuid "1169871a-6ae1-4e6d-92ee-9bb965cd99c3")
+	)
+	(wire
+		(pts
+			(xy 123.19 165.1) (xy 123.19 148.59)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "11c874d3-d91a-4b77-bcc4-82181539206a")
 	)
 	(wire
 		(pts
@@ -6362,6 +6494,16 @@
 	)
 	(wire
 		(pts
+			(xy 76.2 158.75) (xy 76.2 165.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2693286e-dca5-42b0-8593-5d6fdab09bea")
+	)
+	(wire
+		(pts
 			(xy 50.8 156.21) (xy 35.56 156.21)
 		)
 		(stroke
@@ -6379,6 +6521,16 @@
 			(type default)
 		)
 		(uuid "275c89f6-068d-44ee-8dd7-9c96c06607c1")
+	)
+	(wire
+		(pts
+			(xy 81.28 153.67) (xy 86.36 153.67)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "28874590-3e54-49de-a9c0-a26beec85d30")
 	)
 	(wire
 		(pts
@@ -6572,6 +6724,16 @@
 	)
 	(wire
 		(pts
+			(xy 81.28 148.59) (xy 86.36 148.59)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "34e3b410-ffa8-4e0c-b144-9246b3274874")
+	)
+	(wire
+		(pts
 			(xy 190.5 113.03) (xy 190.5 114.3)
 		)
 		(stroke
@@ -6759,6 +6921,16 @@
 			(type default)
 		)
 		(uuid "413df394-11cb-4244-888f-2921118ffc81")
+	)
+	(wire
+		(pts
+			(xy 119.38 161.29) (xy 119.38 156.21)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4309a0c6-5000-416f-8650-187b3a5eff36")
 	)
 	(wire
 		(pts
@@ -7012,6 +7184,16 @@
 	)
 	(wire
 		(pts
+			(xy 101.6 148.59) (xy 106.68 148.59)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5135f5d6-944c-4978-b01b-b0104e7fb956")
+	)
+	(wire
+		(pts
 			(xy 227.33 24.13) (xy 228.6 24.13)
 		)
 		(stroke
@@ -7212,6 +7394,16 @@
 	)
 	(wire
 		(pts
+			(xy 96.52 162.56) (xy 120.65 162.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5debe4e5-bec2-4302-869d-73e3c67f98bf")
+	)
+	(wire
+		(pts
 			(xy 60.96 102.87) (xy 62.23 102.87)
 		)
 		(stroke
@@ -7239,6 +7431,16 @@
 			(type default)
 		)
 		(uuid "60b2255a-92f3-4fac-8342-785a037e1df4")
+	)
+	(wire
+		(pts
+			(xy 91.44 148.59) (xy 96.52 148.59)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "612a96cc-da39-4cfb-a845-2abb408a9fa4")
 	)
 	(wire
 		(pts
@@ -7412,6 +7614,16 @@
 	)
 	(wire
 		(pts
+			(xy 86.36 163.83) (xy 121.92 163.83)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6fcd0a57-9154-4562-8d0d-acce82f2f12d")
+	)
+	(wire
+		(pts
 			(xy 220.98 95.25) (xy 220.98 97.79)
 		)
 		(stroke
@@ -7509,6 +7721,16 @@
 			(type default)
 		)
 		(uuid "795efc9f-719e-4620-ab03-7d56e4a6c5ea")
+	)
+	(wire
+		(pts
+			(xy 106.68 161.29) (xy 119.38 161.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7a29a5b8-8690-4652-825b-d40e2dbc4f55")
 	)
 	(wire
 		(pts
@@ -7799,6 +8021,16 @@
 			(type default)
 		)
 		(uuid "8c4ef8bf-96b7-420b-8741-93caa9c2a0f0")
+	)
+	(wire
+		(pts
+			(xy 71.12 148.59) (xy 76.2 148.59)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8d9b5223-09f7-4c33-816a-3afad3c8a6c9")
 	)
 	(wire
 		(pts
@@ -8212,6 +8444,16 @@
 	)
 	(wire
 		(pts
+			(xy 120.65 162.56) (xy 120.65 153.67)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a96bfa05-60cd-4ddb-9123-fb0d41bdd52c")
+	)
+	(wire
+		(pts
 			(xy 50.8 40.64) (xy 49.53 40.64)
 		)
 		(stroke
@@ -8282,6 +8524,16 @@
 	)
 	(wire
 		(pts
+			(xy 121.92 163.83) (xy 121.92 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "af4fe03c-b7f6-4e50-a991-5bc0e4741dbe")
+	)
+	(wire
+		(pts
 			(xy 29.21 40.64) (xy 31.75 40.64)
 		)
 		(stroke
@@ -8339,6 +8591,16 @@
 			(type default)
 		)
 		(uuid "b38fc8cd-2d4f-4ea1-989a-6e34c426fced")
+	)
+	(wire
+		(pts
+			(xy 106.68 158.75) (xy 106.68 161.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b4363ff1-de16-4cba-a632-8c3e9e3cc1c7")
 	)
 	(wire
 		(pts
@@ -8522,6 +8784,16 @@
 	)
 	(wire
 		(pts
+			(xy 91.44 153.67) (xy 96.52 153.67)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c1ae22e7-49ed-4586-8a91-919671064062")
+	)
+	(wire
+		(pts
 			(xy 168.91 118.11) (xy 175.26 118.11)
 		)
 		(stroke
@@ -8539,6 +8811,16 @@
 			(type default)
 		)
 		(uuid "c3f2adef-25e0-4a2c-8555-d4535f31445f")
+	)
+	(wire
+		(pts
+			(xy 101.6 153.67) (xy 106.68 153.67)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c4345859-ede8-4e66-9e6f-7e07ebb9003f")
 	)
 	(wire
 		(pts
@@ -9122,6 +9404,16 @@
 	)
 	(wire
 		(pts
+			(xy 76.2 165.1) (xy 123.19 165.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e91383d5-cef0-4795-8759-18fab323794f")
+	)
+	(wire
+		(pts
 			(xy 29.21 33.02) (xy 30.48 33.02)
 		)
 		(stroke
@@ -9312,6 +9604,16 @@
 	)
 	(wire
 		(pts
+			(xy 86.36 158.75) (xy 86.36 163.83)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f7eb6bab-10c6-4f6a-b217-3ae5d219da74")
+	)
+	(wire
+		(pts
 			(xy 49.53 44.45) (xy 49.53 46.99)
 		)
 		(stroke
@@ -9349,6 +9651,16 @@
 			(type default)
 		)
 		(uuid "f98274d2-a83b-4463-bf97-ec42f664763b")
+	)
+	(wire
+		(pts
+			(xy 96.52 158.75) (xy 96.52 162.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fa5c6ce4-a614-4225-a026-4ddea288bf7a")
 	)
 	(wire
 		(pts
@@ -9558,7 +9870,7 @@
 			)
 		)
 	)
-	(global_label "Blk1"
+	(global_label "Blk2"
 		(shape output)
 		(at 158.75 97.79 180)
 		(fields_autoplaced yes)
@@ -11664,6 +11976,87 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R_Small")
+		(at 76.2 156.21 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "1915f3cb-91da-4330-afe0-0d4a6d1ff914")
+		(property "Reference" "R21"
+			(at 74.422 157.48 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2K2"
+			(at 76.2 157.226 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 0.762 0.762)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+			(at 76.2 156.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 76.2 156.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 76.2 156.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "02982318-9a26-4d67-b8c6-94870a78f078")
+		)
+		(pin "1"
+			(uuid "6e3bb5d1-b107-4841-8e23-b69b0c1e3a8f")
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "R21")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Mechanical:MountingHole")
 		(at 256.54 161.29 0)
 		(unit 1)
@@ -12515,6 +12908,87 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R_Small")
+		(at 101.6 151.13 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "3472246f-8184-4a4e-9f2d-ee121922ccb0")
+		(property "Reference" "R26"
+			(at 99.822 152.4 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "27K"
+			(at 101.6 152.146 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 0.762 0.762)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+			(at 101.6 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 101.6 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 101.6 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "2c0129f6-739f-4568-b8c3-002ad6b5cc8b")
+		)
+		(pin "1"
+			(uuid "4a22476f-b10d-45e3-8c3a-9fffba37e927")
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "R26")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Mechanical:MountingHole")
 		(at 247.65 167.64 0)
 		(unit 1)
@@ -12586,6 +13060,83 @@
 			(project "BlockRelay"
 				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
 					(reference "H3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 205.74 167.64 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "36bcfb8e-f65e-44f8-930f-d416755b4d20")
+		(property "Reference" "H9"
+			(at 208.28 167.6399 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 208.28 168.9099 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3"
+			(at 205.74 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 205.74 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Mounting Hole without connection"
+			(at 205.74 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "H9")
 					(unit 1)
 				)
 			)
@@ -13233,7 +13784,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_2x06_P2.54mm_Vertical"
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical"
 			(at 41.91 163.83 0)
 			(hide yes)
 			(show_name no)
@@ -13464,6 +14015,87 @@
 			(project "BlockRelay"
 				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
 					(reference "C9")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small")
+		(at 91.44 151.13 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "4b20ae6e-0063-4369-8232-726ca7087c7a")
+		(property "Reference" "R24"
+			(at 89.662 152.4 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "27K"
+			(at 91.44 152.146 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 0.762 0.762)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+			(at 91.44 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 91.44 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 91.44 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "4df10313-7d16-415b-ab4d-50ce3f9590a7")
+		)
+		(pin "1"
+			(uuid "500c8ae9-1e5c-4c22-813a-466181ac53f2")
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "R24")
 					(unit 1)
 				)
 			)
@@ -14057,6 +14689,83 @@
 			(project "BlockRelay"
 				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
 					(reference "Q2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 220.98 167.64 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "5541c93e-cf46-4a01-a07d-6b08c9b481ad")
+		(property "Reference" "H7"
+			(at 223.52 167.6399 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 223.52 168.9099 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3"
+			(at 220.98 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 220.98 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Mounting Hole without connection"
+			(at 220.98 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "H7")
 					(unit 1)
 				)
 			)
@@ -14893,6 +15602,99 @@
 			(project "BlockRelay"
 				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
 					(reference "U5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED_Small_Filled")
+		(at 76.2 151.13 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "6f77c669-91d5-4568-a90e-94b5684a59c8")
+		(property "Reference" "D28"
+			(at 73.152 148.844 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "Yellow LED"
+			(at 78.74 152.3364 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_1206_3216Metric_Pad1.42x1.75mm_HandSolder"
+			(at 76.2 151.13 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 76.2 151.13 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Light emitting diode, small symbol, filled shape"
+			(at 76.2 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 76.2 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "99e55313-ca5e-44b9-84e1-774340e91226")
+		)
+		(pin "1"
+			(uuid "7347551a-a41b-492e-b8f1-5531e3b8f689")
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "D28")
 					(unit 1)
 				)
 			)
@@ -15773,6 +16575,180 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:LED_Small_Filled")
+		(at 106.68 151.13 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "8380ea66-ba34-46e4-95ec-313d6f273306")
+		(property "Reference" "D31"
+			(at 103.632 148.844 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "Yellow LED"
+			(at 109.22 152.3364 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_1206_3216Metric_Pad1.42x1.75mm_HandSolder"
+			(at 106.68 151.13 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 106.68 151.13 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Light emitting diode, small symbol, filled shape"
+			(at 106.68 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 106.68 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "9956fe38-a54d-4c96-8299-63e389468ffe")
+		)
+		(pin "1"
+			(uuid "c0990802-53b2-44fc-8b07-7c960800e02a")
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "D31")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small")
+		(at 106.68 156.21 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "85a86417-a61c-4e72-9b4f-405b8ece85b8")
+		(property "Reference" "R27"
+			(at 104.902 157.48 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2K2"
+			(at 106.68 157.226 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 0.762 0.762)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+			(at 106.68 156.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 106.68 156.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 106.68 156.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "4667638c-84b6-4dfd-8caa-f28adffc8f94")
+		)
+		(pin "1"
+			(uuid "fee6ba67-c4dc-4280-b895-9b03762fd449")
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "R27")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R_Small")
 		(at 251.46 95.25 90)
 		(unit 1)
@@ -15848,6 +16824,180 @@
 			(project "BlockRelay"
 				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
 					(reference "R8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small")
+		(at 86.36 156.21 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "86b88bbc-6cd6-453b-9307-e032dca6ee9a")
+		(property "Reference" "R23"
+			(at 84.582 157.48 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2K2"
+			(at 86.36 157.226 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 0.762 0.762)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+			(at 86.36 156.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 86.36 156.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 86.36 156.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "9f805b70-8bdc-424f-8bfb-d1b4474bdbf7")
+		)
+		(pin "1"
+			(uuid "ebbe2bc0-f5b6-438a-877b-87553caf0530")
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "R23")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED_Small_Filled")
+		(at 86.36 151.13 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "89c41031-9a36-4dac-91c2-afa704b1a692")
+		(property "Reference" "D29"
+			(at 83.312 148.844 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "Yellow LED"
+			(at 88.9 152.3364 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_1206_3216Metric_Pad1.42x1.75mm_HandSolder"
+			(at 86.36 151.13 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 86.36 151.13 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Light emitting diode, small symbol, filled shape"
+			(at 86.36 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 86.36 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "8a3545af-a8a5-480a-8048-8fbc371bd8aa")
+		)
+		(pin "1"
+			(uuid "39fd333d-07b3-489a-b50c-6a6732f5eff8")
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "D29")
 					(unit 1)
 				)
 			)
@@ -16218,6 +17368,87 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
+		(at 71.12 151.13 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "91962170-51f7-459b-beae-fcb722b1ed7f")
+		(property "Reference" "R20"
+			(at 69.342 152.4 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "27K"
+			(at 71.12 152.146 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 0.762 0.762)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+			(at 71.12 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 71.12 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 71.12 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "a5296d85-5c13-4344-9f4a-afe95acd1a31")
+		)
+		(pin "1"
+			(uuid "6f07057e-47fd-46b2-815c-f9518ad3de5d")
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "R20")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small")
 		(at 233.68 64.77 90)
 		(unit 1)
 		(body_style 1)
@@ -16292,6 +17523,83 @@
 			(project "BlockRelay"
 				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
 					(reference "R4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+5V")
+		(at 96.52 148.59 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "9342b995-aea7-4ad6-9457-80e58da96b76")
+		(property "Reference" "#PWR044"
+			(at 96.52 152.4 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+5V"
+			(at 96.52 144.78 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 96.52 148.59 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 96.52 148.59 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+5V\""
+			(at 96.52 148.59 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "c6054c63-ffdb-4621-9197-eb3ea832d5a8")
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "#PWR044")
 					(unit 1)
 				)
 			)
@@ -17252,6 +18560,83 @@
 			(project "BlockRelay"
 				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
 					(reference "R12")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 195.58 167.64 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a1bf142e-8104-4fcd-aa2c-044e575837a6")
+		(property "Reference" "H10"
+			(at 198.12 167.6399 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 198.12 168.9099 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3"
+			(at 195.58 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 195.58 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Mounting Hole without connection"
+			(at 195.58 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "H10")
 					(unit 1)
 				)
 			)
@@ -18803,6 +20188,83 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+5V")
+		(at 86.36 148.59 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "c97493b0-2082-4853-b318-5b71c7c06bd6")
+		(property "Reference" "#PWR043"
+			(at 86.36 152.4 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+5V"
+			(at 86.36 144.78 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 86.36 148.59 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 86.36 148.59 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+5V\""
+			(at 86.36 148.59 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "4d1acaf6-eee9-405b-977f-0bfd52458314")
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "#PWR043")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R_Small")
 		(at 199.39 64.77 90)
 		(unit 1)
@@ -18878,6 +20340,83 @@
 			(project "BlockRelay"
 				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
 					(reference "R3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+5V")
+		(at 76.2 148.59 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "cbd5b632-7890-47c0-bf4f-c6a613b639fb")
+		(property "Reference" "#PWR042"
+			(at 76.2 152.4 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+5V"
+			(at 76.2 144.78 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 76.2 148.59 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 76.2 148.59 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+5V\""
+			(at 76.2 148.59 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "67edc641-286a-423f-86e3-38e44d5bbc10")
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "#PWR042")
 					(unit 1)
 				)
 			)
@@ -19135,6 +20674,87 @@
 			(project "BlockRelay"
 				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
 					(reference "#PWR038")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small")
+		(at 81.28 151.13 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "d03cf4ad-02ad-4750-a788-5886f7d1fee8")
+		(property "Reference" "R22"
+			(at 79.502 152.4 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "27K"
+			(at 81.28 152.146 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 0.762 0.762)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+			(at 81.28 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 81.28 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 81.28 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "49745719-b016-4540-bbab-2dff447399e7")
+		)
+		(pin "1"
+			(uuid "11683cb8-3dc3-485d-a797-4e8fae007681")
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "R22")
 					(unit 1)
 				)
 			)
@@ -20197,6 +21817,87 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
+		(at 96.52 156.21 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "eb1a2d5a-768b-4ae8-bd1d-d4546e8109ea")
+		(property "Reference" "R25"
+			(at 94.742 157.48 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2K2"
+			(at 96.52 157.226 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 0.762 0.762)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+			(at 96.52 156.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 96.52 156.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 96.52 156.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "15699586-e788-4bbe-9154-a6252cb23705")
+		)
+		(pin "1"
+			(uuid "ad395dec-39b1-4038-8c16-29e3bb68295b")
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "R25")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small")
 		(at 233.68 123.19 90)
 		(unit 1)
 		(body_style 1)
@@ -20563,6 +22264,83 @@
 		)
 	)
 	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 213.36 167.64 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "f0632636-e318-4bc8-8524-948fef72679f")
+		(property "Reference" "H8"
+			(at 215.9 167.6399 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 215.9 168.9099 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3"
+			(at 213.36 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 213.36 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Mounting Hole without connection"
+			(at 213.36 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "H8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:D_Schottky_AKA")
 		(at 55.88 109.22 180)
 		(unit 1)
@@ -20719,6 +22497,176 @@
 			(project "BlockRelay"
 				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
 					(reference "#PWR029")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED_Small_Filled")
+		(at 96.52 151.13 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "f8c58de1-95bb-4037-ab77-a41469389b09")
+		(property "Reference" "D30"
+			(at 93.472 148.844 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "Yellow LED"
+			(at 99.06 152.3364 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_1206_3216Metric_Pad1.42x1.75mm_HandSolder"
+			(at 96.52 151.13 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 96.52 151.13 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Light emitting diode, small symbol, filled shape"
+			(at 96.52 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 96.52 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "967b0ea5-70cd-48a8-bda0-d6962377fa42")
+		)
+		(pin "1"
+			(uuid "dfedcbe0-5d9b-4d66-a70b-047be85f8c1e")
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "D30")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+5V")
+		(at 106.68 148.59 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "f8c74187-965f-4251-8f55-45d4b92a52e4")
+		(property "Reference" "#PWR045"
+			(at 106.68 152.4 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+5V"
+			(at 106.68 144.78 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 106.68 148.59 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 106.68 148.59 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+5V\""
+			(at 106.68 148.59 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "4084cae0-47b2-4ab6-b8e7-0b04de4b2abe")
+		)
+		(instances
+			(project "BlockRelay"
+				(path "/33772ae0-2807-4daa-a27e-fa73edf65e0f"
+					(reference "#PWR045")
 					(unit 1)
 				)
 			)
