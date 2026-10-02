@@ -43,11 +43,11 @@
           "height": 3.2,
           "width": 3.2
         },
-        "silk_line_width": 0.1,
+        "silk_line_width": 0.1778,
         "silk_text_italic": false,
-        "silk_text_size_h": 1.0,
-        "silk_text_size_v": 1.0,
-        "silk_text_thickness": 0.1,
+        "silk_text_size_h": 1.524,
+        "silk_text_size_v": 1.524,
+        "silk_text_thickness": 0.254,
         "silk_text_upright": false,
         "zones": {
           "border_display_style": 2,
@@ -61,7 +61,7 @@
           "hatch_smoothing_value": 0.1,
           "hatch_thickness": 1.0,
           "min_clearance": 0.5,
-          "min_island_area": 10.0,
+          "min_island_area": 9.9999993548,
           "min_thickness": 0.25,
           "pad_connection": 1,
           "remove_islands": 0,
@@ -69,7 +69,13 @@
           "thermal_relief_spoke_width": 0.5
         }
       },
-      "diff_pair_dimensions": [],
+      "diff_pair_dimensions": [
+        {
+          "gap": 0.0,
+          "via_gap": 0.0,
+          "width": 0.0
+        }
+      ],
       "drc_exclusions": [],
       "meta": {
         "version": 2
@@ -203,7 +209,17 @@
           "td_width_to_size_filter_ratio": 0.9
         }
       ],
-      "track_widths": [],
+      "track_widths": [
+        0.0,
+        0.2032,
+        0.3048,
+        0.508,
+        0.635,
+        1.016,
+        1.524,
+        2.032,
+        2.54
+      ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
           "corner_radius_percentage": 80,
@@ -230,7 +246,16 @@
           "spacing": 0.6
         }
       },
-      "via_dimensions": [],
+      "via_dimensions": [
+        {
+          "diameter": 0.0,
+          "drill": 0.0
+        },
+        {
+          "diameter": 1.27,
+          "drill": 0.635
+        }
+      ],
       "zones_allow_external_fillets": false
     },
     "ipc2581": {
@@ -524,7 +549,7 @@
     "last_paths": {
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "Fab/",
       "specctra_dsn": "",
       "step": "",
       "vrml": ""
@@ -661,7 +686,7 @@
         "uuid": "33772ae0-2807-4daa-a27e-fa73edf65e0f"
       }
     ],
-    "used_designators": "H1-10,R1-27,C1-16,Q1-6,#PWR1-45,D1-31,U1-5,J1-3,K1-6",
+    "used_designators": "H1-10,R1-27,C1-16,Q1-6,#PWR1-45,D1-31,U1-5,J1-4,K1-6",
     "variants": []
   },
   "sheets": [
